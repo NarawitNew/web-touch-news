@@ -1,25 +1,23 @@
-import logo from './logo.svg';
-import './App.css';
+import React from "react";
+import { Layout } from 'antd';
+import { BrowserRouter as Router } from "react-router-dom";
+import Header from 'components/layout/header/index';
+import Sider from 'components/layout/sider/index';
+import Content from 'components/router/index';
 
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <Layout breakpoint='lg' style={{ minHeight: '100vh' }} >
+      <Header></Header>
+      <Layout>
+      <Router>
+        <Sider></Sider>
+        <Layout style={{ padding: '0 24px 24px' }}>
+          <Content></Content>
+        </Layout>
+        </Router>
+      </Layout>
+    </Layout>
   );
 }
-
 export default App;
