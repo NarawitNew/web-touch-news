@@ -1,9 +1,10 @@
-import React from 'react';
+import React, { useState } from "react";
 import { Link } from "react-router-dom";
-import { Layout, Breadcrumb, Row, Col, Input, Select, Dropdown,Menu  } from 'antd';
-import { UnorderedListOutlined, TeamOutlined, SendOutlined, MoreOutlined  } from '@ant-design/icons';
+import { Layout, Breadcrumb, Row, Col, Input, Select, Dropdown, Menu } from 'antd';
+import { UnorderedListOutlined, TeamOutlined, SendOutlined, MoreOutlined, DeleteOutlined, FieldTimeOutlined } from '@ant-design/icons';
 
 import Tables from 'components/layout/table/index'
+import Modals from 'components/layout/modal/index'
 
 const { Content } = Layout;
 const { Search } = Input;
@@ -12,35 +13,70 @@ const { Option } = Select;
 
 const data = [{
   date: '07/01/2021',
-  topic:'ข่าว',
+  topic: 'ข่าว',
   admin: 'new',
-  category:'การเมือง',
-  status:'ส่ง',
+  category: 'การเมือง',
+  status: 'ส่ง',
 }
 ];
 
-const menu = (
-  <Menu>
-    <Menu.Item>
-      <a target="_blank" rel="noopener noreferrer" href="http://www.alipay.com/">
-        1st menu item
-      </a>
-    </Menu.Item>
-    <Menu.Item>
-      <a target="_blank" rel="noopener noreferrer" href="http://www.taobao.com/">
-        2nd menu item
-      </a>
-    </Menu.Item>
-    <Menu.Item>
-      <a target="_blank" rel="noopener noreferrer" href="http://www.tmall.com/">
-        3rd menu item
-      </a>
-    </Menu.Item>
-    <Menu.Item danger>a danger item</Menu.Item>
-  </Menu>
-);
 
-const home = () => {
+
+const Home = () => {
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [modalData, setmodalData] = useState({ type: '', icon: null, title: '', cancelButton: '', okButton: null, email: '', okText: '' });
+
+  const onTimeline = (value) => {
+    setmodalData({
+      type: '',
+      icon: <FieldTimeOutlined className="manage-Icon-insert" />,
+      cancelButton: 'none',
+      okButton: { backgroundColor: 'white', color: '#216258', borderColor: '#216258' },
+      title: 'ไทม์ไลน์',
+      okText: 'ตกลง',
+      email: value.email
+    })
+    showModal()
+  }
+
+  const onDelete = () => {
+    setmodalData({
+      type: 'confirm',
+      icon: <DeleteOutlined className="manage-Icon-delete" />,
+      title: 'คุณต้องการลบข่าวนี้ หรือไม่ ! ',
+      cancelButton: '',
+      okButton: { backgroundColor: 'white', color: 'red', borderColor: 'red' },
+      okText: 'ลบ',
+      email: '',
+    })
+    showModal()
+  }
+
+  const showModal = () => {
+    setIsModalVisible(true)
+  };
+
+  const handleOk = () => {
+    setIsModalVisible(false)
+  };
+
+  const handleCancel = () => {
+    setIsModalVisible(false)
+  };
+
+  const menu = (
+    <Menu>
+      <Menu.Item onClick={onTimeline}>
+        <FieldTimeOutlined></FieldTimeOutlined>
+          ไทม์ไลน์
+      </Menu.Item>
+      <Menu.Item>
+        <DeleteOutlined onClick={onDelete}></DeleteOutlined>
+          ลบ
+      </Menu.Item>
+    </Menu>
+  );
+
   const columns = [
     {
       title: 'วันที่',
@@ -72,7 +108,7 @@ const home = () => {
       title: '',
       width: '5%',
       key: 'action',
-      render: (text, record) => (<Dropdown overlay={menu}><MoreOutlined/></Dropdown>),
+      render: (text, record) => (<Dropdown overlay={menu}><MoreOutlined /></Dropdown>),
     }
   ];
   return (
@@ -142,8 +178,14 @@ const home = () => {
           columns={columns}
           dataSource={data}
         />
+        <Modals
+          isModalVisible={isModalVisible}
+          onOk={handleOk}
+          onCancel={handleCancel}
+          modalData={modalData}
+        />
       </Content>
     </>
   );
 }
-export default home
+export default Home
