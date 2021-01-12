@@ -1,9 +1,18 @@
-import { Layout, Breadcrumb, Image, Row, Col, Select, Input, Avatar, Button, Upload } from 'antd'
+import React, { useState } from "react";
+import { Layout, Breadcrumb, Image, Row, Col, Select, Input, Button } from 'antd'
+
+import Timeline from 'components/layout/timeline/index'
 
 const { Content } = Layout
 const { Option } = Select;
+const { TextArea } = Input;
 
 const View = (props) => {
+    const [statusNews, setstatusNews] = useState('Submit'); //(Draft/Submit/Approve/Public)
+
+    const onStatusNews = (value) => {
+        setstatusNews(value)
+    }
     return (
         <>
             <Breadcrumb style={{ margin: '4px 0' }}>
@@ -26,30 +35,49 @@ const View = (props) => {
                 </Row>
                 <Row>แฮกแทร็ก</Row>
                 <Row>เครดิต</Row>
-                <Row>ดูแล</Row>
+                <Row>ผู้ดูแล</Row>
                 <hr />
                 <Row>
                     <Col span={12}>
-                        <div>ไทม์ไลน์</div>
-                        <p>!</p>
-                        <p>!</p>
-                        <p>!</p>
-                        <p>!</p>
-                        <p>!</p>
-                        <p>!</p>
+                        <h3>ไทม์ไลน์</h3>
+                        <div style={{ width: "180px", marginTop: '20px' }}>
+                            <Timeline></Timeline>
+                        </div>
                     </Col>
-                    <Col span={12}>
-                        <div>เปลี่ยนสถานะข่าว</div>
-                        <Input.Group >
-                            สถานะ :
-                            <Select defaultValue="1" className="view-Button">
-                                <Option value="1">ส่ง</Option>
-                                <Option value="2">ร่าง</Option>
-                            </Select>
-                        </Input.Group>
+                    <Col span={12} >
+                        <h3>เปลี่ยนสถานะข่าว</h3>
+                        <Row style={{ marginTop: '20px' }}>
+                            <Col span={4} >
+                                สถานะ :
+                            </Col>
+                            <Col span={20}>
+                                <Input.Group>
+                                    <Select defaultValue={statusNews} onChange={onStatusNews} className="view-Input-Group">
+                                        <Option value="Submit">ส่ง</Option>
+                                        <Option value="Draft">ร่าง</Option>
+                                        <Option value="Approve">อนุมัติ</Option>
+                                        <Option value="Public">สาธารณะ</Option>
+                                    </Select>
+                                </Input.Group>
+                            </Col>
+                        </Row>
+                        <Row>
+                            <Col span={20} offset={4}>
+                                {statusNews === 'Draft' ?
+                                    <><div className="view-Input-TextArea">
+                                        <div style={{ color: 'red' }}>*กรุณากรอกสิ่งที่ต้องแก้ไข</div>
+                                        <TextArea rows={1} />
+
+                                    </div>
+                                    </>
+                                    : <></>
+                                }
+                            </Col>
+
+                        </Row>
                     </Col>
                 </Row>
-                <Row justify="end">
+                <Row justify="end" style={{ marginTop: '20px' }}>
                     <Button type="primary" ghost className="view-Button">บันทึก</Button>
                     <Button className="view-Button">ลบ</Button>
                     <Button className="view-Button">ยกเลิก</Button>

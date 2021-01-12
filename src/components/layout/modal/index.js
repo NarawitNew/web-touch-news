@@ -19,9 +19,9 @@ const Modals = (props) => {
                     <p style={{ color: 'red', paddingLeft: '40px' }}>*ระบบจะแสดงข้อมูลเพียงครั้งเดียว*</p>
                 </>
                 :
-                <>
-                    <p style={{ paddingLeft: '100px' }}>{props.modalData.email}</p>
-                </>}
+                <div style={{ paddingLeft: '100px' }}>
+                    {props.modalData.email}
+                </div>}
         </Modal>
 
     );

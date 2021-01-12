@@ -5,6 +5,8 @@ import { UnorderedListOutlined, TeamOutlined, SendOutlined, MoreOutlined, Delete
 
 import Tables from 'components/layout/table/index'
 import Modals from 'components/layout/modal/index'
+import Timeline from 'components/layout/timeline/index'
+
 
 const { Content } = Layout;
 const { Search } = Input;
@@ -24,7 +26,7 @@ const data = [{
 
 const Home = () => {
   const [isModalVisible, setIsModalVisible] = useState(false);
-  const [modalData, setmodalData] = useState({ type: '', icon: null, title: '', cancelButton: '', okButton: null, email: '', okText: '' });
+  const [modalData, setmodalData] = useState({ type: '', icon: null, title: '', cancelButton: '', okButton: null, email: null, okText: '' });
 
   const onTimeline = (value) => {
     setmodalData({
@@ -34,7 +36,7 @@ const Home = () => {
       okButton: { backgroundColor: 'white', color: '#216258', borderColor: '#216258' },
       title: 'ไทม์ไลน์',
       okText: 'ตกลง',
-      email: value.email
+      email: <div style={{width:'180px'}}><Timeline/></div>
     })
     showModal()
   }
@@ -64,18 +66,21 @@ const Home = () => {
     setIsModalVisible(false)
   };
 
-  const menu = (
-    <Menu>
-      <Menu.Item onClick={onTimeline}>
-        <FieldTimeOutlined></FieldTimeOutlined>
+  const menu = () => {
+    return (
+      <Menu>
+        <Menu.Item onClick={onTimeline}>
+          <FieldTimeOutlined style={{ color: '#6AC9FF' }}></FieldTimeOutlined>
           ไทม์ไลน์
       </Menu.Item>
-      <Menu.Item>
-        <DeleteOutlined onClick={onDelete}></DeleteOutlined>
+        <Menu.Item onClick={onDelete}>
+          <DeleteOutlined style={{ color: 'red' }}></DeleteOutlined>
           ลบ
       </Menu.Item>
-    </Menu>
-  );
+      </Menu>
+    );
+
+  }
 
   const columns = [
     {
@@ -108,7 +113,7 @@ const Home = () => {
       title: '',
       width: '5%',
       key: 'action',
-      render: (text, record) => (<Dropdown overlay={menu}><MoreOutlined /></Dropdown>),
+      render: (text, record) => (<Dropdown placement="bottomRight" overlay={menu}><MoreOutlined /></Dropdown>),
     }
   ];
   return (
