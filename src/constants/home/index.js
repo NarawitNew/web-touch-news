@@ -15,7 +15,7 @@ const { Option } = Select;
 
 const data = [{
   date: '07/01/2021',
-  topic: 'ข่าว',
+  topic: 'ตร.ค้นโกดังย่านฉลองกรุง ยังไม่พบผิด เร่งเช็กภาพโต๊ะบาคาร่า ตัดต่อหรือไม่',
   admin: 'new',
   category: 'การเมือง',
   status: 'ส่ง',
@@ -92,7 +92,7 @@ const Home = () => {
       title: 'หัวข้อ',
       // dataIndex: 'topic',
       key: 'topic',
-      render: (text, record) => (<Link to="/home/view">{record.topic}</Link>),
+      render: (text, record) => (<Link to="/home/view" style={{color:'#000'}}>{record.topic}</Link>),
     },
     {
       title: 'ผู้ดูแลระบบ',
