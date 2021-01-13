@@ -1,12 +1,11 @@
+import { Breadcrumb, Col, Dropdown, Input, Layout, Menu, Row, Select } from 'antd';
+import { DeleteOutlined, FieldTimeOutlined, MoreOutlined, SendOutlined, TeamOutlined, UnorderedListOutlined } from '@ant-design/icons';
 import React, { useState } from "react";
+
 import { Link } from "react-router-dom";
-import { Layout, Breadcrumb, Row, Col, Input, Select, Dropdown, Menu } from 'antd';
-import { UnorderedListOutlined, TeamOutlined, SendOutlined, MoreOutlined, DeleteOutlined, FieldTimeOutlined } from '@ant-design/icons';
-
-import Tables from 'components/layout/table/index'
 import Modals from 'components/layout/modal/index'
+import Tables from 'components/layout/table/index'
 import Timeline from 'components/layout/timeline/index'
-
 
 const { Content } = Layout;
 const { Search } = Input;
@@ -49,7 +48,7 @@ const Home = () => {
       cancelButton: '',
       okButton: { backgroundColor: 'white', color: 'red', borderColor: 'red' },
       okText: 'ลบ',
-      email: '',
+      email: 'asdfghjk',
     })
     showModal()
   }
