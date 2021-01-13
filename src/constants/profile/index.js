@@ -1,8 +1,8 @@
+import { Avatar, Breadcrumb, Button, Col, Form, Input, Layout, Row, Upload } from 'antd'
+import { ExclamationCircleOutlined, KeyOutlined } from '@ant-design/icons';
 import React, { useState } from "react"
-import { Link } from "react-router-dom";
-import { Layout, Breadcrumb, Form, Row, Col, Avatar, Button, Input, Upload } from 'antd'
-import { KeyOutlined, ExclamationCircleOutlined } from '@ant-design/icons';
 
+import { Link } from "react-router-dom";
 import Modals from 'components/layout/modal/index'
 
 const { Content } = Layout
@@ -18,7 +18,7 @@ const layout = {
 const Profile = (props) => {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [Showpass, setShowpass] = useState(false)
-  const [modalData, setmodalData] = useState({ type: '', icon: null, title: '', cancelButton: '', okButton: null, email: '', okText: '' });
+  const [modalData, setModalData] = useState({ type: '', icon: null, title: '', okColor: '', content: '', okText: '' });
 
   const onPasswdr = () => {
     console.log('pass')
@@ -26,22 +26,21 @@ const Profile = (props) => {
   }
 
   const onNewPassword = () => {
-    setmodalData({
+    setModalData({
       type: 'confirm',
-      icon: <ExclamationCircleOutlined className="manage-Icon-edit" />,
+      icon: <ExclamationCircleOutlined className="manage-icon-edit" />,
       title: 'ยืนยันการสร้างรหัสผ่านใหม่',
-      cancelButton: '',
-      okButton: { backgroundColor: 'white', color: 'orange', borderColor: 'orange' },
+      okColor: 'orange',
       okText: 'ตกลง',
-      email: 'คุณต้องการยืนยันการสร้างรหัสใหม่นี้หรือไม่ !!! ',
+      content: 'คุณต้องการยืนยันการสร้างรหัสใหม่นี้หรือไม่ !!! '
     })
     showModal()
   }
 
   const newPassword = () => {
-    setmodalData({
+    setModalData({
       type: 'show',
-      icon: <KeyOutlined className="manage-Icon-edit" />,
+      icon: <KeyOutlined className="manage-icon-edit" />,
       cancelButton: 'none',
       okButton: { backgroundColor: 'white', color: '#216258', borderColor: '#216258' },
       title: 'เพิ่มผู้ดูแลระบบใหม่',
@@ -72,7 +71,7 @@ const Profile = (props) => {
             <Breadcrumb.Item>โปรไฟล์</Breadcrumb.Item>
           </>
           :
-            <Breadcrumb.Item>โปรไฟล์</Breadcrumb.Item>
+          <Breadcrumb.Item>โปรไฟล์</Breadcrumb.Item>
         }
       </Breadcrumb>
       <Content className="content-layout-background">
@@ -123,15 +122,15 @@ const Profile = (props) => {
               <Form.Item className="profile-Right">
                 {props.type === 'manage' ?
                   <>
-                    <Button type="primary" ghost>บันทึก</Button>
+                    <Button className="profile-button" type="primary" ghost>บันทึก</Button>
                     <Link to="/manage">
-                      <Button style={{ marginLeft: '10px' }}>ยกเลิก</Button>
+                      <Button  className="profile-button" style={{ marginLeft: '10px' }}>ยกเลิก</Button>
                     </Link>
                   </>
                   :
                   <>
-                    <Button type="primary" ghost>บันทึก</Button>
-                    <Button style={{ marginLeft: '10px' }}>ยกเลิก</Button>
+                    <Button  className="profile-button" type="primary" ghost>บันทึก</Button>
+                    <Button  className="profile-button" style={{ marginLeft: '10px' }}>ยกเลิก</Button>
                   </>
                 }
               </Form.Item>
@@ -139,12 +138,21 @@ const Profile = (props) => {
           </Col>
         </Row>
       </Content>
+      {/* <Modals
+        isModalVisible={isModalVisible}
+        onOk={handleOk}
+        onCancel={handleCancel}
+        modalData={modalData}
+      ></Modals> */}
+
       <Modals
         isModalVisible={isModalVisible}
         onOk={handleOk}
         onCancel={handleCancel}
         modalData={modalData}
-      ></Modals>
+      >
+          <p style={{ marginLeft: '80px' }}>{modalData.content}</p>
+      </Modals>
     </>
   );
 }
