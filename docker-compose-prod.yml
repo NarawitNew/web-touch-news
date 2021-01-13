@@ -4,5 +4,10 @@ services:
     container_name: web-touch-news
     image: web-touch-news:prod
     ports:
-      - '3000:3000'
+      - '5000:5000'
     restart: always
+
+networks:
+  default:
+    external:
+      name: intern-network
