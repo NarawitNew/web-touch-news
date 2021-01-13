@@ -3,7 +3,7 @@ import { Table } from 'antd'
 const Tables = (props) => {
     return (
         <>
-            <Table columns={props.columns} dataSource={props.dataSource} style={{ marginTop: '10px' }} />
+            <Table pagination={false} columns={props.columns} dataSource={props.dataSource} style={{ marginTop: '10px' }} />
         </>
     );
 }

@@ -1,12 +1,11 @@
+import { Breadcrumb, Col, Dropdown, Input, Layout, Menu, Row, Select } from 'antd';
+import { DeleteOutlined, FieldTimeOutlined, MoreOutlined, SendOutlined, TeamOutlined, UnorderedListOutlined } from '@ant-design/icons';
 import React, { useState } from "react";
+
 import { Link } from "react-router-dom";
-import { Layout, Breadcrumb, Row, Col, Input, Select, Dropdown, Menu } from 'antd';
-import { UnorderedListOutlined, TeamOutlined, SendOutlined, MoreOutlined, DeleteOutlined, FieldTimeOutlined } from '@ant-design/icons';
-
-import Tables from 'components/layout/table/index'
 import Modals from 'components/layout/modal/index'
+import Tables from 'components/layout/table/index'
 import Timeline from 'components/layout/timeline/index'
-
 
 const { Content } = Layout;
 const { Search } = Input;
@@ -15,7 +14,7 @@ const { Option } = Select;
 
 const data = [{
   date: '07/01/2021',
-  topic: 'ข่าว',
+  topic: 'ตร.ค้นโกดังย่านฉลองกรุง ยังไม่พบผิด เร่งเช็กภาพโต๊ะบาคาร่า ตัดต่อหรือไม่',
   admin: 'new',
   category: 'การเมือง',
   status: 'ส่ง',
@@ -49,7 +48,7 @@ const Home = () => {
       cancelButton: '',
       okButton: { backgroundColor: 'white', color: 'red', borderColor: 'red' },
       okText: 'ลบ',
-      email: '',
+      email: 'asdfghjk',
     })
     showModal()
   }
@@ -92,7 +91,7 @@ const Home = () => {
       title: 'หัวข้อ',
       // dataIndex: 'topic',
       key: 'topic',
-      render: (text, record) => (<Link to="/home/view">{record.topic}</Link>),
+      render: (text, record) => (<Link to="/home/view" style={{color:'#000'}}>{record.topic}</Link>),
     },
     {
       title: 'ผู้ดูแลระบบ',
