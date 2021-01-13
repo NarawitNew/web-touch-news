@@ -1,9 +1,11 @@
-import React from 'react'
-import { BrowserRouter as Router, Switch, Route } from 'react-router-dom'
-import App from './App'
 import 'App.less';
-import { createBrowserHistory } from 'history'
+
+import { Route, BrowserRouter as Router, Switch } from 'react-router-dom'
+
+import App from './App'
 import Login from 'pages/login/index'
+import React from 'react'
+import { createBrowserHistory } from 'history'
 
 const customHistory = createBrowserHistory()
 

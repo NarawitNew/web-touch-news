@@ -45,5 +45,17 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "importSort": {
+    ".js, .jsx, .es6, .es": {
+      "parser": "babylon",
+      "style": "eslint",
+      "options": {}
+    },
+    ".ts, .tsx": {
+      "parser": "typescript",
+      "style": "eslint",
+      "options": {}
+    }
   }
 }
