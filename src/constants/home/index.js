@@ -4,6 +4,7 @@ import React, { useState } from "react";
 
 import { Link } from "react-router-dom";
 import Modals from 'components/layout/modal/index'
+import Pagination from 'components/layout/pagination/index'
 import Tables from 'components/layout/table/index'
 import Timeline from 'components/layout/timeline/index'
 
@@ -25,30 +26,28 @@ const data = [{
 
 const Home = () => {
   const [isModalVisible, setIsModalVisible] = useState(false);
-  const [modalData, setmodalData] = useState({ type: '', icon: null, title: '', cancelButton: '', okButton: null, email: null, okText: '' });
+  const [modalData, setModalData] = useState({ type: '', icon: null, title: '', okColor: '', content: null, okText: '' });
 
   const onTimeline = (value) => {
-    setmodalData({
-      type: '',
-      icon: <FieldTimeOutlined className="manage-Icon-insert" />,
-      cancelButton: 'none',
-      okButton: { backgroundColor: 'white', color: '#216258', borderColor: '#216258' },
+    setModalData({
+      type: 'show',
+      icon: <FieldTimeOutlined className="manage-icon-insert" />,
       title: 'ไทม์ไลน์',
+      okColor: '#216258',
       okText: 'ตกลง',
-      email: <div style={{width:'180px'}}><Timeline/></div>
+      content: <div style={{ width: '180px' }}><Timeline /></div>
     })
     showModal()
   }
 
-  const onDelete = () => {
-    setmodalData({
+  const onDelete = (topic,e) => {
+    setModalData({
       type: 'confirm',
-      icon: <DeleteOutlined className="manage-Icon-delete" />,
+      icon: <DeleteOutlined className="manage-icon-delete" />,
       title: 'คุณต้องการลบข่าวนี้ หรือไม่ ! ',
-      cancelButton: '',
-      okButton: { backgroundColor: 'white', color: 'red', borderColor: 'red' },
+      okColor: 'red',
       okText: 'ลบ',
-      email: 'asdfghjk',
+      content: topic,
     })
     showModal()
   }
@@ -65,14 +64,17 @@ const Home = () => {
     setIsModalVisible(false)
   };
 
-  const menu = () => {
+  const onPagination = (page) => {
+    console.log(page);
+  };
+  const menu = (topic) => {
     return (
       <Menu>
         <Menu.Item onClick={onTimeline}>
           <FieldTimeOutlined style={{ color: '#6AC9FF' }}></FieldTimeOutlined>
           ไทม์ไลน์
       </Menu.Item>
-        <Menu.Item onClick={onDelete}>
+        <Menu.Item onClick={(e) => { onDelete(topic, e); }}>
           <DeleteOutlined style={{ color: 'red' }}></DeleteOutlined>
           ลบ
       </Menu.Item>
@@ -91,7 +93,9 @@ const Home = () => {
       title: 'หัวข้อ',
       // dataIndex: 'topic',
       key: 'topic',
-      render: (text, record) => (<Link to="/home/view" style={{color:'#000'}}>{record.topic}</Link>),
+      width: '50%',
+      ellipsis: true,
+      render: (text, record) => (<Link to="/home/view"  style={{ color: '#000' }}>{record.topic}</Link>),
     },
     {
       title: 'ผู้ดูแลระบบ',
@@ -112,7 +116,7 @@ const Home = () => {
       title: '',
       width: '5%',
       key: 'action',
-      render: (text, record) => (<Dropdown placement="bottomRight" overlay={menu}><MoreOutlined /></Dropdown>),
+      render: (text, record) => (<Dropdown placement="bottomRight" overlay={menu(record.topic)}><MoreOutlined /></Dropdown>),
     }
   ];
   return (
@@ -182,12 +186,23 @@ const Home = () => {
           columns={columns}
           dataSource={data}
         />
-        <Modals
-          isModalVisible={isModalVisible}
-          onOk={handleOk}
-          onCancel={handleCancel}
-          modalData={modalData}
+        <Pagination
+          defaultCurrent={1}
+          total={100}
+          onChange={onPagination}
         />
+        <Modals
+        isModalVisible={isModalVisible}
+        onOk={handleOk}
+        onCancel={handleCancel}
+        modalData={modalData}
+      >
+        {modalData.type === 'show'? 
+        <div style={{marginLeft:'100px'}}>{modalData.content}</div>
+        :
+        <p style={{marginLeft:'80px'}} className="text-overflow">{modalData.content}</p>
+        }
+      </Modals>
       </Content>
     </>
   );

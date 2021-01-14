@@ -1,10 +1,11 @@
-import { Breadcrumb, Button, Col, Form, Input, Layout, Pagination, Row, Space, Switch, Tooltip } from 'antd';
+import { Breadcrumb, Button, Col, Form, Input, Layout, Row, Space, Switch, Tooltip } from 'antd';
 import { DeleteOutlined, EditOutlined, ExclamationCircleOutlined, PlusOutlined, UserOutlined } from '@ant-design/icons';
-import React, { useState } from "react";
+import React, { useState } from "react"
 
-import { Link } from "react-router-dom";
-import Modals from 'components/layout/modal/index';
-import Tables from 'components/layout/table/index';
+import { Link } from "react-router-dom"
+import Modals from 'components/layout/modal/index'
+import Pagination from 'components/layout/pagination/index'
+import Tables from 'components/layout/table/index'
 
 const { Search } = Input;
 const { Content } = Layout;
@@ -38,7 +39,7 @@ const Manage = () => {
   const [dataTest, setDataTest] = useState({ dataAdmin: data, page: '5' })
   const [dataSource, setDataSource] = useState(dataTest.dataAdmin);
   const [isModalVisible, setIsModalVisible] = useState(false);
-  const [modalData, setModalData] = useState({ type: '', icon: null, title: '', cancelButton: '', okButton: null, email: '', okText: '' });
+  const [modalData, setModalData] = useState({ type: '', icon: null, title: '', okColor: '', content: '', okText: '' });
 
   const onInsert = (value) => {
     // const datA = dataTest.dataAdmin
@@ -55,11 +56,10 @@ const Manage = () => {
     setModalData({
       type: 'show',
       icon: <UserOutlined className="manage-icon-insert" />,
-      cancelButton: 'none',
-      okButton: { backgroundColor: 'white', color: '#216258', borderColor: '#216258' },
       title: 'เพิ่มผู้ดูแลระบบใหม่',
+      okColor: '#216258',
       okText: 'ตกลง',
-      email: value.email
+      content: value.email
     })
     showModal()
   }
@@ -69,10 +69,9 @@ const Manage = () => {
       type: 'confirm',
       icon: <DeleteOutlined className="manage-icon-delete" />,
       title: 'คุณต้องการลบผู้ดูแลระบบนี้ หรือไม่ ! ',
-      cancelButton: '',
-      okButton: { backgroundColor: 'white', color: 'red', borderColor: 'red' },
+      okColor: 'red',
       okText: 'ลบ',
-      email: email,
+      content: email,
     })
     showModal()
   }
@@ -86,9 +85,8 @@ const Manage = () => {
       type: 'confirm',
       icon: <ExclamationCircleOutlined className="manage-icon-suspend" />,
       title: 'คุณต้องการระงับผู้ดูแลระบบนี้ หรือไม่ ! ',
-      cancelButton: '',
-      okButton: { backgroundColor: 'white', color: 'orange', borderColor: 'orange' },
-      email: email,
+      okColor: 'orange',
+      content: email,
       okText: 'ระงับ'
     })
     showModal()
@@ -115,6 +113,10 @@ const Manage = () => {
     setDataSource(filteredData)
   }
 
+  const onPagination = (page) => {
+    console.log(page);
+  };
+
   const columns = [
     {
       title: 'อีเมล',
@@ -131,7 +133,7 @@ const Manage = () => {
       width: '15%',
       key: 'action',
       render: (text, record) => (
-        <Space size="middle">
+        <Space size="Small">
           <Tooltip placement="bottom" title="แก้ไข">
             <Link to={`/manage/profile/${record.email}`}>
               <EditOutlined className="manage-icon-edit" onClick={(e) => { onEdit(record.email, e); }} /></Link>
@@ -140,7 +142,7 @@ const Manage = () => {
             <DeleteOutlined className="manage-icon-delete" onClick={(e) => { onDelete(record.email, e); }} />
           </Tooltip>
           <Tooltip placement="bottom" title="ระงับ">
-            <Switch defaultChecked={record.status} onChange={(e) => { onSuspend(record.email, e); }} />
+            <Switch size="small" defaultChecked={record.status} onChange={(e) => { onSuspend(record.email, e); }} />
           </Tooltip>
         </Space>
       ),
@@ -171,24 +173,32 @@ const Manage = () => {
             <Search placeholder="ค้นหา" className="manage-search" onSearch={onSearch} />
           </Col>
         </Row>
-        {/* <Table columns={columns} dataSource={dataSource} style={{ marginTop: '10px' }} /> */}
         <Tables
           columns={columns}
           dataSource={dataSource}
         />
-        <Row>
-          <Col>
-          <Pagination style={{textAlign:'right'}} defaultCurrent={1} total={200} showSizeChanger={false} />
-          
-          </Col>
-        </Row>
+        <Pagination
+          defaultCurrent={1}
+          total={100}
+          onChange={onPagination}
+        />
       </Content>
       <Modals
         isModalVisible={isModalVisible}
         onOk={handleOk}
         onCancel={handleCancel}
         modalData={modalData}
-      />
+      >
+        {modalData.type === 'show'? 
+        <>
+        <div style={{marginLeft:'80px'}}>อีเมล : {modalData.content}</div>
+        <div style={{marginLeft:'80px'}}>รหัสผ่าน</div>
+        <div style={{marginLeft:'40px',color:'red'}}>*ระบบจะแสดงข้อมูลเพียงครั้งเดียว*</div>
+        </>
+        :
+        <p style={{marginLeft:'80px'}}>{modalData.content}</p>
+        }
+      </Modals>
 
 
     </>
