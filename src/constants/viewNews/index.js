@@ -1,9 +1,9 @@
+import { Breadcrumb, Button, Col, Image, Input, Layout, Row, Select } from 'antd'
 import React, { useState } from "react";
-import { Layout, Breadcrumb, Image, Row, Col, Select, Input, Button } from 'antd'
-import { DeleteOutlined } from '@ant-design/icons';
 
-import Timeline from 'components/layout/timeline/index'
+import { DeleteOutlined } from '@ant-design/icons';
 import Modals from 'components/layout/modal/index'
+import Timeline from 'components/layout/timeline/index'
 
 const { Content } = Layout
 const { Option } = Select;
