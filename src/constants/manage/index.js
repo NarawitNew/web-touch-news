@@ -1,11 +1,14 @@
 import { Breadcrumb, Button, Col, Form, Input, Layout, Row, Space, Switch, Tooltip } from 'antd';
 import { DeleteOutlined, EditOutlined, ExclamationCircleOutlined, PlusOutlined, UserOutlined } from '@ant-design/icons';
-import React, { useState } from "react"
+import React, { useEffect, useState } from "react"
 
 import { Link } from "react-router-dom"
 import Modals from 'components/layout/modal/index'
 import Pagination from 'components/layout/pagination/index'
 import Tables from 'components/layout/table/index'
+import axios from 'axios'
+import config from 'config'
+import {httpClient} from 'HttpClient'
 
 const { Search } = Input;
 const { Content } = Layout;
@@ -41,6 +44,19 @@ const Manage = () => {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [modalData, setModalData] = useState({ type: '', icon: null, title: '', okColor: '', content: '', okText: '' });
 
+  useEffect(()=>{
+    getData()
+  })
+  const getData = () => {
+    httpClient.get(config.manageURL)
+      .then(function (response) {
+        console.log('response', response)
+      })
+      .catch(function (error) {
+        console.log(error);
+      })
+  }
+
   const onInsert = (value) => {
     // const datA = dataTest.dataAdmin
     // const dataMap = datA.map((item, key) =>{
@@ -53,6 +69,7 @@ const Manage = () => {
     // })
     // setDataSource(dataMap)
     // console.log('DataSource', dataSource)
+
     setModalData({
       type: 'show',
       icon: <UserOutlined className="manage-icon-insert" />,
