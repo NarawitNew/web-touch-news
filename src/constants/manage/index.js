@@ -1,56 +1,55 @@
-import { Breadcrumb, Button, Col, Form, Input, Layout, Row, Space, Switch, Tooltip } from 'antd';
+import { Breadcrumb, Button, Col, Form, Input, Layout, Modal, Row, Space, Switch, Tooltip, message } from 'antd';
 import { DeleteOutlined, EditOutlined, ExclamationCircleOutlined, PlusOutlined, UserOutlined } from '@ant-design/icons';
 import React, { useEffect, useState } from "react"
 
 import { Link } from "react-router-dom"
 import Modals from 'components/layout/modal/index'
-import Pagination from 'components/layout/pagination/index'
 import Tables from 'components/layout/table/index'
-import axios from 'axios'
 import config from 'config'
-import {httpClient} from 'HttpClient'
+import { httpClient } from 'HttpClient'
 
 const { Search } = Input;
 const { Content } = Layout;
 
-const data = [{
-  key: 1,
-  email: '1-@gmail.com',
-  name: 'Admin 1',
-  status: true
-},
-{
-  key: 2,
-  email: '2-@gmail.com',
-  name: 'Admin 2',
-  status: false
-},
-{
-  key: 3,
-  email: '3-@gmail.com',
-  name: 'Admin 3',
-  status: false
-},
-{
-  key: 4,
-  email: '4-@gmail.com',
-  name: 'Admin 4',
-  status: true
-},];
 
 const Manage = () => {
-  const [dataTest, setDataTest] = useState({ dataAdmin: data, page: '5' })
-  const [dataSource, setDataSource] = useState(dataTest.dataAdmin);
+  const [dataSource, setDataSource] = useState();
+  const [dataFilter, setDataFilter] = useState("")
+  const [current, setCurrent] = useState(1)
+  const [pagination, setPagination] = useState({ pageCurrent: 1, perPage: 1, totalPage: 1 })
   const [isModalVisible, setIsModalVisible] = useState(false);
-  const [modalData, setModalData] = useState({ type: '', icon: null, title: '', okColor: '', content: '', okText: '' });
+  const [modalData, setModalData] = useState({ type: '', icon: null, title: '', okColor: '', content: '', okText: '', onOk: null });
 
-  useEffect(()=>{
+  useEffect(() => {
     getData()
-  })
+  }, [dataFilter,current])
+
   const getData = () => {
-    httpClient.get(config.manageURL)
+    const params = {
+      per_page: '15',
+      page: current,
+    }
+    httpClient.get(config.manageURL, {params})
       .then(function (response) {
-        console.log('response', response)
+        // console.log('response', response)
+        const code = response.data.code
+        const data = response.data.data.data_list
+        setPagination({
+          currentPage: response.data.data.pagination.current_page,
+          perPage: response.data.data.pagination.per_page,
+          totalPage: response.data.data.pagination.total
+        })
+        if (code === 200) {
+          const dataMap = data.map((item, key) => {
+            item.key = item.id
+            item.email = item.email
+            item.name = item.firstname + ' ' + item.lastname
+            item.status = item.Status
+            return item
+          })
+          setDataSource(dataMap)
+        }
+
       })
       .catch(function (error) {
         console.log(error);
@@ -58,52 +57,71 @@ const Manage = () => {
   }
 
   const onInsert = (value) => {
-    // const datA = dataTest.dataAdmin
-    // const dataMap = datA.map((item, key) =>{
-    //   item.key = item.key * 10
-    //   item.email = item.email
-    //   item.name = 'Test map'
-    //   // item.status = item.status
-    //   {item.status === true? item.status = false : item.status = true}
-    //   return item
-    // })
-    // setDataSource(dataMap)
-    // console.log('DataSource', dataSource)
+    getData()
+    const params = {
+      email: value,
+    }
+    httpClient.post(config.manageURL,params)
+      .then(function (response) {
+        const code = response.data.code
+        console.log('response', response)
+        if (code === 200) {
+          setModalData({
+            type: 'show',
+            icon: <UserOutlined className="manage-icon-insert" />,
+            title: 'เพิ่มผู้ดูแลระบบใหม่',
+            okColor: '#216258',
+            okText: 'ตกลง',
+            content: value.email
+          })
+          showModal()
+        }
+      })
+      .catch(function (error) {
+        console.log(error);
+      })
 
-    setModalData({
-      type: 'show',
-      icon: <UserOutlined className="manage-icon-insert" />,
-      title: 'เพิ่มผู้ดูแลระบบใหม่',
-      okColor: '#216258',
-      okText: 'ตกลง',
-      content: value.email
-    })
-    showModal()
+
   }
 
-  const onDelete = (email, e) => {
+  const onDelete = (record) => {
+    console.log('Delete id : ', record.key)
     setModalData({
       type: 'confirm',
       icon: <DeleteOutlined className="manage-icon-delete" />,
       title: 'คุณต้องการลบผู้ดูแลระบบนี้ หรือไม่ ! ',
       okColor: 'red',
       okText: 'ลบ',
-      content: email,
+      content: record.email,
+      onOk() {
+        setIsModalVisible(false)
+        httpClient.delete(config.manageURL + '/' + record.key)
+          .then(function (response) {
+            const code = response.data.code
+            if (code === 200) {
+              message.success('ลบสำเร็จ');
+              setDataFilter(record.key)
+            }
+          })
+          .catch(function (error) {
+            console.log(error);
+          })
+      },
     })
-    showModal()
+    setIsModalVisible(true)
   }
 
-  const onEdit = (email, e) => {
-    console.log('edit', email);
+  const onEdit = (record) => {
+    console.log('edit id :', record);
   }
 
-  const onSuspend = (email, e) => {
+  const onSuspend = (record) => {
     setModalData({
       type: 'confirm',
       icon: <ExclamationCircleOutlined className="manage-icon-suspend" />,
       title: 'คุณต้องการระงับผู้ดูแลระบบนี้ หรือไม่ ! ',
       okColor: 'orange',
-      content: email,
+      content: record.email,
       okText: 'ระงับ'
     })
     showModal()
@@ -114,6 +132,7 @@ const Manage = () => {
   };
 
   const handleOk = () => {
+    console.log('OK')
     setIsModalVisible(false)
   };
 
@@ -122,17 +141,9 @@ const Manage = () => {
   };
 
   const onSearch = (value) => {
-    console.log('Search : ' + value)
-    const currValue = value;
-    const filteredData = data.filter(entry =>
-      entry.name.includes(currValue)
-    );
-    setDataSource(filteredData)
+
   }
 
-  const onPagination = (page) => {
-    console.log(page);
-  };
 
   const columns = [
     {
@@ -150,21 +161,27 @@ const Manage = () => {
       width: '15%',
       key: 'action',
       render: (text, record) => (
-        <Space size="Small">
+        <Space >
           <Tooltip placement="bottom" title="แก้ไข">
             <Link to={`/manage/profile/${record.email}`}>
-              <EditOutlined className="manage-icon-edit" onClick={(e) => { onEdit(record.email, e); }} /></Link>
+              <EditOutlined className="manage-icon-edit" onClick={() => { onEdit(record) }} />
+            </Link>
           </Tooltip>
           <Tooltip placement="bottom" title="ลบ">
-            <DeleteOutlined className="manage-icon-delete" onClick={(e) => { onDelete(record.email, e); }} />
+            <DeleteOutlined className="manage-icon-delete" onClick={() => { onDelete(record) }} />
           </Tooltip>
           <Tooltip placement="bottom" title="ระงับ">
-            <Switch size="small" defaultChecked={record.status} onChange={(e) => { onSuspend(record.email, e); }} />
+            <Switch size="small" defaultChecked={record.status} onChange={() => { onSuspend(record) }} />
           </Tooltip>
         </Space>
       ),
     },
   ];
+
+  const currentPage = (value) => {
+    setCurrent(value);
+    console.log('currentPage', current)
+  }
 
   return (
     <>
@@ -193,31 +210,30 @@ const Manage = () => {
         <Tables
           columns={columns}
           dataSource={dataSource}
-        />
-        <Pagination
-          defaultCurrent={1}
-          total={100}
-          onChange={onPagination}
+          setCurrentPage={currentPage}
+          pageCurrent={pagination.pageCurrent}
+          perPage={pagination.perPage}
+          totalPage={pagination.totalPage}
+
+
         />
       </Content>
       <Modals
         isModalVisible={isModalVisible}
-        onOk={handleOk}
+        onOk={modalData.onOk}
         onCancel={handleCancel}
         modalData={modalData}
       >
-        {modalData.type === 'show'? 
-        <>
-        <div style={{marginLeft:'80px'}}>อีเมล : {modalData.content}</div>
-        <div style={{marginLeft:'80px'}}>รหัสผ่าน</div>
-        <div style={{marginLeft:'40px',color:'red'}}>*ระบบจะแสดงข้อมูลเพียงครั้งเดียว*</div>
-        </>
-        :
-        <p style={{marginLeft:'80px'}}>{modalData.content}</p>
+        {modalData.type === 'show' ?
+          <>
+            <div style={{ marginLeft: '80px' }}>อีเมล : {modalData.content}</div>
+            <div style={{ marginLeft: '80px' }}>รหัสผ่าน</div>
+            <div style={{ marginLeft: '40px', color: 'red' }}>*ระบบจะแสดงข้อมูลเพียงครั้งเดียว*</div>
+          </>
+          :
+          <p style={{ marginLeft: '80px' }}>{modalData.content}</p>
         }
       </Modals>
-
-
     </>
   );
 }
