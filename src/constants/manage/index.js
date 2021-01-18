@@ -114,12 +114,7 @@ const Manage = () => {
   }
 
   const onEdit = (record) => {
-    console.log('edit id :', record);
-    setEditAdmin({
-      email: record.email,
-      lastname: record.lastname,
-      firstname: record.firstname
-    })
+ 
   }
 
   const onSuspend = (record) => {
