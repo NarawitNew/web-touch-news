@@ -18,7 +18,7 @@ const Tables = (props) => {
                 dataSource={props.dataSource}
                 scroll={{ x: 'fit-content' }}
                 onChange={onChange}
-                style={{ marginRight: '10px' }}
+                style={{ marginTop: '20px' }}
                 pagination={pagination}
 
             />
