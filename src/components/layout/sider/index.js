@@ -1,6 +1,7 @@
-import { Link } from "react-router-dom";
-import { HomeOutlined , UserOutlined, SettingOutlined } from '@ant-design/icons';
+import { HomeOutlined, SettingOutlined, UserOutlined } from '@ant-design/icons';
 import { Layout, Menu } from 'antd';
+
+import { Link } from "react-router-dom";
 
 const { Sider } = Layout;
 
@@ -20,7 +21,7 @@ const Siderbar = () => {
                     <Link to="/manage" >ผู้ดูแลระบบ</Link>
                 </Menu.Item>
                 <Menu.Item key="/profile" icon={<SettingOutlined/>}>
-                    <Link to="/profile">โปรไฟล์</Link>
+                    <Link to="/profile/123456789">โปรไฟล์</Link>
                 </Menu.Item>
             </Menu>
         </Sider>

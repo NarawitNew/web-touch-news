@@ -12,9 +12,11 @@ export default function Routers() {
             <Route exact component={Home} path="/"></Route>
             <Route exact path="/home/view"><ViewNews /></Route>
             <Route exact component={Home} path="/home"></Route>
-            <Route path="/manage/profile"><Profile type='manage' title='ผู้ดูแลระบบ'></Profile></Route>
+            <Route path="/:state/profile/:id" component={Profile}></Route>
             <Route component={Manage} path="/manage"></Route>
-            <Route component={Profile} path="/profile"><Profile type='' title='โปรไฟล์'></Profile></Route>
+            <Route component={Profile} path="/profile/:id"></Route>
+            <Profile type='' title='โปรไฟล์'></Profile>
+            {/* <Profile type='manage' title='ผู้ดูแลระบบ'></Profile> */}
         </Switch>
     );
 }

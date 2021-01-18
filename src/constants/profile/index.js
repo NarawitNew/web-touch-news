@@ -16,6 +16,7 @@ const layout = {
 };
 
 const Profile = (props) => {
+  const params = props.match.params;
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [Showpass, setShowpass] = useState(false)
   const [modalData, setModalData] = useState({ type: '', icon: null, title: '', okColor: '', content: '', okText: '' });
@@ -65,9 +66,9 @@ const Profile = (props) => {
   return (
     <>
       <Breadcrumb style={{ margin: '4px 0' }}>
-        {props.type === 'manage' ?
+        {params.state === 'manage' ?
           <>
-            <Breadcrumb.Item>{props.title}</Breadcrumb.Item>
+            <Breadcrumb.Item>ผู้ดูแลระบบ</Breadcrumb.Item>
             <Breadcrumb.Item>โปรไฟล์</Breadcrumb.Item>
           </>
           :
@@ -87,7 +88,7 @@ const Profile = (props) => {
                 </Upload>
               </Form.Item>
               <Form.Item label='อีเมล' {...layout}>
-                <Input value={useParams()} disabled></Input>
+                <Input value={params.id} disabled></Input>
               </Form.Item>
               <Form.Item label='ชื่อ' {...layout}>
                 <Input ></Input>
@@ -96,7 +97,7 @@ const Profile = (props) => {
                 <Input></Input>
               </Form.Item>
               <Form.Item className="profile-Right">
-                {props.type === 'manage' ?
+                {params.state === 'manage' ?
                   <>
                     <a onClick={onNewPassword}><u>เปลี่ยนรหัสผ่าน</u></a>
                   </>
@@ -120,7 +121,7 @@ const Profile = (props) => {
                 </>
               }
               <Form.Item className="profile-Right">
-                {props.type === 'manage' ?
+                {params.state === 'manage' ?
                   <>
                     <Button className="profile-button" type="primary" ghost>บันทึก</Button>
                     <Link to="/manage">
@@ -138,12 +139,12 @@ const Profile = (props) => {
           </Col>
         </Row>
       </Content>
-      {/* <Modals
+      <Modals
         isModalVisible={isModalVisible}
         onOk={handleOk}
         onCancel={handleCancel}
         modalData={modalData}
-      ></Modals> */}
+      ></Modals>
 
       <Modals
         isModalVisible={isModalVisible}

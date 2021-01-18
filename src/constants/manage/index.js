@@ -29,9 +29,9 @@ const Manage = () => {
       per_page: '15',
       page: current,
     }
-    httpClient.get(config.manageURL, { params })
+    httpClient.get(config.manageURL + '/admin', { params })
       .then(function (response) {
-        // console.log('response', response)
+        console.log('response', response)
         const code = response.data.code
         const data = response.data.data.data_list
         setPagination({
@@ -44,7 +44,8 @@ const Manage = () => {
             item.key = item.id
             item.email = item.email
             item.name = item.firstname + ' ' + item.lastname
-            item.status = item.Status
+            // item.suspend = item.suspend
+            { item.suspend === "true" ? item.suspend = true : item.suspend = false }
             return item
           })
           setDataSource(dataMap)
@@ -59,7 +60,7 @@ const Manage = () => {
     // console.log('email', value.email)
     // let setData = new FormData();
     // setData.append("email", value);
-    httpClient.post(config.manageURL, `{"email":"${value.email}"}`)
+    httpClient.post(config.manageURL + '/admin', `{"email":"${value.email}"}`)
       .then(function (response) {
         const code = response.data.code
         console.log('response', response)
@@ -73,8 +74,10 @@ const Manage = () => {
             onOk() {
               setIsModalVisible(false)
             },
-            content: ({email: response.data.data.email,
-                        password: response.data.data.password}),
+            content: ({
+              email: response.data.data.email,
+              password: response.data.data.password
+            }),
           })
           showModal()
           setDataFilter(response.data.data.email)
@@ -96,7 +99,7 @@ const Manage = () => {
       content: record.email,
       onOk() {
         setIsModalVisible(false)
-        httpClient.delete(config.manageURL + '/' + record.key)
+        httpClient.delete(config.manageURL + '/admin/' + record.key)
           .then(function (response) {
             const code = response.data.code
             if (code === 200) {
@@ -114,24 +117,55 @@ const Manage = () => {
   }
 
   const onEdit = (record) => {
- 
+
   }
 
-  const onSuspend = (record) => {
-    setModalData({
-      type: 'confirm',
-      icon: <ExclamationCircleOutlined className="manage-icon-suspend" />,
-      title: 'คุณต้องการระงับผู้ดูแลระบบนี้ หรือไม่ ! ',
-      okColor: 'orange',
-      content: record.email,
-      okText: 'ระงับ'
-    })
-    showModal()
+  const onSuspend = (checked, record) => {
+    // console.log('checked', checked)
+    // console.log('record', record)
+    if (checked === false) {
+      setModalData({
+        type: 'confirm',
+        icon: <ExclamationCircleOutlined className="manage-icon-suspend" />,
+        title: 'คุณต้องการระงับผู้ดูแลระบบนี้ หรือไม่ ! ',
+        okColor: 'orange',
+        content: record.email,
+        okText: 'ระงับ',
+        onOk() {
+          setIsModalVisible(false)
+          httpClient.put(config.manageURL + '/suspend/' + record.key, `{"suspend": "false" }`)
+            .then(function (response) {
+              console.log('response', response)
+              const code = response.data.code
+              if (code === 200) {
+                message.success('ระงับผู้ดูแลระบบสำเร็จ');
+                setDataFilter(record.key)
+              }
+            })
+            .catch(function (error) {
+              console.log(error);
+              message.error('ระงับผู้ดูแลระบบไม่สำเร็จ');
+            })
+
+        },
+      })
+      setIsModalVisible(true)
+    }
+    else {
+      console.log('checked', checked)
+      httpClient.put(config.manageURL + '/suspend/' + record.key, `{"suspend": "true" }`)
+        .then(function (response) {
+          message.success('อนุญาติผู้ดูแลระบบสำเร็จ');
+        })
+        .catch(function (error) {
+          message.error('อนุญาติผู้ดูแลระบบไม่สำเร็จ');
+        })
+    }
   }
 
   const onSearch = (value) => {
-  } 
-  
+  }
+
   const currentPage = (value) => {
     setCurrent(value);
     console.log('currentPage', current)
@@ -168,7 +202,7 @@ const Manage = () => {
       render: (text, record) => (
         <Space >
           <Tooltip placement="bottom" title="แก้ไข">
-            <Link to="/manage/profile/">
+            <Link to={`/manage/profile/${record.key}`}>
               <EditOutlined className="manage-icon-edit" />
             </Link>
           </Tooltip>
@@ -176,7 +210,7 @@ const Manage = () => {
             <DeleteOutlined className="manage-icon-delete" onClick={() => { onDelete(record) }} />
           </Tooltip>
           <Tooltip placement="bottom" title="ระงับ">
-            <Switch size="small" defaultChecked={record.status} onChange={() => { onSuspend(record) }} />
+            <Switch size="small" defaultChecked={record.suspend} onClick={(e) => { onSuspend(e, record) }} />
           </Tooltip>
         </Space>
       ),
@@ -188,13 +222,21 @@ const Manage = () => {
         <Breadcrumb.Item>ผู้ดูแลระบบ</Breadcrumb.Item>
       </Breadcrumb>
       <Content className="manage-content">
-        <Row>
+        <Row style={{height:'32px'}}>
           <Col span={18}>
             <Form name="email" layout="inline" onFinish={onInsert}>
               <Form.Item>
                 <div className="manage-Text">ผู้ดูแลระบบ</div>
               </Form.Item>
-              <Form.Item name="email" className="manage-Input">
+              <Form.Item
+                name="email"
+                rules={[
+                  {
+                    required: true,
+                    message: false,
+                  },
+                ]}
+                className="manage-Input">
                 <Input placeholder="กรอกอีเมล" />
               </Form.Item>
               <Form.Item>

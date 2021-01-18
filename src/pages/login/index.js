@@ -60,7 +60,7 @@ const Login = (props) => {
         <div className="Login">
             <div className="Login-box">
                 <div className="Login-herde">
-                    T<p style={{ display: "inline-block", color: "#216258" }}>o</p>uch K<p style={{ display: "inline-block", color: "#216258" }}>o</p>rat News
+                    T<p className="login-text-o" >o</p>uch K<p className="login-text-o">o</p>rat News
                 </div>
 
                 <div className="Login-form">
@@ -70,7 +70,7 @@ const Login = (props) => {
                     >
                         <Form.Item
                             name="username"
-                            rules={[{  message: 'Please input your username!' }]}
+                            rules={[{ required: true, message: 'Please input your username!' }]}
                         >
                             <Input value="s" size="large" placeholder="ชื่อผู้ใช้งาน" prefix={<UserOutlined />}
                                 onChange={e => setUsername(e.target.value)} />
