@@ -1,7 +1,8 @@
-import config from 'config'
+import { Avatar, Badge, Col, Layout, Row, Tooltip, message } from 'antd';
+import { BellOutlined, ExportOutlined } from '@ant-design/icons';
+
 import axios from 'axios'
-import { Layout, Row, Col, Tooltip, Avatar, Badge} from 'antd';
-import { ExportOutlined , BellOutlined } from '@ant-design/icons';
+import config from 'config'
 
 const { Header} = Layout;
 const username = "narawit"
@@ -13,6 +14,7 @@ const Headerbar = () => {
             console.log('response:', response.data)
             if (response.data) {
                 localStorage.setItem('token', '')
+              message.success('ออกจากระบบสำเร็จ');
                 window.location.reload()
             } else {
             }

@@ -1,8 +1,8 @@
 import { Avatar, Breadcrumb, Button, Col, Form, Input, Layout, Row, Upload } from 'antd'
 import { ExclamationCircleOutlined, KeyOutlined } from '@ant-design/icons';
+import { Link, useParams } from "react-router-dom";
 import React, { useState } from "react"
 
-import { Link } from "react-router-dom";
 import Modals from 'components/layout/modal/index'
 
 const { Content } = Layout
@@ -87,10 +87,10 @@ const Profile = (props) => {
                 </Upload>
               </Form.Item>
               <Form.Item label='อีเมล' {...layout}>
-                <Input></Input>
+                <Input value={useParams()} disabled></Input>
               </Form.Item>
               <Form.Item label='ชื่อ' {...layout}>
-                <Input></Input>
+                <Input ></Input>
               </Form.Item>
               <Form.Item label='นามสกุล' {...layout}>
                 <Input></Input>

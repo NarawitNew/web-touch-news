@@ -1,7 +1,8 @@
-import { Breadcrumb, Button, Col, Form, Input, Layout, Modal, Row, Space, Switch, Tooltip, message } from 'antd';
+import { Breadcrumb, Button, Col, Form, Input, Layout, Row, Space, Switch, Tooltip, message } from 'antd';
 import { DeleteOutlined, EditOutlined, ExclamationCircleOutlined, PlusOutlined, UserOutlined } from '@ant-design/icons';
 import React, { useEffect, useState } from "react"
 
+import FormData from 'form-data'
 import { Link } from "react-router-dom"
 import Modals from 'components/layout/modal/index'
 import Tables from 'components/layout/table/index'
@@ -10,7 +11,6 @@ import { httpClient } from 'HttpClient'
 
 const { Search } = Input;
 const { Content } = Layout;
-
 
 const Manage = () => {
   const [dataSource, setDataSource] = useState();
@@ -22,14 +22,14 @@ const Manage = () => {
 
   useEffect(() => {
     getData()
-  }, [dataFilter,current])
+  }, [dataFilter, current])
 
   const getData = () => {
     const params = {
       per_page: '15',
       page: current,
     }
-    httpClient.get(config.manageURL, {params})
+    httpClient.get(config.manageURL, { params })
       .then(function (response) {
         // console.log('response', response)
         const code = response.data.code
@@ -49,7 +49,6 @@ const Manage = () => {
           })
           setDataSource(dataMap)
         }
-
       })
       .catch(function (error) {
         console.log(error);
@@ -57,31 +56,33 @@ const Manage = () => {
   }
 
   const onInsert = (value) => {
-    getData()
-    const params = {
-      email: value,
-    }
-    httpClient.post(config.manageURL,params)
+    // console.log('email', value.email)
+    // let setData = new FormData();
+    // setData.append("email", value);
+    httpClient.post(config.manageURL, `{"email":"${value.email}"}`)
       .then(function (response) {
         const code = response.data.code
         console.log('response', response)
-        if (code === 200) {
+        if (code === 201) {
           setModalData({
             type: 'show',
             icon: <UserOutlined className="manage-icon-insert" />,
             title: 'เพิ่มผู้ดูแลระบบใหม่',
             okColor: '#216258',
             okText: 'ตกลง',
-            content: value.email
+            onOk() {
+              setIsModalVisible(false)
+            },
+            content: ({email: response.data.data.email,
+                        password: response.data.data.password}),
           })
           showModal()
+          setDataFilter(response.data.data.email)
         }
       })
       .catch(function (error) {
         console.log(error);
       })
-
-
   }
 
   const onDelete = (record) => {
@@ -99,12 +100,13 @@ const Manage = () => {
           .then(function (response) {
             const code = response.data.code
             if (code === 200) {
-              message.success('ลบสำเร็จ');
+              message.success('ลบผู้ดูแลระบบสำเร็จ');
               setDataFilter(record.key)
             }
           })
           .catch(function (error) {
             console.log(error);
+            message.error('ลบไม่สำเร็จ');
           })
       },
     })
@@ -112,7 +114,7 @@ const Manage = () => {
   }
 
   const onEdit = (record) => {
-    console.log('edit id :', record);
+ 
   }
 
   const onSuspend = (record) => {
@@ -127,6 +129,14 @@ const Manage = () => {
     showModal()
   }
 
+  const onSearch = (value) => {
+  } 
+  
+  const currentPage = (value) => {
+    setCurrent(value);
+    console.log('currentPage', current)
+  }
+
   const showModal = () => {
     setIsModalVisible(true)
   };
@@ -139,11 +149,6 @@ const Manage = () => {
   const handleCancel = () => {
     setIsModalVisible(false)
   };
-
-  const onSearch = (value) => {
-
-  }
-
 
   const columns = [
     {
@@ -163,8 +168,8 @@ const Manage = () => {
       render: (text, record) => (
         <Space >
           <Tooltip placement="bottom" title="แก้ไข">
-            <Link to={`/manage/profile/${record.email}`}>
-              <EditOutlined className="manage-icon-edit" onClick={() => { onEdit(record) }} />
+            <Link to="/manage/profile/">
+              <EditOutlined className="manage-icon-edit" />
             </Link>
           </Tooltip>
           <Tooltip placement="bottom" title="ลบ">
@@ -177,12 +182,6 @@ const Manage = () => {
       ),
     },
   ];
-
-  const currentPage = (value) => {
-    setCurrent(value);
-    console.log('currentPage', current)
-  }
-
   return (
     <>
       <Breadcrumb style={{ margin: '4px 0' }}>
@@ -214,8 +213,6 @@ const Manage = () => {
           pageCurrent={pagination.pageCurrent}
           perPage={pagination.perPage}
           totalPage={pagination.totalPage}
-
-
         />
       </Content>
       <Modals
@@ -226,9 +223,9 @@ const Manage = () => {
       >
         {modalData.type === 'show' ?
           <>
-            <div style={{ marginLeft: '80px' }}>อีเมล : {modalData.content}</div>
-            <div style={{ marginLeft: '80px' }}>รหัสผ่าน</div>
-            <div style={{ marginLeft: '40px', color: 'red' }}>*ระบบจะแสดงข้อมูลเพียงครั้งเดียว*</div>
+            <div style={{ marginLeft: '80px' }}>อีเมล : {modalData.content.email}</div>
+            <div style={{ marginLeft: '80px' }}>รหัสผ่าน {modalData.content.password}</div>
+            <div style={{ marginLeft: '40px', marginTop: '20px', color: 'red' }}>*ระบบจะแสดงข้อมูลเพียงครั้งเดียว*</div>
           </>
           :
           <p style={{ marginLeft: '80px' }}>{modalData.content}</p>
