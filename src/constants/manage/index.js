@@ -133,7 +133,7 @@ const Manage = () => {
         okText: 'ระงับ',
         onOk() {
           setIsModalVisible(false)
-          httpClient.put(config.manageURL + '/suspend/' + record.key, `{"suspend": "false" }`)
+          httpClient.put(config.manageURL + '/admin/suspend/' + record.key, `{"suspend": "false" }`)
             .then(function (response) {
               console.log('response', response)
               const code = response.data.code
@@ -153,7 +153,7 @@ const Manage = () => {
     }
     else {
       console.log('checked', checked)
-      httpClient.put(config.manageURL + '/suspend/' + record.key, `{"suspend": "true" }`)
+      httpClient.put(config.manageURL + '/admin/suspend/' + record.key, `{"suspend": "true" }`)
         .then(function (response) {
           message.success('อนุญาติผู้ดูแลระบบสำเร็จ');
         })

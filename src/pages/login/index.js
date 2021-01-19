@@ -73,14 +73,14 @@ const Login = (props) => {
                             rules={[{ required: true, message: 'Please input your username!' }]}
                         >
                             <Input value="s" size="large" placeholder="ชื่อผู้ใช้งาน" prefix={<UserOutlined />}
-                                onChange={e => setUsername(e.target.value)} />
+                                 />
                         </Form.Item>
                         <Form.Item
                             name="password"
                             rules={[{ required: true, message: 'Please input your password!' }]}
                         >
                             <Input.Password size="large" placeholder="รหัสผ่าน" prefix={<UnlockOutlined />}
-                                onChange={e => setPassword(e.target.value)} />
+                                 />
                         </Form.Item>
                         <Form.Item name="isCheckbox" >
                             <Checkbox checked={isCheckbox} onChange={onCheckbox}>บันทึกรหัสผ่าน</Checkbox>
