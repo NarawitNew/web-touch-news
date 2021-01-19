@@ -20,7 +20,7 @@ const layout = {
 const Profile = (props) => {
   const [formValue] = Form.useForm();
   const params = props.match.params;
-  const [data, setData] = useState({ email: '', firstname: '', lastname: '', image: '' })
+  const [image, setImage] = useState('')
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [Showpass, setShowpass] = useState(false)
   const [modalData, setModalData] = useState({ type: '', icon: null, title: '', okColor: '', content: '', okText: '' });
@@ -35,13 +35,12 @@ const Profile = (props) => {
         // console.log('response', response)
         const code = response.data.code
         if (code === 200) {
-          setData({
+          setImage(response.data.data.image)
+          formValue.setFieldsValue({
             email: response.data.data.email,
             firstname: response.data.data.firstname,
             lastname: response.data.data.lastname,
-            image: response.data.data.image,
           })
-          formValue.setFieldsValue(data)
         }
       })
       .catch(function (error) {
@@ -51,9 +50,7 @@ const Profile = (props) => {
 
   const handleChange = (fileList) => {
     console.log('fileList', fileList)
-    setData({
-      image: fileList.fileList[0].thumbUrl
-    })
+    setImage(fileList.fileList[0].thumbUrl)
   };
 
   const conFirmPassword = () => {
@@ -98,17 +95,20 @@ const Profile = (props) => {
 
   const upData = (value) => {
     console.log('value', value)
-    // setData({
-    //   fileList:value.fileList
-    // })
+    const setData = 
+      `{
+        "firstname":"${value.firstname}",
+        "lastname":"${value.lastname}",
+        "image":"${image}"
+      }`
     
-    // httpClient.put(config.manageURL + '/admin/update/' + params.id)
-    //   .then(function (response) {
-    //     message.success('สำเร็จ');
-    //   })
-    //   .catch(function (error) {
-    //     message.error('ไม่สำเร็จ');
-    //   })
+    httpClient.put(config.manageURL + '/admin/update/' + params.id,setData)
+      .then(function (response) {
+        message.success('สำเร็จ');
+      })
+      .catch(function (error) {
+        message.error('ไม่สำเร็จ');
+      })
   }
 
   const onPasswdr = () => {
@@ -160,7 +160,7 @@ const Profile = (props) => {
               onFinish={upData}
             >
               <Form.Item className="profile-Center">
-                <Avatar size={250} src={data.image} />
+                <Avatar size={250} src={image} />
               </Form.Item>
               <Form.Item className="profile-Center">
                 <Upload
