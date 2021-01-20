@@ -40,7 +40,7 @@ const Home = () => {
     showModal()
   }
 
-  const onDelete = (topic,e) => {
+  const onDelete = (topic, e) => {
     setModalData({
       type: 'confirm',
       icon: <DeleteOutlined className="manage-icon-delete" />,
@@ -95,7 +95,7 @@ const Home = () => {
       key: 'topic',
       width: '50%',
       ellipsis: true,
-      render: (text, record) => (<Link to="/home/view"  style={{ color: '#000' }}>{record.topic}</Link>),
+      render: (text, record) => (<Link to="/home/view" style={{ color: '#000' }}>{record.topic}</Link>),
     },
     {
       title: 'ผู้ดูแลระบบ',
@@ -192,17 +192,17 @@ const Home = () => {
           onChange={onPagination}
         />
         <Modals
-        isModalVisible={isModalVisible}
-        onOk={handleOk}
-        onCancel={handleCancel}
-        modalData={modalData}
-      >
-        {modalData.type === 'show'? 
-        <div style={{marginLeft:'100px'}}>{modalData.content}</div>
-        :
-        <p style={{marginLeft:'80px'}} className="text-overflow">{modalData.content}</p>
-        }
-      </Modals>
+          isModalVisible={isModalVisible}
+          onOk={handleOk}
+          onCancel={handleCancel}
+          modalData={modalData}
+        >
+          {modalData.type === 'show' ?
+            <div style={{ marginLeft: '100px' }}>{modalData.content}</div>
+            :
+            <p style={{ marginLeft: '80px' }} className="text-overflow">{modalData.content}</p>
+          }
+        </Modals>
       </Content>
     </>
   );

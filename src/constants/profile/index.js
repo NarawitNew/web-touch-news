@@ -27,7 +27,7 @@ const Profile = (props) => {
 
   useEffect(() => {
     getData()
-  }, [params])
+  })
 
   const getData = () => {
     httpClient.get(config.manageURL + '/admin/data/' + params.id)

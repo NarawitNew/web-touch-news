@@ -6,14 +6,15 @@ import { BrowserRouter as Router } from "react-router-dom";
 import Sider from 'components/layout/sider/index';
 
 function App() {
+  const type = localStorage.getItem('type')
   return (
     <Layout breakpoint='lg' style={{ minHeight: '100vh' }} >
       <Header></Header>
       <Layout>
       <Router>
-        <Sider></Sider>
+        <Sider type={type}></Sider>
         <Layout style={{ padding: '0 24px 24px' }}>
-          <Content></Content>
+          <Content type={type}></Content>
         </Layout>
         </Router>
       </Layout>
