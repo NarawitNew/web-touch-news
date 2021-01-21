@@ -1,8 +1,8 @@
 import { Avatar, Breadcrumb, Button, Col, Form, Input, Layout, Row, Upload, message } from 'antd'
 import { ExclamationCircleOutlined, KeyOutlined, UserOutlined } from '@ant-design/icons';
-import { Link, useParams } from "react-router-dom";
 import React, { useEffect, useState } from "react"
 
+import { Link } from "react-router-dom";
 import Modals from 'components/layout/modal/index'
 import config from 'config'
 import { httpClient } from 'HttpClient'

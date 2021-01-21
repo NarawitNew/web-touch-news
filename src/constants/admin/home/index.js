@@ -1,10 +1,9 @@
 import { Breadcrumb, Button, Col, Dropdown, Input, Layout, Menu, Row, Select, Space, Tooltip } from 'antd';
-import { DeleteOutlined, EditOutlined, FieldTimeOutlined, MoreOutlined, PlusOutlined, SendOutlined, UnorderedListOutlined } from '@ant-design/icons';
+import { DeleteOutlined, EditOutlined, FieldTimeOutlined, PlusOutlined, SendOutlined, UnorderedListOutlined, UserOutlined } from '@ant-design/icons';
 import React, { useState } from "react";
 
 import { Link } from "react-router-dom";
 import Modals from 'components/layout/modal/index'
-import Pagination from 'components/layout/pagination/index'
 import Tables from 'components/layout/table/index'
 import Timeline from 'components/layout/timeline/index'
 
@@ -13,38 +12,51 @@ const { Search } = Input;
 const { Option } = Select;
 
 const data = [{
+    key: '1',
     date: '07/01/2021',
     topic: 'ตร.ค้นโกดังย่านฉลองกรุง ยังไม่พบผิด เร่งเช็กภาพโต๊ะบาคาร่า ตัดต่อหรือไม่',
     category: 'การเมือง',
     status: 'ส่ง',
-  }
-  ];
+},{
+    key: '2',
+    date: '07/01/2021',
+    topic: 'ตร.ค้นโกดังย่านฉลองกรุง ยังไม่พบผิด เร่งเช็กภาพโต๊ะบาคาร่า ตัดต่อหรือไม่',
+    category: 'การเมือง',
+    status: 'ส่ง',
+}
+];
 
 
 const Home = () => {
     const [isModalVisible, setIsModalVisible] = useState(false);
     const [modalData, setModalData] = useState({ type: '', icon: null, title: '', okColor: '', content: null, okText: '' });
 
-    const onTimeline = (value) => {
+    const onTimeline = (record) => {
         setModalData({
             type: 'show',
             icon: <FieldTimeOutlined className="manage-icon-insert" />,
             title: 'ไทม์ไลน์',
             okColor: '#216258',
             okText: 'ตกลง',
+            onOk() {
+                setIsModalVisible(false)
+            },
             content: <div style={{ width: '180px' }}><Timeline /></div>
         })
         showModal()
     }
 
-    const onDelete = (topic, e) => {
+    const onDelete = (record) => {
         setModalData({
             type: 'confirm',
             icon: <DeleteOutlined className="manage-icon-delete" />,
             title: 'คุณต้องการลบข่าวนี้ หรือไม่ ! ',
             okColor: 'red',
             okText: 'ลบ',
-            content: topic,
+            onOk() {
+                setIsModalVisible(false)
+            },
+            content: record.topic,
         })
         showModal()
     }
@@ -70,7 +82,7 @@ const Home = () => {
         },
         {
             title: 'หัวข้อ',
-            // dataIndex: 'topic',
+            dataIndex: 'topic',
             key: 'topic',
             width: '50%',
             ellipsis: true,
@@ -88,20 +100,20 @@ const Home = () => {
         },
         {
             title: '',
-            width: '10%',
+            // width: '10%',
             key: 'action',
             render: (text, record) => (
                 <Space >
                     <Tooltip placement="bottom" title="ไทม์ไลน์">
-                        <FieldTimeOutlined className="admin-icon-time"></FieldTimeOutlined>
+                        <FieldTimeOutlined className="admin-icon-time" onClick={() => { onTimeline(record) }}></FieldTimeOutlined>
                     </Tooltip>
                     <Tooltip placement="bottom" title="แก้ไข">
-                        {/* <Link to={`/manage/profile/${record.key}`}> */}
+                        <Link to={`/home/edit/123456`}>
                         <EditOutlined className="admin-icon-edit" />
-                        {/* </Link> */}
+                        </Link>
                     </Tooltip>
                     <Tooltip placement="bottom" title="ลบ">
-                        <DeleteOutlined className="admin-icon-delete" />
+                        <DeleteOutlined className="admin-icon-delete" onClick={() => { onDelete(record) }} />
                     </Tooltip>
                 </Space>
             ),
@@ -160,7 +172,7 @@ const Home = () => {
                     </Col>
                     <Col flex="220px">
                         <Input.Group >
-                            <Select defaultValue="1" style={{ width: '100%'}}>
+                            <Select defaultValue="1" style={{ width: '100%' }}>
                                 <Option value="1">ประเภทข่าวทั้งหมด</Option>
                                 <Option value="2">การเมือง</Option>
                             </Select>
@@ -170,24 +182,26 @@ const Home = () => {
                         <Search placeholder="ค้นหา"></Search>
                     </Col>
                     <Col flex="100px">
-                        <Button style={{ width: '100%'}} type="primary" icon={<PlusOutlined />}>เพิ่ม</Button>
+                        <Link to="/home/create">
+                            <Button style={{ width: '100%' }} type="primary" icon={<PlusOutlined />}>เพิ่ม</Button>
+                        </Link>
                     </Col>
                 </Row>
                 <Tables
                     columns={columns}
-                  dataSource={data}
+                    dataSource={data}
+                    setCurrentPage={'1'}
+                    pageCurrent={'1'}
+                    perPage={2}
+                    totalPage={2}
                 />
                 <Modals
                     isModalVisible={isModalVisible}
-                    onOk={handleOk}
+                    onOk={modalData.onOk}
                     onCancel={handleCancel}
                     modalData={modalData}
                 >
-                    {modalData.type === 'show' ?
-                        <div style={{ marginLeft: '100px' }}>{modalData.content}</div>
-                        :
-                        <p style={{ marginLeft: '80px' }} className="text-overflow">{modalData.content}</p>
-                    }
+                    <p className="admin-truncate-text">{modalData.content}</p>
                 </Modals>
             </Content>
         </>

@@ -1,5 +1,6 @@
 import { Route, Switch } from "react-router-dom"
 
+import CreateNews from 'constants/admin/createNews/index'
 import HomeAdmin from 'constants/admin/home/index'
 import HomeSuper from 'constants/home/index'
 import Manage from 'constants/manage/index'
@@ -24,6 +25,8 @@ export default function Routers(props) {
                 :
                 <Switch>
                     <Route exact component={HomeAdmin} path="/"></Route>
+                    <Route component={CreateNews} path="/home/:type/:id"></Route>
+                    <Route component={CreateNews} path="/home/:type"></Route>
                     <Route component={ViewNews} path="/home/view"></Route>
                     <Route component={HomeAdmin} path="/home"></Route>
                     <Route component={Profile} path="/:state/profile/:id" ></Route>
