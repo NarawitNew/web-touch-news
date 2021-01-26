@@ -20,7 +20,6 @@ const Tables = (props) => {
                 onChange={onChange}
                 style={{ marginTop: '20px' }}
                 pagination={pagination}
-
             />
         </>
     );

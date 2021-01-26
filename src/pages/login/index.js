@@ -35,16 +35,23 @@ const Login = (props) => {
         setData.append('role', 'admin');
         setData.append('service', 'timelapse-service');
 
-        axios.post(`${config.authanURL}/login`, setData)
+        axios.post(`${config.REACT_APP_AUTHANURL}/login`, setData)
             .then(function (response) {
                 // console.log('response', response.data.code)
                 if (response.data.code === 200) {
                     message.success(response.data.message)
                     localStorage.setItem('token', response.data.data.access_token)
+                    localStorage.setItem('type', 'super')
                     props.history.push("/home")
                     window.location.reload()
                 } else {
-                    message.error(response.data.message)
+                    // message.error(response.data.message)
+
+                    message.success(response.data.message)
+                    localStorage.setItem('token', 'test admin')
+                    localStorage.setItem('type', 'admin')
+                    props.history.push("/home")
+                    window.location.reload()
                 }
                 // console.log(JSON.stringify(response.data));
             })
@@ -60,7 +67,7 @@ const Login = (props) => {
         <div className="Login">
             <div className="Login-box">
                 <div className="Login-herde">
-                    T<p style={{ display: "inline-block", color: "#216258" }}>o</p>uch K<p style={{ display: "inline-block", color: "#216258" }}>o</p>rat News
+                    T<p className="login-text-o" >o</p>uch K<p className="login-text-o">o</p>rat News
                 </div>
 
                 <div className="Login-form">
@@ -70,17 +77,17 @@ const Login = (props) => {
                     >
                         <Form.Item
                             name="username"
-                            rules={[{  message: 'Please input your username!' }]}
+                            rules={[{ required: true, message: 'Please input your username!' }]}
                         >
                             <Input value="s" size="large" placeholder="ชื่อผู้ใช้งาน" prefix={<UserOutlined />}
-                                onChange={e => setUsername(e.target.value)} />
+                                 />
                         </Form.Item>
                         <Form.Item
                             name="password"
                             rules={[{ required: true, message: 'Please input your password!' }]}
                         >
                             <Input.Password size="large" placeholder="รหัสผ่าน" prefix={<UnlockOutlined />}
-                                onChange={e => setPassword(e.target.value)} />
+                                 />
                         </Form.Item>
                         <Form.Item name="isCheckbox" >
                             <Checkbox checked={isCheckbox} onChange={onCheckbox}>บันทึกรหัสผ่าน</Checkbox>

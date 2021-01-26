@@ -1,8 +1,9 @@
 import { Button, Modal } from 'antd'
 
-const Modals = (props) => {
+const Modals = (props) =>{
     return (
-        <Modal
+        
+        <Modal 
             width={450}
             visible={props.isModalVisible}
             title={<div className="modal-text">{props.modalData.icon}{props.modalData.title}</div>}

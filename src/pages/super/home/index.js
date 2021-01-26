@@ -3,10 +3,10 @@ import { DeleteOutlined, FieldTimeOutlined, MoreOutlined, SendOutlined, TeamOutl
 import React, { useState } from "react";
 
 import { Link } from "react-router-dom";
-import Modals from 'components/layout/modal/index'
-import Pagination from 'components/layout/pagination/index'
-import Tables from 'components/layout/table/index'
-import Timeline from 'components/layout/timeline/index'
+import Modals from 'components/layout/modal'
+import Pagination from 'components/layout/pagination'
+import Tables from 'components/layout/table'
+import Timeline from 'components/layout/timeline'
 
 const { Content } = Layout;
 const { Search } = Input;
@@ -40,7 +40,7 @@ const Home = () => {
     showModal()
   }
 
-  const onDelete = (topic,e) => {
+  const onDelete = (topic, e) => {
     setModalData({
       type: 'confirm',
       icon: <DeleteOutlined className="manage-icon-delete" />,
@@ -95,7 +95,7 @@ const Home = () => {
       key: 'topic',
       width: '50%',
       ellipsis: true,
-      render: (text, record) => (<Link to="/home/view"  style={{ color: '#000' }}>{record.topic}</Link>),
+      render: (text, record) => (<Link to="/home/view" style={{ color: '#000' }}>{record.topic}</Link>),
     },
     {
       title: 'ผู้ดูแลระบบ',
@@ -186,23 +186,19 @@ const Home = () => {
           columns={columns}
           dataSource={data}
         />
-        <Pagination
-          defaultCurrent={1}
-          total={100}
-          onChange={onPagination}
-        />
+
         <Modals
-        isModalVisible={isModalVisible}
-        onOk={handleOk}
-        onCancel={handleCancel}
-        modalData={modalData}
-      >
-        {modalData.type === 'show'? 
-        <div style={{marginLeft:'100px'}}>{modalData.content}</div>
-        :
-        <p style={{marginLeft:'80px'}} className="text-overflow">{modalData.content}</p>
-        }
-      </Modals>
+          isModalVisible={isModalVisible}
+          onOk={handleOk}
+          onCancel={handleCancel}
+          modalData={modalData}
+        >
+          {modalData.type === 'show' ?
+            <div style={{ marginLeft: '100px' }}>{modalData.content}</div>
+            :
+            <p style={{ marginLeft: '80px' }} className="text-overflow">{modalData.content}</p>
+          }
+        </Modals>
       </Content>
     </>
   );

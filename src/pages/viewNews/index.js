@@ -1,13 +1,14 @@
-import { Breadcrumb, Button, Col, Image, Input, Layout, Row, Select } from 'antd'
+import { Breadcrumb, Button, Col, Dropdown, Image, Input, Layout, Menu, Row, Select } from 'antd'
+import { DeleteOutlined, FieldTimeOutlined, MoreOutlined } from '@ant-design/icons';
 import React, { useState } from "react";
 
-import { DeleteOutlined } from '@ant-design/icons';
-import Modals from 'components/layout/modal/index'
-import Timeline from 'components/layout/timeline/index'
+import Modals from 'components/layout/modal'
+import Timeline from 'components/layout/timeline'
 
 const { Content } = Layout
 const { Option } = Select;
 const { TextArea } = Input;
+const type = localStorage.getItem('type')
 
 const dataNews = {
     id: '1',
@@ -27,7 +28,22 @@ const View = (props) => {
     const [isModalVisible, setIsModalVisible] = useState(false);
     const [modalData, setmodalData] = useState({ type: '', icon: null, title: '', cancelButton: '', okButton: null, email: null, okText: '' });
 
-    
+    const menu = () => {
+        return (
+            <Menu>
+                <Menu.Item >
+                    <FieldTimeOutlined style={{ color: '#6AC9FF' }}></FieldTimeOutlined>
+              ไทม์ไลน์
+          </Menu.Item>
+                <Menu.Item >
+                    <DeleteOutlined style={{ color: 'red' }}></DeleteOutlined>
+              ลบ
+          </Menu.Item>
+            </Menu>
+        );
+
+    }
+
     const onDelete = () => {
         setmodalData({
             type: 'confirm',
@@ -63,7 +79,17 @@ const View = (props) => {
                 <Breadcrumb.Item>ข่าว</Breadcrumb.Item>
             </Breadcrumb>
             <Content className="view-Content">
-                <div className="view-titel-news">{dataNews.topic}</div>
+                <Row align="middle">
+                    <Col flex='auto'>
+                        <div className="view-titel-news">{dataNews.topic}</div>
+                    </Col>
+                    {type === 'admin' ?
+                        <Col flex='10px'>
+                            <Dropdown placement="bottomRight" overlay={menu()}><MoreOutlined style={{ fontSize: '20px' }} /></Dropdown>
+                        </Col>
+                        : <></>
+                    }
+                </Row>
                 <hr />
                 <Row justify="center">
                     <Image
@@ -88,44 +114,50 @@ const View = (props) => {
                             <Timeline></Timeline>
                         </div>
                     </Col>
-                    <Col span={12} >
-                        <h3>เปลี่ยนสถานะข่าว</h3>
-                        <Row style={{ marginTop: '20px' }}>
-                            <Col span={4} >
-                                สถานะ :
+                    {type === 'super' ?
+                        <Col span={12} >
+                            <h3>เปลี่ยนสถานะข่าว</h3>
+                            <Row style={{ marginTop: '20px' }}>
+                                <Col span={4} >
+                                    สถานะ :
                             </Col>
-                            <Col span={20}>
-                                <Input.Group>
-                                    <Select defaultValue={statusNews} onChange={onStatusNews} className="view-Input-Group">
-                                        <Option value="Submit">ส่ง</Option>
-                                        <Option value="Draft">ร่าง</Option>
-                                        <Option value="Approve">อนุมัติ</Option>
-                                        <Option value="Public">สาธารณะ</Option>
-                                    </Select>
-                                </Input.Group>
-                            </Col>
-                        </Row>
-                        <Row>
-                            <Col span={20} offset={4}>
-                                {statusNews === 'Draft' ?
-                                    <><div className="view-Input-TextArea">
-                                        <div style={{ color: 'red' }}>*กรุณากรอกสิ่งที่ต้องแก้ไข</div>
-                                        <TextArea rows={1} />
+                                <Col span={20}>
+                                    <Input.Group>
+                                        <Select defaultValue={statusNews} onChange={onStatusNews} className="view-Input-Group">
+                                            <Option value="Submit">ส่ง</Option>
+                                            <Option value="Draft">ร่าง</Option>
+                                            <Option value="Approve">อนุมัติ</Option>
+                                            <Option value="Public">สาธารณะ</Option>
+                                        </Select>
+                                    </Input.Group>
+                                </Col>
+                            </Row>
+                            <Row>
+                                <Col span={20} offset={4}>
+                                    {statusNews === 'Draft' ?
+                                        <><div className="view-Input-TextArea">
+                                            <div style={{ color: 'red' }}>*กรุณากรอกสิ่งที่ต้องแก้ไข</div>
+                                            <TextArea rows={1} />
 
-                                    </div>
-                                    </>
-                                    : <></>
-                                }
-                            </Col>
+                                        </div>
+                                        </>
+                                        : <></>
+                                    }
+                                </Col>
 
-                        </Row>
-                    </Col>
+                            </Row>
+                        </Col>
+                        : <></>
+                    }
                 </Row>
-                <Row justify="end" style={{ marginTop: '20px' }}>
-                    <Button type="primary" ghost className="view-Button">บันทึก</Button>
-                    <Button className="view-Button" onClick={onDelete} danger>ลบ</Button>
-                    <Button className="view-Button">ยกเลิก</Button>
-                </Row>
+                {type === 'super' ?
+                    <Row justify="end" style={{ marginTop: '20px' }}>
+                        <Button type="primary" ghost className="view-Button">บันทึก</Button>
+                        <Button className="view-Button" onClick={onDelete} danger>ลบ</Button>
+                        <Button className="view-Button">ยกเลิก</Button>
+                    </Row>
+                    : <></>
+                }
                 <Modals
                     isModalVisible={isModalVisible}
                     onOk={handleOk}
