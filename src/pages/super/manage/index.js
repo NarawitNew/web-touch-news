@@ -2,12 +2,13 @@ import { Breadcrumb, Button, Col, Form, Input, Layout, Row, Space, Switch, Toolt
 import { DeleteOutlined, EditOutlined, ExclamationCircleOutlined, PlusOutlined, UserOutlined } from '@ant-design/icons';
 import React, { useEffect, useState } from "react"
 
-import FormData from 'form-data'
 import { Link } from "react-router-dom"
-import Modals from 'components/layout/modal/index'
-import Tables from 'components/layout/table/index'
+import Modals from 'components/layout/modal'
+import Tables from 'components/layout/table'
 import config from 'config'
 import { httpClient } from 'HttpClient'
+
+// import FormData from 'form-data'
 
 const { Search } = Input;
 const { Content } = Layout;
@@ -26,10 +27,10 @@ const Manage = () => {
 
   const getData = () => {
     const params = {
-      per_page: '15',
+      per_page: '10',
       page: current,
     }
-    httpClient.get(config.manageURL + '/admin', { params })
+    httpClient.get(config.REACT_APP_BASEURL + '/admin', { params })
       .then(function (response) {
         console.log('response', response)
         const code = response.data.code
@@ -40,7 +41,7 @@ const Manage = () => {
           totalPage: response.data.data.pagination.total
         })
         if (code === 200) {
-          const dataMap = data.map((item, key) => {
+          const dataMap = data.map((item) => {
             item.key = item.id
             item.email = item.email
             item.name = item.firstname + ' ' + item.lastname
@@ -58,9 +59,13 @@ const Manage = () => {
 
   const onInsert = (value) => {
     // console.log('email', value.email)
-    // let setData = new FormData();
+    // let setData = `{"email":"${value.email}"}`
     // setData.append("email", value);
-    httpClient.post(config.manageURL + '/admin', `{"email":"${value.email}"}`)
+    const setData = JSON.stringify({
+      "email": value.email
+    })
+    console.log('setData', setData)
+    httpClient.post(config.REACT_APP_BASEURL + '/admin', setData)
       .then(function (response) {
         const code = response.data.code
         console.log('response', response)
@@ -99,7 +104,7 @@ const Manage = () => {
       content: record.email,
       onOk() {
         setIsModalVisible(false)
-        httpClient.delete(config.manageURL + '/admin/' + record.key)
+        httpClient.delete(config.REACT_APP_BASEURL + '/admin/' + record.key)
           .then(function (response) {
             const code = response.data.code
             if (code === 200) {
@@ -116,9 +121,9 @@ const Manage = () => {
     setIsModalVisible(true)
   }
 
-  const onEdit = (record) => {
+  // const onEdit = (record) => {
 
-  }
+  // }
 
   const onSuspend = (checked, record) => {
     // console.log('checked', checked)
@@ -133,7 +138,7 @@ const Manage = () => {
         okText: 'ระงับ',
         onOk() {
           setIsModalVisible(false)
-          httpClient.put(config.manageURL + '/admin/suspend/' + record.key, `{"suspend": "false" }`)
+          httpClient.put(config.REACT_APP_BASEURL + '/admin/suspend/' + record.key, `{"suspend": "false" }`)
             .then(function (response) {
               console.log('response', response)
               const code = response.data.code
@@ -153,7 +158,7 @@ const Manage = () => {
     }
     else {
       console.log('checked', checked)
-      httpClient.put(config.manageURL + '/admin/suspend/' + record.key, `{"suspend": "true" }`)
+      httpClient.put(config.REACT_APP_BASEURL + '/admin/suspend/' + record.key, `{"suspend": "true" }`)
         .then(function (response) {
           message.success('อนุญาติผู้ดูแลระบบสำเร็จ');
         })
@@ -175,10 +180,10 @@ const Manage = () => {
     setIsModalVisible(true)
   };
 
-  const handleOk = () => {
-    console.log('OK')
-    setIsModalVisible(false)
-  };
+  // const handleOk = () => {
+  //   console.log('OK')
+  //   setIsModalVisible(false)
+  // };
 
   const handleCancel = () => {
     setIsModalVisible(false)
@@ -199,7 +204,7 @@ const Manage = () => {
       title: '',
       width: '15%',
       key: 'action',
-      render: (text, record) => (
+      render: ( record) => (
         <Space >
           <Tooltip placement="bottom" title="แก้ไข">
             <Link to={`/manage/profile/${record.key}`}>
@@ -232,8 +237,8 @@ const Manage = () => {
                 name="email"
                 rules={[
                   {
-                    required: true,
-                    message: false,
+                    required: true, 
+                    message: 'กรุณากรอกอีเมล'
                   },
                 ]}
                 className="manage-Input">

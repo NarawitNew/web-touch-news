@@ -1,32 +1,52 @@
 import { Breadcrumb, Button, Col, Form, Image, Input, Layout, Row, Select } from 'antd';
-import React, { useEffect, useState } from "react"
+import React, {useState} from "react"
 
 import FroalaEditor from 'components/layout/froala/index'
 import { Link } from "react-router-dom";
 import { PlusCircleOutlined } from '@ant-design/icons';
 import Tag from 'components/layout/tag/index'
-import { from } from 'form-data';
 
 const { Content } = Layout;
 const { Option } = Select;
-const { TextArea } = Input;
 
 const CreateNews = (props) => {
     const params = props.match.params;
-    const [credit, setCredit] = useState({inputVisible: false, inputValue: '',tags: ['Tag 1', 'Tag 2', 'Tag 3']})
+    const [credit, setCredit] = useState({ inputVisible: false, inputValue: '', tags: ['Tag 1', 'Tag 2', 'Tag 3'] })
+    const [hashtag, setHashtag] = useState({ inputVisible: false, inputValue: '', tags: ['Tag 1', 'Tag 2', 'Tag 3'] })
 
-    const handleTagChange = (e) => {
+    const creditChange = (e) => {
         setCredit({ ...credit, inputValue: e.target.value });
     };
-    const handleTagConfirm = (e) => {
+    const creditClose = removedTag => {
+        const tags = credit.tags.filter(tag => tag !== removedTag);
+        setCredit({ tags })
+    }
+    const creditConfirm = (e) => {
         let tags = [...credit.tags];
         tags.push(credit.inputValue)
         setCredit({
             tags,
             inputVisible: false,
             inputValue: '',
-          });
+        });
+    }
+    const hashtagChange = (e) => {
+        setHashtag({ ...hashtag, inputValue: e.target.value });
     };
+    const hashtagClose = removedTag => {
+        const tags = hashtag.tags.filter(tag => tag !== removedTag);
+        setHashtag({ tags })
+    }
+    const hashtagConfirm = (e) => {
+        let tags = [...hashtag.tags];
+        tags.push(hashtag.inputValue)
+        setHashtag({
+            tags,
+            inputVisible: false,
+            inputValue: '',
+        });
+
+    }
     return (
         <>
             {params.type === "create" ?
@@ -58,20 +78,17 @@ const CreateNews = (props) => {
                                 <Button>รูปภาพ</Button>
                             </Col>
                         </Row>
-
                         <Row gutter={[8, 8]} align='middle'>
                             <Col style={{ textAlign: 'right' }} span={5}>
                                 <div>เครติด</div>
                             </Col>
                             <Col span={16}>
                                 <Input
-                                value={credit.inputValue}
-                                    onChange={handleTagChange}
+                                    value={credit.inputValue}
+                                    onChange={creditChange}
                                     // onBlur={handleTagConfirm}
-                                    onPressEnter={handleTagConfirm}
-                                >
-
-                                </Input>
+                                    onPressEnter={creditConfirm}
+                                />
                             </Col>
                             <Col span={2}>
                                 <PlusCircleOutlined className="create-icon"></PlusCircleOutlined>
@@ -79,7 +96,10 @@ const CreateNews = (props) => {
                         </Row>
                         <Row gutter={[8, 16]} align='middle'>
                             <Col offset={5}>
-                                <Tag data={credit.tags}></Tag>
+                                <Tag
+                                    data={credit.tags}
+                                    onClose={creditClose}
+                                />
                             </Col>
                         </Row>
                         <Row gutter={[8, 8]} align='middle'>
@@ -87,7 +107,12 @@ const CreateNews = (props) => {
                                 <div>แฮชแท็ก</div>
                             </Col>
                             <Col span={16}>
-                                <Input></Input>
+                            <Input
+                                    value={credit.inputValue}
+                                    onChange={hashtagChange}
+                                    // onBlur={handleTagConfirm}
+                                    onPressEnter={hashtagConfirm}
+                                />
                             </Col>
                             <Col span={2}>
                                 <PlusCircleOutlined className="create-icon"></PlusCircleOutlined>
@@ -95,7 +120,10 @@ const CreateNews = (props) => {
                         </Row>
                         <Row gutter={[8, 16]} align='middle'>
                             <Col offset={5}>
-
+                                <Tag
+                                    data={hashtag.tags}
+                                    onClose={hashtagClose} 
+                                />
                             </Col>
                         </Row>
                         <Row gutter={[8, 8]}>

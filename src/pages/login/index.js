@@ -35,7 +35,7 @@ const Login = (props) => {
         setData.append('role', 'admin');
         setData.append('service', 'timelapse-service');
 
-        axios.post(`${config.authanURL}/login`, setData)
+        axios.post(`${config.REACT_APP_AUTHANURL}/login`, setData)
             .then(function (response) {
                 // console.log('response', response.data.code)
                 if (response.data.code === 200) {

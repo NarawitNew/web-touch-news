@@ -3,7 +3,7 @@ import { ExclamationCircleOutlined, KeyOutlined, UserOutlined } from '@ant-desig
 import React, { useEffect, useState } from "react"
 
 import { Link } from "react-router-dom";
-import Modals from 'components/layout/modal/index'
+import Modals from 'components/layout/modal'
 import config from 'config'
 import { httpClient } from 'HttpClient'
 

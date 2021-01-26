@@ -3,9 +3,9 @@ import { DeleteOutlined, EditOutlined, FieldTimeOutlined, PlusOutlined, SendOutl
 import React, { useState } from "react";
 
 import { Link } from "react-router-dom";
-import Modals from 'components/layout/modal/index'
-import Tables from 'components/layout/table/index'
-import Timeline from 'components/layout/timeline/index'
+import Modals from 'components/layout/modal'
+import Tables from 'components/layout/table'
+import Timeline from 'components/layout/timeline'
 
 const { Content } = Layout;
 const { Search } = Input;

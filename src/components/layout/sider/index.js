@@ -7,7 +7,7 @@ const { Sider } = Layout;
 
 const Siderbar = (props) => {
     return (
-        <Sider width={280} className="site-layout-background" >
+        <Sider width={200} className="site-layout-background" >
             <div className="logo">
                 {props.type === 'super' ?
                     <>SUPER ADMIN</>

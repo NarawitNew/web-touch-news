@@ -3,10 +3,10 @@ import { DeleteOutlined, FieldTimeOutlined, MoreOutlined, SendOutlined, TeamOutl
 import React, { useState } from "react";
 
 import { Link } from "react-router-dom";
-import Modals from 'components/layout/modal/index'
-import Pagination from 'components/layout/pagination/index'
-import Tables from 'components/layout/table/index'
-import Timeline from 'components/layout/timeline/index'
+import Modals from 'components/layout/modal'
+import Pagination from 'components/layout/pagination'
+import Tables from 'components/layout/table'
+import Timeline from 'components/layout/timeline'
 
 const { Content } = Layout;
 const { Search } = Input;
@@ -186,11 +186,7 @@ const Home = () => {
           columns={columns}
           dataSource={data}
         />
-        <Pagination
-          defaultCurrent={1}
-          total={100}
-          onChange={onPagination}
-        />
+
         <Modals
           isModalVisible={isModalVisible}
           onOk={handleOk}

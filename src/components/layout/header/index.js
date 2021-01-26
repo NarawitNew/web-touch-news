@@ -9,7 +9,7 @@ const username = "narawit"
 
 const Headerbar = () => {
     const onLogout = () => {
-        axios.post(`${config.authanURL}/logout`,null)
+        axios.post(`${config.REACT_APP_AUTHANURL}/logout`,null)
           .then(function (response) {
             console.log('response:', response.data)
             if (response.data) {

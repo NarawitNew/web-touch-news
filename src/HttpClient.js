@@ -2,7 +2,7 @@ import axios from 'axios'
 import config from 'config'
 
 const instance = axios.create({
-    manageURL: config.manageURL,
+    manageURL: config.REACT_APP_BASEURL,
   timeout: 100000,
   headers: {
     'Content-Type': 'application/json'

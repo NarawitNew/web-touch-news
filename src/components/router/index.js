@@ -1,12 +1,12 @@
 import { Route, Switch } from "react-router-dom"
 
-import CreateNews from 'constants/admin/createNews/index'
-import HomeAdmin from 'constants/admin/home/index'
-import HomeSuper from 'constants/home/index'
-import Manage from 'constants/manage/index'
-import Profile from 'constants/profile/index'
+import CreateNews from 'pages/admin/createNews/index'
+import HomeAdmin from 'pages/admin/home/index'
+import HomeSuper from 'pages/super/home/index'
+import Manage from 'pages/super/manage/index'
+import Profile from 'pages/profile/index'
 import React from 'react'
-import ViewNews from 'constants/viewNews/index'
+import ViewNews from 'pages/viewNews/index'
 
 export default function Routers(props) {
     return (
