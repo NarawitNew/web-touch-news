@@ -27,10 +27,10 @@ const Profile = (props) => {
 
   useEffect(() => {
     getData()
-  })
+  },[params])
 
   const getData = () => {
-    httpClient.get(config.manageURL + '/admin/data/' + params.id)
+    httpClient.get(config.REACT_APP_BASEURL + '/admin/data/' + params.id)
       .then(function (response) {
         // console.log('response', response)
         const code = response.data.code
@@ -63,7 +63,7 @@ const Profile = (props) => {
       content: 'คุณต้องการยืนยันการสร้างรหัสใหม่นี้หรือไม่ !!! ',
       onOk() {
         // setIsModalVisible(false)
-        httpClient.put(config.manageURL + '/admin/resetpassword/' + params.id)
+        httpClient.put(config.REACT_APP_BASEURL + '/admin/resetpassword/' + params.id)
           .then(function (response) {
             const code = response.data.code
             if (code === 201) {
@@ -95,14 +95,19 @@ const Profile = (props) => {
 
   const upData = (value) => {
     console.log('value', value)
-    const setData = 
-      `{
-        "firstname":"${value.firstname}",
-        "lastname":"${value.lastname}",
-        "image":"${image}"
-      }`
+    const setData = JSON.stringify({
+      "firstname":value.firstname,
+      "lastname":value.lastname,
+      "image":image
+    })
+    // const setData = 
+    //   `{
+    //     "firstname":"${value.firstname}",
+    //     "lastname":"${value.lastname}",
+    //     "image":"${image}"
+    //   }`
     
-    httpClient.put(config.manageURL + '/admin/update/' + params.id,setData)
+    httpClient.put(config.REACT_APP_BASEURL + '/admin/update/' + params.id,setData)
       .then(function (response) {
         message.success('สำเร็จ');
       })
