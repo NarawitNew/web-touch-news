@@ -8,16 +8,10 @@ import React from 'react'
 // Require Editor plugin files.
 // Require Editor CSS files.
 
-const Froala = () => {
-  const [val, setVal] = React.useState('text')
-  const handleChange = html => {
-    setVal(html)
-    console.log('val', val)
-  }
-
+const Froala = (props) => {
   return (
     <div >
-      <FroalaEditor model={val} onModelChange={handleChange} tag="textarea" />
+      <FroalaEditor onModelChange={props.onModelChange} tag="textarea" />
     </div>
   )
 }

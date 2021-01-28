@@ -30,7 +30,7 @@ const Siderbar = (props) => {
                     : <></>
                 }
                 <Menu.Item key="/profile" icon={<SettingOutlined />}>
-                    <Link to="/profile/123456789">โปรไฟล์</Link>
+                    <Link to="/profile/1354010773180903424">โปรไฟล์</Link>
                 </Menu.Item>
             </Menu>
         </Sider>

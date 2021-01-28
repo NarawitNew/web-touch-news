@@ -23,7 +23,7 @@ const Manage = () => {
 
   useEffect(() => {
     getData()
-  }, [dataFilter, current])
+  }, [dataFilter, current,isModalVisible])
 
   const getData = () => {
     const params = {
@@ -138,7 +138,11 @@ const Manage = () => {
         okText: 'ระงับ',
         onOk() {
           setIsModalVisible(false)
-          httpClient.put(config.REACT_APP_BASEURL + '/admin/suspend/' + record.key, `{"suspend": "false" }`)
+          const setData = JSON.stringify({
+            "suspend": `"${checked}"`
+          })
+          console.log('setData', setData)
+          httpClient.put(config.REACT_APP_BASEURL + '/admin/suspend/' + record.key, setData)
             .then(function (response) {
               console.log('response', response)
               const code = response.data.code
@@ -157,8 +161,10 @@ const Manage = () => {
       setIsModalVisible(true)
     }
     else {
-      console.log('checked', checked)
-      httpClient.put(config.REACT_APP_BASEURL + '/admin/suspend/' + record.key, `{"suspend": "true" }`)
+      const setData = JSON.stringify({
+        "suspend": `"${checked}"`
+      })
+      httpClient.put(config.REACT_APP_BASEURL + '/admin/suspend/' + record.key, setData)
         .then(function (response) {
           message.success('อนุญาติผู้ดูแลระบบสำเร็จ');
         })
