@@ -125,7 +125,7 @@ const Home = () => {
                 <Breadcrumb.Item>หน้าแรก</Breadcrumb.Item>
             </Breadcrumb>
             <Content className="admin-home-Content">
-                <Row style={{ height: '160px' }} >
+                <Row style={{ height: '120px' }} >
                     <Col span={8} >
                         <div className="admin-home-Box-Left">
                             <Row align="middle" style={{ height: '100%' }}>

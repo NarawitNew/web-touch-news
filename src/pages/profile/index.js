@@ -22,15 +22,15 @@ const Profile = (props) => {
   const params = props.match.params;
   const [image, setImage] = useState('')
   const [isModalVisible, setIsModalVisible] = useState(false);
-  const [Showpass, setShowpass] = useState(false)
+  const [showInputPass, setShowInputPass] = useState(false)
   const [modalData, setModalData] = useState({ type: '', icon: null, title: '', okColor: '', content: '', okText: '' });
 
   useEffect(() => {
     getData()
-  },[params])
+  }, [params,])
 
   const getData = () => {
-    httpClient.get(config.REACT_APP_BASEURL + '/admin/data/' + params.id)
+    httpClient.get(config.REACT_APP_BASEURL + '/user/' + params.id)
       .then(function (response) {
         // console.log('response', response)
         const code = response.data.code
@@ -40,6 +40,8 @@ const Profile = (props) => {
             email: response.data.data.email,
             firstname: response.data.data.firstname,
             lastname: response.data.data.lastname,
+            passwordNew: " ",
+            passwordConfirm: " "
           })
         }
       })
@@ -74,14 +76,14 @@ const Profile = (props) => {
                 okColor: '#216258',
                 okText: 'ตกลง',
                 onOk() {
-                  setIsModalVisible(false)
+                  offModal()
                 },
                 content: ({
                   email: response.data.data.email,
                   password: response.data.data.password
                 }),
               })
-              showModal()
+              onModal()
             }
           })
           .catch(function (error) {
@@ -90,58 +92,65 @@ const Profile = (props) => {
           })
       },
     })
-    showModal()
+    onModal()
   }
 
-  const upData = (value) => {
+  const cancelUpdate = () =>{
+    getData()
+  }
+
+  const submitUpdate = (value) => {
     console.log('value', value)
-    const setData = JSON.stringify({
-      "firstname":value.firstname,
-      "lastname":value.lastname,
-      "image":image
-    })
-    // const setData = 
-    //   `{
-    //     "firstname":"${value.firstname}",
-    //     "lastname":"${value.lastname}",
-    //     "image":"${image}"
-    //   }`
-    
-    httpClient.put(config.REACT_APP_BASEURL + '/admin/update/' + params.id,setData)
-      .then(function (response) {
-        message.success('สำเร็จ');
+    if (showInputPass === true) {
+      if (value.passwordNew === value.passwordConfirm) {
+        const setData = JSON.stringify({
+          "password": value.passwordNew
+        })
+        httpClient.put(config.REACT_APP_BASEURL + '/user/password/' + params.id, setData)
+          .then(function (response) {
+            console.log('response', response)
+            message.success('เปลี่ยนรหัสผ่านสำเร็จ');
+          })
+          .catch(function (error) {
+            message.error('เปลี่ยนรหัสผ่านไม่สำเร็จ');
+          })
+      } else {
+        message.error('รหัสผ่านไม่ตรงกัน');
+      }
+    }
+    else {
+      const setData = JSON.stringify({
+        "firstname": value.firstname,
+        "lastname": value.lastname,
+        "image": image
       })
-      .catch(function (error) {
-        message.error('ไม่สำเร็จ');
-      })
+      httpClient.put(config.REACT_APP_BASEURL + '/user/update/' + params.id, setData)
+        .then(function (response) {
+          message.success('สำเร็จ');
+        })
+        .catch(function (error) {
+          message.error('ไม่สำเร็จ');
+        })
+    }
   }
 
-  const onPasswdr = () => {
-    console.log('pass')
-    setShowpass(true)
-  }
-  const newPassword = () => {
-    setModalData({
-      type: 'show',
-      icon: <KeyOutlined className="manage-icon-edit" />,
-      cancelButton: 'none',
-      okButton: { backgroundColor: 'white', color: '#216258', borderColor: '#216258' },
-      title: 'เพิ่มผู้ดูแลระบบใหม่',
-      okText: 'ตกลง',
-      email: 'asdfghjkl;'
-    })
-    showModal()
+  const ShowInputPassword = () => {
+    if (showInputPass === false) {
+      setShowInputPass(true);
+    }
+    else {
+      setShowInputPass(false)
+      formValue.setFieldsValue({
+        passwordNew: " ",
+        passwordConfirm: " "
+      })
+    }
   }
 
-  const showModal = () => {
+  const onModal = () => {
     setIsModalVisible(true)
   };
-
-  const handleOk = () => {
-    setIsModalVisible(false)
-  };
-
-  const handleCancel = () => {
+  const offModal = () => {
     setIsModalVisible(false)
   };
 
@@ -162,7 +171,7 @@ const Profile = (props) => {
           <Col span={12} offset={6}>
             <Form
               form={formValue}
-              onFinish={upData}
+              onFinish={submitUpdate}
             >
               <Form.Item className="profile-Center">
                 <Avatar size={250} src={image} />
@@ -173,19 +182,18 @@ const Profile = (props) => {
                   listType="picture"
                   maxCount={1}
                   onChange={handleChange}
-
                 >
                   <Button>อัพโหลดรูปภาพโปรไฟล์</Button>
                 </Upload>
               </Form.Item>
               <Form.Item name="email" label='อีเมล' {...layout}>
-                <Input disabled></Input>
+                <Input disabled={true}></Input>
               </Form.Item>
               <Form.Item name="firstname" label='ชื่อ' {...layout}>
-                <Input ></Input>
+                <Input disabled={showInputPass}></Input>
               </Form.Item>
               <Form.Item name="lastname" label='นามสกุล' {...layout}>
-                <Input ></Input>
+                <Input disabled={showInputPass}></Input>
               </Form.Item>
               <Form.Item className="profile-Right">
                 {params.state === 'manage' ?
@@ -194,17 +202,21 @@ const Profile = (props) => {
                   </>
                   :
                   <>
-                    <a onClick={onPasswdr}><u>เปลี่ยนรหัสผ่าน</u></a>
+                    <a onClick={ShowInputPassword}><u>เปลี่ยนรหัสผ่าน</u></a>
                   </>
                 }
               </Form.Item>
-              {Showpass === true ?
+              {showInputPass === true ?
                 <>
-                  <Form.Item label='รหัสผ่านใหม่' {...layout}>
-                    <Input></Input>
+                  <Form.Item
+                    name="passwordNew"
+                    label='รหัสผ่านใหม่' {...layout}>
+                    <Input />
                   </Form.Item>
-                  <Form.Item label='ยืนยันรหัสผ่านใหม่' {...layout}>
-                    <Input></Input>
+                  <Form.Item
+                    name="passwordConfirm"
+                    label='ยืนยันรหัสผ่านใหม่' {...layout}>
+                    <Input />
                   </Form.Item>
                 </>
                 :
@@ -212,17 +224,16 @@ const Profile = (props) => {
                 </>
               }
               <Form.Item className="profile-Right">
+                <Button className="profile-button" type="primary" ghost htmlType="submit">บันทึก</Button>
                 {params.state === 'manage' ?
                   <>
-                    <Button className="profile-button" type="primary" ghost htmlType="submit">บันทึก</Button>
                     <Link to="/manage">
                       <Button className="profile-button" style={{ marginLeft: '10px' }}>ยกเลิก</Button>
                     </Link>
                   </>
                   :
                   <>
-                    <Button className="profile-button" type="primary" ghost>บันทึก</Button>
-                    <Button className="profile-button" style={{ marginLeft: '10px' }}>ยกเลิก</Button>
+                    <Button className="profile-button" onClick={cancelUpdate} style={{ marginLeft: '10px' }}>ยกเลิก</Button>
                   </>
                 }
               </Form.Item>
@@ -230,17 +241,10 @@ const Profile = (props) => {
           </Col>
         </Row>
       </Content>
-      {/* <Modals
-        isModalVisible={isModalVisible}
-        onOk={handleOk}
-        onCancel={handleCancel}
-        modalData={modalData}
-      ></Modals> */}
-
       <Modals
         isModalVisible={isModalVisible}
         onOk={modalData.onOk}
-        onCancel={handleCancel}
+        onCancel={offModal}
         modalData={modalData}
       >
         {modalData.type === 'show' ?
