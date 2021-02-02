@@ -5,6 +5,7 @@ import { UnlockOutlined, UserOutlined } from '@ant-design/icons';
 import FormData from 'form-data'
 import axios from 'axios'
 import config from 'config'
+import { httpClient } from 'HttpClient'
 import sha256 from 'js-sha256'
 
 const Login = (props) => {
@@ -29,29 +30,36 @@ const Login = (props) => {
         //     role: 'admin',
         //     service: 'timelapse-service'
         // }
-        let setData = new FormData();
-        setData.append('email', values.username);
-        setData.append('password', sha256.hmac("sil-dkigx]ujpocx]'my=", values.password));
-        setData.append('role', 'admin');
-        setData.append('service', 'timelapse-service');
-
-        axios.post(`${config.REACT_APP_AUTHANURL}/login`, setData)
+        // let setData = new FormData();
+        // setData.append('email', values.username);
+        // setData.append('password', sha256.hmac("sil-dkigx]ujpocx]'my=", values.password));
+        // setData.append('role', 'admin');
+        // setData.append('service', 'timelapse-service');
+        // axios.post(`${config.REACT_APP_BASEURL}/login`, setData)
+        const setData = JSON.stringify({
+            "email": `${values.username}`,
+            "password": `${values.password}`
+        })
+        console.log('setData', setData)
+        httpClient.post(config.REACT_APP_BASEURL + '/login',setData)
             .then(function (response) {
-                // console.log('response', response.data.code)
+                console.log('response', response)
                 if (response.data.code === 200) {
                     message.success(response.data.message)
                     localStorage.setItem('token', response.data.data.access_token)
-                    localStorage.setItem('type', 'super')
+                    localStorage.setItem('role', response.data.data.role)
+                    localStorage.setItem('id', response.data.data.id)
+                    localStorage.setItem('first_name', response.data.data.first_name)
                     props.history.push("/home")
                     window.location.reload()
                 } else {
-                    // message.error(response.data.message)
+                    message.error(response.data.message)
 
-                    message.success(response.data.message)
-                    localStorage.setItem('token', 'test admin')
-                    localStorage.setItem('type', 'admin')
-                    props.history.push("/home")
-                    window.location.reload()
+                    // message.success(response.data.message)
+                    // localStorage.setItem('token', 'test admin')
+                    // localStorage.setItem('type', 'admin')
+                    // props.history.push("/home")
+                    // window.location.reload()
                 }
                 // console.log(JSON.stringify(response.data));
             })

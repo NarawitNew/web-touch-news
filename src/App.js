@@ -6,7 +6,8 @@ import { BrowserRouter as Router } from "react-router-dom";
 import Sider from 'components/layout/sider/index';
 
 function App() {
-  const type = localStorage.getItem('type')
+  const type = localStorage.getItem('role')
+
   return (
     <Layout breakpoint='lg' style={{ minHeight: '100vh' }} >
       <Header></Header>

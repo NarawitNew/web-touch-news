@@ -11,14 +11,14 @@ import ViewNews from 'pages/viewNews/index'
 export default function Routers(props) {
     return (
         <>
-            {props.type === 'super' ?
+            {props.type === 'Superadmin' ?
                 <Switch>
                     <Route exact component={HomeSuper} path="/"></Route>
                     <Route component={ViewNews} path="/home/view"></Route>
                     <Route component={HomeSuper} path="/home"></Route>
                     <Route component={Profile} path="/:state/profile/:id" ></Route>
                     <Route component={Manage} path="/manage"></Route>
-                    <Route component={Profile} path="/profile/:id"></Route>
+                    <Route component={Profile} path="/profile"></Route>
                     {/* <Profile type='' title='โปรไฟล์'></Profile> */}
                     {/* <Profile type='manage' title='ผู้ดูแลระบบ'></Profile> */}
                 </Switch>
@@ -31,7 +31,7 @@ export default function Routers(props) {
                     <Route component={HomeAdmin} path="/home"></Route>
                     <Route component={Profile} path="/:state/profile/:id" ></Route>
                     <Route component={Manage} path="/manage"></Route>
-                    <Route component={Profile} path="/profile/:id"></Route>
+                    <Route component={Profile} path="/profile"></Route>
                     <Profile type='' title='โปรไฟล์'></Profile>
                     {/* <Profile type='manage' title='ผู้ดูแลระบบ'></Profile> */}
                 </Switch>

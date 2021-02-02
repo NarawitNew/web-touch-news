@@ -7,8 +7,7 @@ import Modals from 'components/layout/modal'
 import Tables from 'components/layout/table'
 import config from 'config'
 import { httpClient } from 'HttpClient'
-
-// import FormData from 'form-data'
+import sha256 from 'js-sha256'
 
 const { Search } = Input;
 const { Content } = Layout;
@@ -16,6 +15,7 @@ const { Content } = Layout;
 const Manage = () => {
   const [dataSource, setDataSource] = useState();
   const [dataFilter, setDataFilter] = useState("")
+  const [dataSearch, setDataSearch] = useState("")
   const [current, setCurrent] = useState(1)
   const [pagination, setPagination] = useState({ pageCurrent: 1, perPage: 1, totalPage: 1 })
   const [isModalVisible, setIsModalVisible] = useState(false);
@@ -23,16 +23,17 @@ const Manage = () => {
 
   useEffect(() => {
     getData()
-  }, [dataFilter, current,isModalVisible])
+  }, [dataFilter, current,isModalVisible,dataSearch])
 
   const getData = () => {
     const params = {
       per_page: '10',
       page: current,
+      filters: `firstname:like:${dataSearch}`
     }
     httpClient.get(config.REACT_APP_BASEURL + '/admin', { params })
       .then(function (response) {
-        console.log('response', response)
+        console.log('response', response.data.code)
         const code = response.data.code
         const data = response.data.data.data_list
         setPagination({
@@ -50,6 +51,9 @@ const Manage = () => {
             return item
           })
           setDataSource(dataMap)
+        }else{
+          setDataSource(data)
+          message.error(response.data.message)
         }
       })
       .catch(function (error) {
@@ -64,11 +68,10 @@ const Manage = () => {
     const setData = JSON.stringify({
       "email": value.email
     })
-    console.log('setData', setData)
+    // console.log('setData', setData)
     httpClient.post(config.REACT_APP_BASEURL + '/admin', setData)
       .then(function (response) {
         const code = response.data.code
-        console.log('response', response)
         if (code === 201) {
           setModalData({
             type: 'show',
@@ -81,11 +84,14 @@ const Manage = () => {
             },
             content: ({
               email: response.data.data.email,
-              password: response.data.data.password
+              password:  response.data.data.password
+              // password: sha256.hmac("sil-dkigx]ujpocx]'my=", response.data.data.password)
             }),
           })
           showModal()
           setDataFilter(response.data.data.email)
+        }else if(code === 200){
+          
         }
       })
       .catch(function (error) {
@@ -139,7 +145,7 @@ const Manage = () => {
         onOk() {
           setIsModalVisible(false)
           const setData = JSON.stringify({
-            "suspend": `"${checked}"`
+            "suspend": `${checked}`
           })
           console.log('setData', setData)
           httpClient.put(config.REACT_APP_BASEURL + '/admin/suspend/' + record.key, setData)
@@ -162,8 +168,9 @@ const Manage = () => {
     }
     else {
       const setData = JSON.stringify({
-        "suspend": `"${checked}"`
+        "suspend": `${checked}`
       })
+      console.log('setData', setData)
       httpClient.put(config.REACT_APP_BASEURL + '/admin/suspend/' + record.key, setData)
         .then(function (response) {
           message.success('อนุญาติผู้ดูแลระบบสำเร็จ');
@@ -175,6 +182,7 @@ const Manage = () => {
   }
 
   const onSearch = (value) => {
+    setDataSearch(value)
   }
 
   const currentPage = (value) => {
@@ -243,8 +251,10 @@ const Manage = () => {
                 name="email"
                 rules={[
                   {
-                    required: true, 
-                    message: 'กรุณากรอกอีเมล'
+                    required: true,
+                    type: "email",
+                message:
+                    'Enter a valid email address!',
                   },
                 ]}
                 className="manage-Input">

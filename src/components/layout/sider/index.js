@@ -9,7 +9,7 @@ const Siderbar = (props) => {
     return (
         <Sider width={200} className="site-layout-background" >
             <div className="logo">
-                {props.type === 'super' ?
+                {props.type === 'Superadmin' ?
                     <>SUPER ADMIN</>
                     :
                     <>ADMIN</>
@@ -23,14 +23,14 @@ const Siderbar = (props) => {
                 <Menu.Item key="/home" icon={<HomeOutlined />}>
                     <Link to="/home">หน้าแรก</Link>
                 </Menu.Item>
-                {props.type === 'super' ?
+                {props.type === 'Superadmin' ?
                     <Menu.Item key="/manage" icon={<UserOutlined />}>
                         <Link to="/manage" >ผู้ดูแลระบบ</Link>
                     </Menu.Item>
                     : <></>
                 }
                 <Menu.Item key="/profile" icon={<SettingOutlined />}>
-                    <Link to="/profile/1354010773180903424">โปรไฟล์</Link>
+                    <Link to="/profile">โปรไฟล์</Link>
                 </Menu.Item>
             </Menu>
         </Sider>
