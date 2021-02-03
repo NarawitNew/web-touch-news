@@ -1,15 +1,28 @@
 import { HomeOutlined, SettingOutlined, UserOutlined } from '@ant-design/icons';
 import { Layout, Menu } from 'antd';
+import React, { useEffect, useState } from "react"
 
 import { Link } from "react-router-dom";
 
 const { Sider } = Layout;
 
 const Siderbar = (props) => {
+    const type = localStorage.getItem('role')
+    const [activeMenu, setActiveMenu] = useState(props.location.pathname)
+
+    useEffect(() => {
+        console.log('object', props.location.pathname)
+        setActiveMenu(props.location.pathname)
+        if (props.location.pathname === '/') {
+            setActiveMenu('/home')
+        }
+    }, [props.location.pathname]);
+
+
     return (
         <Sider width={200} className="site-layout-background" >
             <div className="logo">
-                {props.type === 'Superadmin' ?
+                {type === 'Superadmin' ?
                     <>SUPER ADMIN</>
                     :
                     <>ADMIN</>
@@ -17,19 +30,28 @@ const Siderbar = (props) => {
             </div>
             <Menu
                 mode="inline"
-                defaultSelectedKeys={['/home']}
+                selectedKeys={[activeMenu]}
                 style={{ height: '100%', borderRight: 0 }}
             >
-                <Menu.Item key="/home" icon={<HomeOutlined />}>
+                <Menu.Item
+                    key='/home'
+                    onClick={() => setActiveMenu('/home')}
+                    icon={<HomeOutlined />}>
                     <Link to="/home">หน้าแรก</Link>
                 </Menu.Item>
-                {props.type === 'Superadmin' ?
-                    <Menu.Item key="/manage" icon={<UserOutlined />}>
+                {type === 'Superadmin' ?
+                    <Menu.Item
+                        key='/manage'
+                        onClick={() => setActiveMenu('/manage')}
+                        icon={<UserOutlined />}>
                         <Link to="/manage" >ผู้ดูแลระบบ</Link>
                     </Menu.Item>
                     : <></>
                 }
-                <Menu.Item key="/profile" icon={<SettingOutlined />}>
+                <Menu.Item
+                    key='/profile'
+                    onClick={() => setActiveMenu('/profile')}
+                    icon={<SettingOutlined />}>
                     <Link to="/profile">โปรไฟล์</Link>
                 </Menu.Item>
             </Menu>

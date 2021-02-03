@@ -29,7 +29,7 @@ export default function Routers(props) {
                     <Route component={CreateNews} path="/home/:type"></Route>
                     <Route component={ViewNews} path="/home/view"></Route>
                     <Route component={HomeAdmin} path="/home"></Route>
-                    <Route component={Profile} path="/:state/profile/:id" ></Route>
+                    {/* <Route component={Profile} path="/:state/profile/:id" ></Route> */}
                     <Route component={Manage} path="/manage"></Route>
                     <Route component={Profile} path="/profile"></Route>
                     <Profile type='' title='โปรไฟล์'></Profile>

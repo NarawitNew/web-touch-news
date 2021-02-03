@@ -1,15 +1,15 @@
+import ContextProider from './context';
 import React from 'react';
 import ReactDOM from 'react-dom';
 import Root from './Root';
-import UserContext from './userContext';
 import { from } from 'form-data';
 import reportWebVitals from './reportWebVitals';
 
 ReactDOM.render(
   // <React.StrictMode>
-  // <UserContext>
+  <ContextProider>
     <Root/>
-  // </UserContext>
+  </ContextProider>
   // </React.StrictMode>
   ,
   document.getElementById('root')

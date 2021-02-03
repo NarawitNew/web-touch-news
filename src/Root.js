@@ -22,6 +22,7 @@ const Root = () => {
       <Router history={customHistory}>
         <Switch>
           {token ? <Route component={App} /> : <Route component={Login} />}
+          
         </Switch>
       </Router>
     </div>

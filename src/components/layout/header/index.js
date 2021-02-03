@@ -1,7 +1,8 @@
 import { Avatar, Badge, Col, Layout, Row, Tooltip, message } from 'antd';
 import { BellOutlined, ExportOutlined } from '@ant-design/icons';
-import React, { useEffect, useState } from "react"
+import React, { useContext, useEffect, useState } from "react"
 
+import { Context } from '../../../context'
 import config from 'config'
 import { httpClient } from 'HttpClient'
 
@@ -9,53 +10,41 @@ const { Header } = Layout;
 
 
 const Headerbar = () => {
-    const [dataUser, setDataUser] = useState({ image: '', userName: '', badge: 0 })
+    const context = useContext(Context)
+    const user = context.user
+    // console.log('user', user)
+    const [dataUser, setDataUser] = useState({ image: '', firstname: '', badge: null })
 
     useEffect(() => {
-        console.log('header')
-        // getData()
-        const setData = localStorage.getItem('id')
-        httpClient.get(config.REACT_APP_BASEURL + '/user/' + setData)
-            .then(function (response) {
-                const code = response.data.code
-                const data = response.data.data
-                console.log('data.image', data.image)
-                if (code === 200) {
-                    setDataUser({
-                        image: data.image,
-                        userName: data.firstname,
-                        badge: 3
-                    })
-                    // console.log('Header.dataUser', dataUser)
-                }
-            })
-            .catch(function (error) {
-                console.log(error);
-            });
-    }, [dataUser.image])
-
-// console.log('dataUser.image', dataUser.image)
+        getData()
+    }, [user.firstname,user.lastname,user.image])
 
     const getData = () => {
         const setData = localStorage.getItem('id')
+        // console.log('header_getData')
         httpClient.get(config.REACT_APP_BASEURL + '/user/' + setData)
             .then(function (response) {
                 const code = response.data.code
                 const data = response.data.data
-                console.log('data.image', data.image)
                 if (code === 200) {
                     setDataUser({
                         image: data.image,
-                        userName: data.firstname,
-                        badge: 3
+                        firstname: data.firstname,
+                        badge:2
                     })
-                    // console.log('Header.dataUser', dataUser)
+                    context.setData({
+                      email: data.email,
+                      image: data.image,
+                      firstname:data.firstname,
+                      lastname:data.lastname,
+                    })
                 }
             })
             .catch(function (error) {
                 console.log(error);
             });
     }
+
     const onLogout = () => {
         const setData = JSON.stringify({
             "id": localStorage.getItem('id')
@@ -95,7 +84,7 @@ const Headerbar = () => {
                                 src={dataUser.image}
                             />
                         </Col>
-                        <Col className="header-name">{dataUser.userName}</Col>
+                        <Col className="header-name">{dataUser.firstname}</Col>
                         <Col className="header-col-icon">
                             <Badge count={dataUser.badge} size="small">
                                 <BellOutlined className="header-icon" />

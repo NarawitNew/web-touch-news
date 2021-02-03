@@ -2,10 +2,10 @@ import { Avatar, Breadcrumb, Button, Col, Form, Input, Layout, Row, Upload, mess
 import { ExclamationCircleOutlined, UserOutlined } from '@ant-design/icons';
 import React, { useContext, useEffect, useState } from "react"
 
+import { Context } from '../../context'
 import FormData from 'form-data'
 import { Link } from "react-router-dom";
 import Modals from 'components/layout/modal'
-import UserContext from '../../userContext'
 import axios from 'axios'
 import config from 'config'
 import { httpClient } from 'HttpClient'
@@ -21,10 +21,11 @@ const layout = {
 };
 
 const Profile = (props) => {
-  const {user} = useContext(UserContext)
-  
+  console.log('props', props)
+  const context = useContext(Context)
   const [formValue] = Form.useForm();
   const params = props.match.params;
+  console.log('params', params)
   const [image, setImage] = useState('')
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [showInputPass, setShowInputPass] = useState(false)
@@ -32,12 +33,28 @@ const Profile = (props) => {
   const setId = (params.state === 'manage' ? params.id : localStorage.getItem('id'))
 
   useEffect(() => {
-    getData()
-  }, [params])
+    if (props.location.pathname === '/profile') {
+      getData()
+      console.log('profile')
+    } else {
+      getDataAdmin()
+      console.log('profile/manage')
+    }
+  }, [params, context])
 
-  console.log('UserContext', user)
   const getData = () => {
-    // console.log('setId', setId)
+    const data = context.user
+    setImage(data.image)
+    formValue.setFieldsValue({
+      email: data.email,
+      firstname: data.firstname,
+      lastname: data.lastname,
+      passwordNew: " ",
+      passwordConfirm: " "
+    })
+  }
+
+  const getDataAdmin = () => {
     httpClient.get(config.REACT_APP_BASEURL + '/user/' + setId)
       .then(function (response) {
         const code = response.data.code
@@ -99,11 +116,10 @@ const Profile = (props) => {
 
   const cancelUpdate = () => {
     getData()
-  
   }
 
   const submitUpdate = (value) => {
-    console.log('value', value)
+    // console.log('value', value)
     if (showInputPass === true) {
       if (value.passwordNew === value.passwordConfirm) {
         const setData = JSON.stringify({
@@ -130,6 +146,11 @@ const Profile = (props) => {
       httpClient.put(config.REACT_APP_BASEURL + '/user/update/' + setId, setData)
         .then(function (response) {
           if (response.data.code === 200) {
+            context.setData({
+              image: image,
+              firstname: value.firstname,
+              lastname: value.lastname,
+            })
             let setData = new FormData();
             setData.append('url', image);
             axios.post('https://media.devhubbravo.com/api/v1/savefile', setData)
@@ -139,7 +160,6 @@ const Profile = (props) => {
               .catch(function (error) {
                 console.log(error)
               })
-            // window.location.reload()
           }
         })
         .catch(function (error) {
