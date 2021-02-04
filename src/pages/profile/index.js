@@ -1,9 +1,12 @@
 import { Avatar, Breadcrumb, Button, Col, Form, Input, Layout, Row, Upload, message } from 'antd'
-import { ExclamationCircleOutlined, KeyOutlined, UserOutlined } from '@ant-design/icons';
-import React, { useEffect, useState } from "react"
+import { ExclamationCircleOutlined, UserOutlined } from '@ant-design/icons';
+import React, { useContext, useEffect, useState } from "react"
 
+import { Context } from '../../context'
+import FormData from 'form-data'
 import { Link } from "react-router-dom";
 import Modals from 'components/layout/modal'
+import axios from 'axios'
 import config from 'config'
 import { httpClient } from 'HttpClient'
 
@@ -18,21 +21,42 @@ const layout = {
 };
 
 const Profile = (props) => {
+  console.log('props', props)
+  const context = useContext(Context)
   const [formValue] = Form.useForm();
   const params = props.match.params;
+  console.log('params', params)
   const [image, setImage] = useState('')
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [showInputPass, setShowInputPass] = useState(false)
   const [modalData, setModalData] = useState({ type: '', icon: null, title: '', okColor: '', content: '', okText: '' });
+  const setId = (params.state === 'manage' ? params.id : localStorage.getItem('id'))
 
   useEffect(() => {
-    getData()
-  }, [params,])
+    if (props.location.pathname === '/profile') {
+      getData()
+      console.log('profile')
+    } else {
+      getDataAdmin()
+      console.log('profile/manage')
+    }
+  }, [params, context])
 
   const getData = () => {
-    httpClient.get(config.REACT_APP_BASEURL + '/user/' + params.id)
+    const data = context.user
+    setImage(data.image)
+    formValue.setFieldsValue({
+      email: data.email,
+      firstname: data.firstname,
+      lastname: data.lastname,
+      passwordNew: " ",
+      passwordConfirm: " "
+    })
+  }
+
+  const getDataAdmin = () => {
+    httpClient.get(config.REACT_APP_BASEURL + '/user/' + setId)
       .then(function (response) {
-        // console.log('response', response)
         const code = response.data.code
         if (code === 200) {
           setImage(response.data.data.image)
@@ -50,11 +74,6 @@ const Profile = (props) => {
       })
   }
 
-  const handleChange = (fileList) => {
-    console.log('fileList', fileList)
-    setImage(fileList.fileList[0].thumbUrl)
-  };
-
   const conFirmPassword = () => {
     setModalData({
       type: 'confirm',
@@ -65,7 +84,7 @@ const Profile = (props) => {
       content: 'คุณต้องการยืนยันการสร้างรหัสใหม่นี้หรือไม่ !!! ',
       onOk() {
         // setIsModalVisible(false)
-        httpClient.put(config.REACT_APP_BASEURL + '/admin/resetpassword/' + params.id)
+        httpClient.put(config.REACT_APP_BASEURL + '/admin/resetpassword/' + setId)
           .then(function (response) {
             const code = response.data.code
             if (code === 201) {
@@ -95,18 +114,18 @@ const Profile = (props) => {
     onModal()
   }
 
-  const cancelUpdate = () =>{
+  const cancelUpdate = () => {
     getData()
   }
 
   const submitUpdate = (value) => {
-    console.log('value', value)
+    // console.log('value', value)
     if (showInputPass === true) {
       if (value.passwordNew === value.passwordConfirm) {
         const setData = JSON.stringify({
           "password": value.passwordNew
         })
-        httpClient.put(config.REACT_APP_BASEURL + '/user/password/' + params.id, setData)
+        httpClient.put(config.REACT_APP_BASEURL + '/user/password/' + setId, setData)
           .then(function (response) {
             console.log('response', response)
             message.success('เปลี่ยนรหัสผ่านสำเร็จ');
@@ -124,12 +143,26 @@ const Profile = (props) => {
         "lastname": value.lastname,
         "image": image
       })
-      httpClient.put(config.REACT_APP_BASEURL + '/user/update/' + params.id, setData)
+      httpClient.put(config.REACT_APP_BASEURL + '/user/update/' + setId, setData)
         .then(function (response) {
-          message.success('สำเร็จ');
+          if (response.data.code === 200) {
+            context.setData({
+              image: image,
+              firstname: value.firstname,
+              lastname: value.lastname,
+            })
+            let setData = new FormData();
+            setData.append('url', image);
+            axios.post('https://media.devhubbravo.com/api/v1/savefile', setData)
+              .then(function (response) {
+                console.log(response)
+              })
+              .catch(function (error) {
+                console.log(error)
+              })
+          }
         })
         .catch(function (error) {
-          message.error('ไม่สำเร็จ');
         })
     }
   }
@@ -150,8 +183,28 @@ const Profile = (props) => {
   const onModal = () => {
     setIsModalVisible(true)
   };
+
   const offModal = () => {
     setIsModalVisible(false)
+  };
+
+  const customRequest = (option) => {
+    // console.log('file.originFileObj', file.originFileObj)
+    let setData = new FormData();
+    setData.append('sampleFile', option.file);
+    setData.append('save', false)
+    axios.post(config.REACT_APP_IMGAE + '/upload', setData)
+      .then(function (response) {
+        console.log('response', response)
+        const status = response.status
+        const data = response.data
+        if (status === 200) {
+          setImage(data.url)
+        }
+      })
+      .catch(function (error) {
+        console.log(error)
+      })
   };
 
   return (
@@ -178,13 +231,13 @@ const Profile = (props) => {
               </Form.Item>
               <Form.Item className="profile-Center">
                 <Upload
-                  action="https://www.mocky.io/v2/5cc8019d300000980a055e76"
                   listType="picture"
-                  maxCount={1}
-                  onChange={handleChange}
+                  customRequest={customRequest}
+                  showUploadList={false}
                 >
                   <Button>อัพโหลดรูปภาพโปรไฟล์</Button>
                 </Upload>
+
               </Form.Item>
               <Form.Item name="email" label='อีเมล' {...layout}>
                 <Input disabled={true}></Input>
