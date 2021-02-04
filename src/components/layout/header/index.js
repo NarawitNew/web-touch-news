@@ -71,12 +71,12 @@ const Headerbar = () => {
     return (
         <Header className="header">
             <Row>
-                <Col span={8}>
+                <Col xs={12} sm={12} md={12} lg={12} xl={12}>
                     <div className="header-text">
                         touch korat news
                         </div>
                 </Col>
-                <Col span={8} offset={8}>
+                <Col xs={12} sm={12} md={12} lg={12} xl={12}>
                     <Row justify="end">
                         <Col>
                             <Avatar

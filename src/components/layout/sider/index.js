@@ -18,9 +18,19 @@ const Siderbar = (props) => {
         }
     }, [props.location.pathname]);
 
-
     return (
-        <Sider width={200} className="site-layout-background" >
+        <Sider
+            width={200}
+            className="site-layout-background"
+            breakpoint="lg"
+            collapsedWidth="0"
+            onBreakpoint={broken => {
+                console.log(broken);
+            }}
+            onCollapse={(collapsed, type) => {
+                console.log(collapsed, type);
+            }}
+        >
             <div className="logo">
                 {type === 'Superadmin' ?
                     <>SUPER ADMIN</>

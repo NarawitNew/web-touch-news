@@ -10,7 +10,7 @@ function App(props) {
   const type = localStorage.getItem('role')
 
   return (
-    <Layout breakpoint='lg' style={{ minHeight: '100vh' }} >
+    <Layout breakpoint='xl' style={{ minHeight: '100vh' }} >
       <Header></Header>
       <Layout>
       <Router>

@@ -88,6 +88,8 @@ const Home = () => {
       title: 'วันที่',
       dataIndex: 'date',
       key: 'date',
+      responsive: ['md'],
+
     },
     {
       title: 'หัวข้อ',
@@ -106,15 +108,19 @@ const Home = () => {
       title: 'ประเภท',
       dataIndex: 'category',
       key: 'category',
+      responsive: ['md'],
+
     },
     {
       title: 'สถานะ',
       dataIndex: 'status',
       key: 'status',
+      responsive: ['md'],
+
     },
     {
       title: '',
-      width: '5%',
+      width: '50px',
       key: 'action',
       render: (text, record) => (<Dropdown placement="bottomRight" overlay={menu(record.topic)}><MoreOutlined /></Dropdown>),
     }
@@ -125,8 +131,8 @@ const Home = () => {
         <Breadcrumb.Item>หน้าแรก</Breadcrumb.Item>
       </Breadcrumb>
       <Content className="home-Content">
-        <Row style={{ height: '160px' }} >
-          <Col span={8} >
+        <Row  gutter={[16, 16]} >
+          <Col xs={24} sm={12} md={12} lg={8} xl={8} >
             <div className="home-Box-Left">
               <Row align="middle" style={{ height: '100%' }}>
                 <Col span={8} offset={4}>
@@ -139,7 +145,7 @@ const Home = () => {
               </Row>
             </div>
           </Col>
-          <Col span={8} >
+          <Col xs={24} sm={12} md={12} lg={8} xl={8} >
             <div className="home-Box-Center" >
               <Row align="middle" style={{ height: '100%' }}>
                 <Col span={8} offset={4}>
@@ -152,7 +158,7 @@ const Home = () => {
               </Row>
             </div>
           </Col>
-          <Col span={8} >
+          <Col xs={24} sm={12} md={12} lg={8} xl={8} >
             <div className="home-Box-Right" >
               <Row align="middle" style={{ height: '100%' }}>
                 <Col span={8} offset={4}>
@@ -167,10 +173,10 @@ const Home = () => {
           </Col>
         </Row>
         <Row style={{ marginTop: '20px' }}>
-          <Col span={16}>
+          <Col xs={24} sm={24} md={12} lg={12} xl={16}>
             <div className="home-Text-List">รายการ</div>
           </Col>
-          <Col span={4}>
+          <Col xs={12} sm={10} md={6} lg={6} xl={4}>
             <Input.Group className="home-Input-Group">
               <Select defaultValue="1" className="home-Select">
                 <Option value="1">ประเภทข่าวทั้งหมด</Option>
@@ -178,7 +184,7 @@ const Home = () => {
               </Select>
             </Input.Group>
           </Col>
-          <Col span={4}>
+          <Col xs={12} sm={10} md={6} lg={6} xl={4}>
             <Search placeholder="ค้นหา"></Search>
           </Col>
         </Row>

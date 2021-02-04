@@ -7,7 +7,6 @@ import Modals from 'components/layout/modal'
 import Tables from 'components/layout/table'
 import config from 'config'
 import { httpClient } from 'HttpClient'
-import sha256 from 'js-sha256'
 
 const { Search } = Input;
 const { Content } = Layout;
@@ -23,11 +22,11 @@ const Manage = () => {
 
   useEffect(() => {
     getData()
-  }, [dataFilter, current,isModalVisible,dataSearch])
+  }, [dataFilter, current, isModalVisible, dataSearch])
 
   const getData = () => {
     const params = {
-      per_page: '10',
+      // per_page: '10',
       page: current,
       filters: `firstname:like:${dataSearch}`
     }
@@ -46,12 +45,11 @@ const Manage = () => {
             item.key = item.id
             item.email = item.email
             item.name = item.firstname + ' ' + item.lastname
-            // item.suspend = item.suspend
-            { item.suspend === "true" ? item.suspend = true : item.suspend = false }
+            item.status = item.status
             return item
           })
           setDataSource(dataMap)
-        }else{
+        } else {
           setDataSource(data)
           message.error(response.data.message)
         }
@@ -62,13 +60,9 @@ const Manage = () => {
   }
 
   const onInsert = (value) => {
-    // console.log('email', value.email)
-    // let setData = `{"email":"${value.email}"}`
-    // setData.append("email", value);
     const setData = JSON.stringify({
       "email": value.email
     })
-    // console.log('setData', setData)
     httpClient.post(config.REACT_APP_BASEURL + '/admin', setData)
       .then(function (response) {
         const code = response.data.code
@@ -84,14 +78,14 @@ const Manage = () => {
             },
             content: ({
               email: response.data.data.email,
-              password:  response.data.data.password
-              // password: sha256.hmac("sil-dkigx]ujpocx]'my=", response.data.data.password)
+              password: response.data.data.password
             }),
           })
-          showModal()
+          onModal()
           setDataFilter(response.data.data.email)
-        }else if(code === 200){
-          
+        }
+        else if (code === 200) {
+          message.error(response.data.message);
         }
       })
       .catch(function (error) {
@@ -124,16 +118,10 @@ const Manage = () => {
           })
       },
     })
-    setIsModalVisible(true)
+    onModal()
   }
 
-  // const onEdit = (record) => {
-
-  // }
-
   const onSuspend = (checked, record) => {
-    // console.log('checked', checked)
-    // console.log('record', record)
     if (checked === false) {
       setModalData({
         type: 'confirm',
@@ -143,9 +131,8 @@ const Manage = () => {
         content: record.email,
         okText: 'ระงับ',
         onOk() {
-          setIsModalVisible(false)
           const setData = JSON.stringify({
-            "suspend": `${checked}`
+            "status": checked
           })
           console.log('setData', setData)
           httpClient.put(config.REACT_APP_BASEURL + '/admin/suspend/' + record.key, setData)
@@ -161,14 +148,14 @@ const Manage = () => {
               console.log(error);
               message.error('ระงับผู้ดูแลระบบไม่สำเร็จ');
             })
-
+          offModal()
         },
       })
-      setIsModalVisible(true)
+      onModal()
     }
     else {
       const setData = JSON.stringify({
-        "suspend": `${checked}`
+        "status": checked
       })
       console.log('setData', setData)
       httpClient.put(config.REACT_APP_BASEURL + '/admin/suspend/' + record.key, setData)
@@ -190,16 +177,11 @@ const Manage = () => {
     console.log('currentPage', current)
   }
 
-  const showModal = () => {
+  const onModal = () => {
     setIsModalVisible(true)
   };
 
-  // const handleOk = () => {
-  //   console.log('OK')
-  //   setIsModalVisible(false)
-  // };
-
-  const handleCancel = () => {
+  const offModal = () => {
     setIsModalVisible(false)
   };
 
@@ -213,12 +195,13 @@ const Manage = () => {
       title: 'ชื่อ - นามสกุล',
       dataIndex: 'name',
       key: 'name',
+      responsive: ['md'],
     },
     {
       title: '',
       width: '15%',
       key: 'action',
-      render: ( record) => (
+      render: (record) => (
         <Space >
           <Tooltip placement="bottom" title="แก้ไข">
             <Link to={`/manage/profile/${record.key}`}>
@@ -229,7 +212,7 @@ const Manage = () => {
             <DeleteOutlined className="manage-icon-delete" onClick={() => { onDelete(record) }} />
           </Tooltip>
           <Tooltip placement="bottom" title="ระงับ">
-            <Switch size="small" defaultChecked={record.suspend} onClick={(e) => { onSuspend(e, record) }} />
+            <Switch size="small" defaultChecked={record.status} onClick={(e) => { onSuspend(e, record) }} />
           </Tooltip>
         </Space>
       ),
@@ -241,8 +224,8 @@ const Manage = () => {
         <Breadcrumb.Item>ผู้ดูแลระบบ</Breadcrumb.Item>
       </Breadcrumb>
       <Content className="manage-content">
-        <Row style={{height:'32px'}}>
-          <Col span={18}>
+        <Row >
+          <Col xs={24} sm={24} md={14} lg={14} xl={16} style={{marginBottom:'5px'}}>
             <Form name="email" layout="inline" onFinish={onInsert}>
               <Form.Item>
                 <div className="manage-Text">ผู้ดูแลระบบ</div>
@@ -251,11 +234,16 @@ const Manage = () => {
                 name="email"
                 rules={[
                   {
-                    required: true,
                     type: "email",
-                message:
-                    'Enter a valid email address!',
+                    // required: false,
+                    // pattern: /a-z/,
+                    message:
+                      'Enter a valid email address!',
                   },
+                  {
+                    required: true,
+                    message: "Please enter your E-mail!"
+                  }
                 ]}
                 className="manage-Input">
                 <Input placeholder="กรอกอีเมล" />
@@ -265,7 +253,7 @@ const Manage = () => {
               </Form.Item>
             </Form>
           </Col>
-          <Col span={6} style={{ textAlign: 'right' }}>
+          <Col  md={10} lg={10} xl={8} style={{ textAlign: 'right', paddingLeft:'80px'}}>
             <Search placeholder="ค้นหา" className="manage-search" onSearch={onSearch} />
           </Col>
         </Row>
@@ -281,7 +269,7 @@ const Manage = () => {
       <Modals
         isModalVisible={isModalVisible}
         onOk={modalData.onOk}
-        onCancel={handleCancel}
+        onCancel={offModal}
         modalData={modalData}
       >
         {modalData.type === 'show' ?
