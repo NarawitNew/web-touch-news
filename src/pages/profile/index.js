@@ -193,7 +193,7 @@ const Profile = (props) => {
     let setData = new FormData();
     setData.append('sampleFile', option.file);
     setData.append('save', false)
-    axios.post(config.REACT_APP_IMGAE + '/upload', setData)
+    httpClient.post(config.REACT_APP_IMGAE + '/upload', setData)
       .then(function (response) {
         console.log('response', response)
         const status = response.status
@@ -227,7 +227,9 @@ const Profile = (props) => {
               onFinish={submitUpdate}
             >
               <Form.Item className="profile-Center">
-                <Avatar size={250} src={image} />
+                <Avatar  
+                size={{ xs: 150, sm: 150, md: 150, lg: 150, xl: 150, xxl: 250 }}
+                 src={image} />
               </Form.Item>
               <Form.Item className="profile-Center">
                 <Upload

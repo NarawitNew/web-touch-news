@@ -1,8 +1,9 @@
-import { Avatar, Badge, Col, Layout, Row, Tooltip, message } from 'antd';
+import { Avatar, Badge, Col, Layout, Popover, Row, Tooltip, message } from 'antd';
 import { BellOutlined, ExportOutlined } from '@ant-design/icons';
 import React, { useContext, useEffect, useState } from "react"
 
 import { Context } from '../../../context'
+import axios from 'axios'
 import config from 'config'
 import { httpClient } from 'HttpClient'
 
@@ -12,31 +13,35 @@ const { Header } = Layout;
 const Headerbar = () => {
     const context = useContext(Context)
     const user = context.user
-    // console.log('user', user)
     const [dataUser, setDataUser] = useState({ image: '', firstname: '', badge: null })
+    const [visible, setVisible] = useState(false)
+
+    const handleVisibleChange = visible => {
+        setVisible(visible);
+    }
 
     useEffect(() => {
         getData()
-    }, [user.firstname,user.lastname,user.image])
+    }, [user.firstname, user.lastname, user.image])
 
     const getData = () => {
         const setData = localStorage.getItem('id')
-        // console.log('header_getData')
-        httpClient.get(config.REACT_APP_BASEURL + '/user/' + setData)
+       httpClient.get(config.REACT_APP_BASEURL + '/user/' + setData)
             .then(function (response) {
+                console.log('response', response)
                 const code = response.data.code
                 const data = response.data.data
                 if (code === 200) {
                     setDataUser({
                         image: data.image,
                         firstname: data.firstname,
-                        badge:2
+                        badge: 2
                     })
                     context.setData({
-                      email: data.email,
-                      image: data.image,
-                      firstname:data.firstname,
-                      lastname:data.lastname,
+                        email: data.email,
+                        image: data.image,
+                        firstname: data.firstname,
+                        lastname: data.lastname,
                     })
                 }
             })
@@ -49,14 +54,14 @@ const Headerbar = () => {
         const setData = JSON.stringify({
             "id": localStorage.getItem('id')
         })
-        httpClient.post(config.REACT_APP_BASEURL + '/logout', setData)
+        axios.post(config.REACT_APP_BASEURL + '/logout', setData)
             .then(function (response) {
                 const code = response.data.code
                 if (code === 200) {
-                    localStorage.setItem('token', '')
+                    localStorage.setItem('access_token', '')
+                    localStorage.setItem('refresh_token', '')
                     localStorage.setItem('role', '')
                     localStorage.setItem('id', '')
-                    localStorage.setItem('first_name', '')
 
                     message.success('ออกจากระบบสำเร็จ');
                     window.location.reload()
@@ -86,9 +91,24 @@ const Headerbar = () => {
                         </Col>
                         <Col className="header-name">{dataUser.firstname}</Col>
                         <Col className="header-col-icon">
-                            <Badge count={dataUser.badge} size="small">
-                                <BellOutlined className="header-icon" />
-                            </Badge>
+                            <Popover
+                                placement="bottomRight"
+                                content={
+                                    <div>
+                                        <p>Content</p> 
+                                        <p>Content</p>
+                                    </div>
+                                }
+                                // title="Title"
+                                trigger="click"
+                                visible={visible}
+                                onVisibleChange={handleVisibleChange}
+                            >
+                                <Badge count={dataUser.badge} size="small">
+                                    <BellOutlined className="header-icon" />
+                                </Badge>
+                            </Popover>
+
                         </Col>
                         <Col>
                             <Tooltip placement="bottomRight" title="ออกจากระบบ" >

@@ -11,7 +11,7 @@ const customHistory = createBrowserHistory()
 
 const Root = () => {
   // console.log(localStorage.getItem('token'))
-  const token = localStorage.getItem('token')
+  const token = localStorage.getItem('access_token')
 
   if (!token) {
     customHistory.replace('/login')

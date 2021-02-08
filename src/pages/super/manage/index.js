@@ -16,7 +16,7 @@ const Manage = () => {
   const [dataFilter, setDataFilter] = useState("")
   const [dataSearch, setDataSearch] = useState("")
   const [current, setCurrent] = useState(1)
-  const [pagination, setPagination] = useState({ pageCurrent: 1, perPage: 1, totalPage: 1 })
+  const [pagination, setPagination] = useState({ pageCurrent: 1, perPage: 15, totalPage: 1 })
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [modalData, setModalData] = useState({ type: '', icon: null, title: '', okColor: '', content: '', okText: '', onOk: null });
 
@@ -24,7 +24,7 @@ const Manage = () => {
     getData()
   }, [dataFilter, current, isModalVisible, dataSearch])
 
-  const getData = () => {
+  const getData = async () => {
     const params = {
       // per_page: '10',
       page: current,
