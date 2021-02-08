@@ -16,10 +16,10 @@ const Tables = (props) => {
                 pagination={false}
                 columns={props.columns}
                 dataSource={props.dataSource}
-                scroll={{ x: 'fit-content' }}
                 onChange={onChange}
                 style={{ marginTop: '10px' }}
                 pagination={pagination}
+                scroll={{ x: 'fit-content' }}
             />
         </>
     );

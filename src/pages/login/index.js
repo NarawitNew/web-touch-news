@@ -32,17 +32,16 @@ const Login = (props) => {
             "password": `${values.password}`
         })
         // console.log('setData', setData)
-        httpClient.post(config.REACT_APP_BASEURL + '/login', setData)
+        axios.post(config.REACT_APP_BASEURL + '/login', setData)
             .then(function (response) {
                 console.log('response', response)
                 if (response.data.code === 200) {
-                    
                     console.log('login_context.user', context.user)
                     console.log('response.data.data.first_name', response.data.data.first_name)
-                    localStorage.setItem('token', response.data.data.access_token)
+                    localStorage.setItem('refresh_token', response.data.data.refresh_token)
+                    localStorage.setItem('access_token', response.data.data.access_token)
                     localStorage.setItem('role', response.data.data.role)
                     localStorage.setItem('id', response.data.data.id)
-                    localStorage.setItem('first_name', response.data.data.first_name)
 
                     message.success(response.data.message)
                     props.history.push("/home")
