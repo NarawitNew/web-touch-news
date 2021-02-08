@@ -32,9 +32,9 @@ const instance = axios.create({
 
 instance.interceptors.request.use(async (config) => {
   const jwtToken = await localStorage.getItem("access_token")
-  // if (jwtToken) {
-  //   config.headers =  { 'Authorization': `Bearer ${jwtToken}` }
-  // }
+  if (jwtToken) {
+    config.headers =  { 'Authorization': `Bearer ${jwtToken}` }
+  }
   return config;
 });
 
