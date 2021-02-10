@@ -33,7 +33,7 @@ const instance = axios.create({
 instance.interceptors.request.use(async (config) => {
   const jwtToken = await localStorage.getItem("access_token")
   if (jwtToken) {
-    config.headers =  { 'Authorization': `Bearer ${jwtToken}` }
+    config.headers.Authorization = `Bearer ${jwtToken}` 
   }
   return config;
 });
@@ -45,18 +45,21 @@ const clearLocalStorage = () => {
 
 instance.interceptors.response.use(
   (response) => {
-    const status = response.data ? response.data.code : null
-    const originalRequest = response.config
+    return response
+  },
+  (error) => {
+    const status = error.response.status
+    const originalRequest = error.config
     if (status === 401) {
       const refreshToken = localStorage.getItem("refresh_token")
-      return axios.get(`${config.REACT_APP_BASEURL}/refresh`,
+      return axios.get(`${config.REACT_APP_BASEURL}/refresh_token`,
         { headers: { 'Authorization': `Bearer ${refreshToken}` } })
         .then(refreshRes => {
           if (refreshRes.data.code === 200) {
             const newToken = refreshRes.data.data.access_token
             const newRefreshToken = refreshRes.data.data.refresh_token
-            localStorage.setItem('newToken', newToken)
-            localStorage.setItem('newRefreshToken', newRefreshToken)
+            localStorage.setItem('access_token', newToken)
+            localStorage.setItem('refresh_token', newRefreshToken)
             instance.defaults.headers.common['Authorization'] = `Bearer ${newToken}` //Add new token
             return instance(originalRequest) //call API
           } else {
@@ -66,12 +69,8 @@ instance.interceptors.response.use(
           clearLocalStorage()
         })
     } else {
-      return response
-    }
-  },
-  (error) => {
     return error
+    }
   }
 );
-
 export const httpClient = instance

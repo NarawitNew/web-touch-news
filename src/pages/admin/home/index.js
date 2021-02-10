@@ -1,11 +1,13 @@
 import { Breadcrumb, Button, Col, Dropdown, Input, Layout, Menu, Row, Select, Space, Tooltip } from 'antd';
 import { DeleteOutlined, EditOutlined, FieldTimeOutlined, PlusOutlined, SendOutlined, UnorderedListOutlined, UserOutlined } from '@ant-design/icons';
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 
 import { Link } from "react-router-dom";
 import Modals from 'components/layout/modal'
 import Tables from 'components/layout/table'
 import Timeline from 'components/layout/timeline'
+import config from 'config'
+import { httpClient } from 'HttpClient'
 
 const { Content } = Layout;
 const { Search } = Input;
@@ -17,7 +19,7 @@ const data = [{
     topic: 'ตร.ค้นโกดังย่านฉลองกรุง ยังไม่พบผิด เร่งเช็กภาพโต๊ะบาคาร่า ตัดต่อหรือไม่',
     category: 'การเมือง',
     status: 'ส่ง',
-},{
+}, {
     key: '2',
     date: '07/01/2021',
     topic: 'ตร.ค้นโกดังย่านฉลองกรุง ยังไม่พบผิด เร่งเช็กภาพโต๊ะบาคาร่า ตัดต่อหรือไม่',
@@ -28,8 +30,44 @@ const data = [{
 
 
 const Home = () => {
+    const [dataSource, setDataSource] = useState()
+    const [numderNews, setNumder] = useState({ all: 0, sdnt: 0, draft: 0 })
+    const [loading, setLoading] = useState(true)
+    const [dataFilter, setDataFilter] = useState("")
+    const [dataSearch, setDataSearch] = useState({ category:0, filter: '' })
+    const [current, setCurrent] = useState(1)
+    const [pagination, setPagination] = useState({ pageCurrent: 1, perPage: 15, totalPage: 1 })
     const [isModalVisible, setIsModalVisible] = useState(false);
     const [modalData, setModalData] = useState({ type: '', icon: null, title: '', okColor: '', content: null, okText: '' });
+
+    useEffect(() => {
+        // getData()
+    })
+
+    const getData = () => {
+        httpClient.get(config.REACT_APP_BASEURL + '/news')
+            .then(function (response) {
+                console.log('response', response)
+                const code = response.data.code
+                const data = response.data.data.data_list
+                if (code === 200) {
+                } else {
+                }
+            })
+            .catch(function (error) {
+                console.log(error);
+            })
+    }
+
+    const onSearch = (value) => {
+        setDataSearch({ ...dataSearch,filter: value })
+        console.log('dataSearch', dataSearch)
+    }
+
+    const changeCategory = (value) => {
+        setDataSearch({ ...dataSearch,category: value })
+        console.log('dataSearch', dataSearch)
+    }
 
     const onTimeline = (record) => {
         setModalData({
@@ -109,7 +147,7 @@ const Home = () => {
                     </Tooltip>
                     <Tooltip placement="bottom" title="แก้ไข">
                         <Link to={`/home/edit/123456`}>
-                        <EditOutlined className="admin-icon-edit" />
+                            <EditOutlined className="admin-icon-edit" />
                         </Link>
                     </Tooltip>
                     <Tooltip placement="bottom" title="ลบ">
@@ -133,7 +171,7 @@ const Home = () => {
                                     <UnorderedListOutlined className="admin-home-Icon" />
                                 </Col>
                                 <Col span={8}>
-                                    <p className="admin-home-Number">6</p>
+                                    <p className="admin-home-Number"> {numderNews.all} </p>
                                     <p className="admin-home-Text">ข่าวทั้งหมด</p>
                                 </Col>
                             </Row>
@@ -146,7 +184,7 @@ const Home = () => {
                                     <SendOutlined className="admin-home-Icon" />
                                 </Col>
                                 <Col span={8}>
-                                    <p className="admin-home-Number">6</p>
+                                    <p className="admin-home-Number"> {numderNews.sdnt} </p>
                                     <p className="admin-home-Text">ข่าวส่งแล้ว</p>
                                 </Col>
                             </Row>
@@ -159,7 +197,7 @@ const Home = () => {
                                     <EditOutlined className="admin-home-Icon" />
                                 </Col>
                                 <Col span={8}>
-                                    <p className="admin-home-Number">6</p>
+                                    <p className="admin-home-Number"> {numderNews.draft} </p>
                                     <p className="admin-home-Text">ข่าวร่าง</p>
                                 </Col>
                             </Row>
@@ -172,14 +210,14 @@ const Home = () => {
                     </Col>
                     <Col flex="220px">
                         <Input.Group >
-                            <Select defaultValue="1" style={{ width: '100%' }}>
+                            <Select defaultValue="1" style={{ width: '100%' }} onChange={changeCategory}>
                                 <Option value="1">ประเภทข่าวทั้งหมด</Option>
                                 <Option value="2">การเมือง</Option>
                             </Select>
                         </Input.Group>
                     </Col>
                     <Col flex="220px">
-                        <Search placeholder="ค้นหา"></Search>
+                        <Search placeholder="ค้นหา" onSearch={onSearch}></Search>
                     </Col>
                     <Col flex="100px">
                         <Link to="/home/create">

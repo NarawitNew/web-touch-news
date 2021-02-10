@@ -1,4 +1,4 @@
-import { Avatar, Breadcrumb, Button, Col, Form, Input, Layout, Row, Upload, message } from 'antd'
+import { Avatar, Breadcrumb, Button, Col, Form, Input, Layout, Row, Spin, Upload, message } from 'antd'
 import { ExclamationCircleOutlined, UserOutlined } from '@ant-design/icons';
 import React, { useContext, useEffect, useState } from "react"
 
@@ -21,12 +21,11 @@ const layout = {
 };
 
 const Profile = (props) => {
-  console.log('props', props)
   const context = useContext(Context)
   const [formValue] = Form.useForm();
   const params = props.match.params;
-  console.log('params', params)
   const [image, setImage] = useState('')
+  const [spinningImage, setSpinningImage] = useState(false)
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [showInputPass, setShowInputPass] = useState(false)
   const [modalData, setModalData] = useState({ type: '', icon: null, title: '', okColor: '', content: '', okText: '' });
@@ -38,7 +37,7 @@ const Profile = (props) => {
       console.log('profile')
     } else {
       getDataAdmin()
-      console.log('profile/manage')
+      console.log('manage/profile')
     }
   }, [params, context])
 
@@ -146,6 +145,7 @@ const Profile = (props) => {
       httpClient.put(config.REACT_APP_BASEURL + '/user/update/' + setId, setData)
         .then(function (response) {
           if (response.data.code === 200) {
+            message.success(response.data.message)
             context.setData({
               image: image,
               firstname: value.firstname,
@@ -153,7 +153,7 @@ const Profile = (props) => {
             })
             let setData = new FormData();
             setData.append('url', image);
-            axios.post('https://media.devhubbravo.com/api/v1/savefile', setData)
+            axios.post(config.REACT_APP_IMGAE+ '/savefile', setData)
               .then(function (response) {
                 console.log(response)
               })
@@ -190,6 +190,7 @@ const Profile = (props) => {
 
   const customRequest = (option) => {
     // console.log('file.originFileObj', file.originFileObj)
+    setSpinningImage(true)
     let setData = new FormData();
     setData.append('sampleFile', option.file);
     setData.append('save', false)
@@ -200,6 +201,7 @@ const Profile = (props) => {
         const data = response.data
         if (status === 200) {
           setImage(data.url)
+          setSpinningImage(false)
         }
       })
       .catch(function (error) {
@@ -227,9 +229,11 @@ const Profile = (props) => {
               onFinish={submitUpdate}
             >
               <Form.Item className="profile-Center">
+                <Spin spinning={spinningImage}>
                 <Avatar  
                 size={{ xs: 150, sm: 150, md: 150, lg: 150, xl: 150, xxl: 250 }}
                  src={image} />
+                 </Spin>
               </Form.Item>
               <Form.Item className="profile-Center">
                 <Upload

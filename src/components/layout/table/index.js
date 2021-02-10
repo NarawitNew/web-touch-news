@@ -13,6 +13,7 @@ const Tables = (props) => {
     return (
         <>
             <Table
+                loading={props.loading}
                 pagination={false}
                 columns={props.columns}
                 dataSource={props.dataSource}

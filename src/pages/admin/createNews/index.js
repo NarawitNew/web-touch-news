@@ -118,7 +118,7 @@ const CreateNews = (props) => {
                                     />
                                 </Col>
                                 <Col span={2}>
-                                    <PlusCircleOutlined className="create-icon"></PlusCircleOutlined>
+                                    <PlusCircleOutlined className="create-icon" onClick={creditConfirm}></PlusCircleOutlined>
                                 </Col>
                             </Row>
                             <Row gutter={[8, 16]} align='middle'>
@@ -189,7 +189,7 @@ const CreateNews = (props) => {
                                 <Input></Input>
                             </Form.Item>
                             <Form.Item
-                                label="เนื้อหาขาว"
+                                label="เนื้อหาข่าว"
                             >
                                 <FroalaEditor
                                     onModelChange={newsContentChange}
