@@ -1,14 +1,16 @@
 import { Breadcrumb, Button, Col, Dropdown, Image, Input, Layout, Menu, Row, Select } from 'antd'
 import { DeleteOutlined, FieldTimeOutlined, MoreOutlined } from '@ant-design/icons';
-import React, { useState } from "react";
+import React, { useState,useEffect } from "react";
 
 import Modals from 'components/layout/modal'
 import Timeline from 'components/layout/timeline'
+import axios from 'axios'
+import config from 'config'
+import { httpClient } from 'HttpClient'
 
 const { Content } = Layout
 const { Option } = Select;
 const { TextArea } = Input;
-const type = localStorage.getItem('type')
 
 const dataNews = {
     id: '1',
@@ -24,10 +26,31 @@ const dataNews = {
 
 
 const View = (props) => {
+  const params = props.match.params;
+    const type = localStorage.getItem('role')
+    const [data, setData] = useState({id:'',category:'',topic:'',content:'',image:'',credit:'',hashtag:'',status:'',by:'',CreatedAt:''})
     const [statusNews, setstatusNews] = useState(dataNews.state); //(Draft/Submit/Approve/Public)
     const [isModalVisible, setIsModalVisible] = useState(false);
     const [modalData, setmodalData] = useState({ type: '', icon: null, title: '', cancelButton: '', okButton: null, email: null, okText: '' });
 
+    useEffect(() => {
+        getData()
+    },[params,])
+
+    const getData = () => {
+       httpClient.get(config.REACT_APP_BASEURL + '/news/' + params.id)
+            .then(function (response) {
+                console.log('response', response)
+                const code = response.data.code
+                if(code === 200){
+                    setData(response.data.data)
+                    console.log('data', response.data.data)
+                }
+            })
+            .catch(function (error) {
+                console.log(error);
+            });
+    }
     const menu = () => {
         return (
             <Menu>
@@ -81,7 +104,7 @@ const View = (props) => {
             <Content className="view-Content">
                 <Row align="middle">
                     <Col flex='auto'>
-                        <div className="view-titel-news">{dataNews.topic}</div>
+                        <div className="view-titel-news">{data.topic}</div>
                     </Col>
                     {type === 'admin' ?
                         <Col flex='10px'>
@@ -95,17 +118,17 @@ const View = (props) => {
                     <Image
                         style={{ padding: '20px' }}
                         width={400}
-                        src={dataNews.image}
+                        src={data.image}
                     />
                 </Row>
                 <Row justify="center">
                     <Col span={10}>
-                        <p >{dataNews.content}</p>
+                        <p >{data.content}</p>
                     </Col>
                 </Row>
-                <Row>แฮกแทร็ก : {dataNews.track}</Row>
-                <Row>เครดิต : {dataNews.credit}</Row>
-                <Row>ผู้ดูแล : {dataNews.admin}</Row>
+                <Row>แฮกแทร็ก : {data.hashtag}</Row>
+                <Row>เครดิต : {data.credit}</Row>
+                <Row>ผู้ดูแล : {data.by}</Row>
                 <hr />
                 <Row>
                     <Col span={12}>

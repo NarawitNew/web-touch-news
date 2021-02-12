@@ -136,7 +136,7 @@ const Home = () => {
             key: 'topic',
             width: '500px',
             ellipsis: true,
-            render: (text, record) => (<Link to="/home/view" style={{ color: '#000' }}>{record.topic}</Link>),
+            render: (text, record) => (<Link to={`/home/view/${record.key}`}style={{ color: '#000' }}>{record.topic}</Link>),
         },
         {
             title: 'ประเภท',
@@ -161,7 +161,7 @@ const Home = () => {
                         <FieldTimeOutlined className="admin-icon-time" onClick={() => { onTimeline(record) }}></FieldTimeOutlined>
                     </Tooltip>
                     <Tooltip placement="bottom" title="แก้ไข">
-                        <Link to={`/home/edit/123456`}>
+                        <Link to={`/home/edit/${record.key}`}>
                             <EditOutlined className="admin-icon-edit" />
                         </Link>
                     </Tooltip>
