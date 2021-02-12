@@ -12,7 +12,8 @@ const { Search } = Input;
 const { Content } = Layout;
 
 const Manage = () => {
-  const [dataSource, setDataSource] = useState();
+  const [dataSource, setDataSource] = useState()
+  const [loading, setLoading] = useState(true)
   const [dataFilter, setDataFilter] = useState("")
   const [dataSearch, setDataSearch] = useState("")
   const [current, setCurrent] = useState(1)
@@ -24,7 +25,7 @@ const Manage = () => {
     getData()
   }, [dataFilter, current, isModalVisible, dataSearch])
 
-  const getData = async () => {
+  const getData =  () => {
     const params = {
       // per_page: '10',
       page: current,
@@ -45,13 +46,17 @@ const Manage = () => {
             item.key = item.id
             item.email = item.email
             item.name = item.firstname + ' ' + item.lastname
-            item.status = item.status
+            // item.status = item.status
+            const status = item.status
+            item.status = status === 'active'? true:false
             return item
           })
           setDataSource(dataMap)
+          setLoading(false)
         } else {
+          setLoading(false)
           setDataSource(data)
-          message.error(response.data.message)
+          // message.error(response.data.message)
         }
       })
       .catch(function (error) {
@@ -132,7 +137,7 @@ const Manage = () => {
         okText: 'ระงับ',
         onOk() {
           const setData = JSON.stringify({
-            "status": checked
+            "status": "inactive"
           })
           console.log('setData', setData)
           httpClient.put(config.REACT_APP_BASEURL + '/admin/suspend/' + record.key, setData)
@@ -155,7 +160,7 @@ const Manage = () => {
     }
     else {
       const setData = JSON.stringify({
-        "status": checked
+        "status": "active"
       })
       console.log('setData', setData)
       httpClient.put(config.REACT_APP_BASEURL + '/admin/suspend/' + record.key, setData)
@@ -170,6 +175,7 @@ const Manage = () => {
 
   const onSearch = (value) => {
     setDataSearch(value)
+    setLoading(true)
   }
 
   const currentPage = (value) => {
@@ -234,11 +240,9 @@ const Manage = () => {
                 name="email"
                 rules={[
                   {
-                    type: "email",
-                    // required: false,
-                    // pattern: /a-z/,
-                    message:
-                      'Enter a valid email address!',
+                    required: false,
+                    pattern: /^(("[\w-\s]+")|([\w-]+(?:\.[\w-]+)*)|("[\w-\s]+")([\w-]+(?:\.[\w-]+)*))(@((?:[\w-]+\.)*\w[\w-]{0,66})\.([a-z]{2,6}(?:\.[a-z]{2})?)$)|(@\[?((25[0-5]\.|2[0-4][0-9]\.|1[0-9]{2}\.|[0-9]{1,2}\.))((25[0-5]|2[0-4][0-9]|1[0-9]{2}|[0-9]{1,2})\.){2}(25[0-5]|2[0-4][0-9]|1[0-9]{2}|[0-9]{1,2})\]?$)/i,
+                    message:'Enter a valid email address!',
                   },
                   {
                     required: true,
@@ -258,6 +262,7 @@ const Manage = () => {
           </Col>
         </Row>
         <Tables
+          loading={loading}
           columns={columns}
           dataSource={dataSource}
           setCurrentPage={currentPage}

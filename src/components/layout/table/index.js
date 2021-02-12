@@ -13,13 +13,14 @@ const Tables = (props) => {
     return (
         <>
             <Table
+                loading={props.loading}
                 pagination={false}
                 columns={props.columns}
                 dataSource={props.dataSource}
                 onChange={onChange}
                 style={{ marginTop: '10px' }}
                 pagination={pagination}
-                scroll={{ x: 'fit-content' }}
+                scroll={{ x: 'fit-content'}}
             />
         </>
     );

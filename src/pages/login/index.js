@@ -3,16 +3,14 @@ import React, { useContext, useState } from "react";
 import { UnlockOutlined, UserOutlined } from '@ant-design/icons';
 
 import { Context } from '../../context'
-import FormData from 'form-data'
 import axios from 'axios'
 import config from 'config'
-import { httpClient } from 'HttpClient'
 import sha256 from 'js-sha256'
 
 const Login = (props) => {
     const context = useContext(Context)
-    const [username, setUsername] = useState((localStorage.getItem('checkbox') ? localStorage.getItem('email') : ''))
-    const [password, setPassword] = useState((localStorage.getItem('checkbox') ? localStorage.getItem('password') : ''))
+    const [username] = useState((localStorage.getItem('checkbox') ? localStorage.getItem('email') : ''))
+    const [password] = useState((localStorage.getItem('checkbox') ? localStorage.getItem('password') : ''))
     const [isCheckbox, setIsCheckbox] = useState((localStorage.getItem('checkbox') === 'true' ? true : false))
 
     // console.log('isCheckbox', isCheckbox)
@@ -44,18 +42,12 @@ const Login = (props) => {
                     localStorage.setItem('id', response.data.data.id)
 
                     message.success(response.data.message)
+                    console.log('response.data.message', response.data.message)
                     props.history.push("/home")
                     window.location.reload()
                 } else {
                     message.error(response.data.message)
-
-                    // message.success(response.data.message)
-                    // localStorage.setItem('token', 'test admin')
-                    // localStorage.setItem('type', 'admin')
-                    // props.history.push("/home")
-                    // window.location.reload()
                 }
-                // console.log(JSON.stringify(response.data));
             })
             .catch(function (error) {
                 console.log(error);

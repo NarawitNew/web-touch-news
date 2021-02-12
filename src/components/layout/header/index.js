@@ -28,7 +28,7 @@ const Headerbar = () => {
         const setData = localStorage.getItem('id')
        httpClient.get(config.REACT_APP_BASEURL + '/user/' + setData)
             .then(function (response) {
-                console.log('response', response)
+                // console.log('response', response)
                 const code = response.data.code
                 const data = response.data.data
                 if (code === 200) {
@@ -54,7 +54,7 @@ const Headerbar = () => {
         const setData = JSON.stringify({
             "id": localStorage.getItem('id')
         })
-        axios.post(config.REACT_APP_BASEURL + '/logout', setData)
+        httpClient.post(config.REACT_APP_BASEURL + '/logout', setData)
             .then(function (response) {
                 const code = response.data.code
                 if (code === 200) {

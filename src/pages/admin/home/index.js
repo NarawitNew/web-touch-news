@@ -1,35 +1,78 @@
-import { Breadcrumb, Button, Col, Dropdown, Input, Layout, Menu, Row, Select, Space, Tooltip } from 'antd';
+import { Breadcrumb, Button, Col, Dropdown, Input, Layout, Menu, Row, Select, Space, Tooltip, message } from 'antd';
 import { DeleteOutlined, EditOutlined, FieldTimeOutlined, PlusOutlined, SendOutlined, UnorderedListOutlined, UserOutlined } from '@ant-design/icons';
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 
 import { Link } from "react-router-dom";
 import Modals from 'components/layout/modal'
 import Tables from 'components/layout/table'
 import Timeline from 'components/layout/timeline'
+import config from 'config'
+import { httpClient } from 'HttpClient'
 
 const { Content } = Layout;
 const { Search } = Input;
 const { Option } = Select;
 
-const data = [{
-    key: '1',
-    date: '07/01/2021',
-    topic: 'ตร.ค้นโกดังย่านฉลองกรุง ยังไม่พบผิด เร่งเช็กภาพโต๊ะบาคาร่า ตัดต่อหรือไม่',
-    category: 'การเมือง',
-    status: 'ส่ง',
-},{
-    key: '2',
-    date: '07/01/2021',
-    topic: 'ตร.ค้นโกดังย่านฉลองกรุง ยังไม่พบผิด เร่งเช็กภาพโต๊ะบาคาร่า ตัดต่อหรือไม่',
-    category: 'การเมือง',
-    status: 'ส่ง',
-}
-];
-
-
 const Home = () => {
+    const [dataSource, setDataSource] = useState()
+    const [numderNews, setNumder] = useState({ all: 0, sdnt: 0, draft: 0 })
+    const [loading, setLoading] = useState(true)
+    const [dataSearch, setDataSearch] = useState({ category: 0, filter: "" })
+    const [current, setCurrent] = useState(1)
+    const [pagination, setPagination] = useState({ pageCurrent: 1, perPage: 10, totalPage: 1 })
     const [isModalVisible, setIsModalVisible] = useState(false);
     const [modalData, setModalData] = useState({ type: '', icon: null, title: '', okColor: '', content: null, okText: '' });
+
+    useEffect(() => {
+        getData()
+    }, [current, dataSearch])
+
+    const getData = () => {
+        const params = {
+            // per_page: '10',
+            page: current,
+            filters: `category:like:${dataSearch.category}`,
+            filters: `topic:like:${dataSearch.filter}`,
+        }
+        httpClient.get(config.REACT_APP_BASEURL + '/news', { params })
+            .then(function (response) {
+                console.log('response', response)
+                const code = response.data.code
+                const data = response.data.data.data_list
+                if (code === 200) {
+                    setPagination({
+                        currentPage: response.data.data.pagination.current_page,
+                        perPage: response.data.data.pagination.per_page,
+                        totalPage: response.data.data.pagination.total
+                    })
+                    const dataMap = data.map((item) => {
+                        item.key = item.id
+                        item.date = item.created_at
+                        item.topic = item.topic
+                        item.status = item.status
+                        return item
+                    })
+                    setDataSource(dataMap)
+                    setLoading(false)
+                } else {
+                }
+            })
+            .catch(function (error) {
+                console.log(error);
+            })
+    }
+
+    const onSearch = (value) => {
+        setDataSearch({ ...dataSearch, filter: value })
+    }
+
+    const onCategory = (value) => {
+        setDataSearch({ ...dataSearch, category: value })
+    }
+
+    const currentPage = (value) => {
+        setCurrent(value);
+    }
 
     const onTimeline = (record) => {
         setModalData({
@@ -39,11 +82,11 @@ const Home = () => {
             okColor: '#216258',
             okText: 'ตกลง',
             onOk() {
-                setIsModalVisible(false)
+                offModal()
             },
             content: <div style={{ width: '180px' }}><Timeline /></div>
         })
-        showModal()
+        onModal()
     }
 
     const onDelete = (record) => {
@@ -54,53 +97,63 @@ const Home = () => {
             okColor: 'red',
             okText: 'ลบ',
             onOk() {
-                setIsModalVisible(false)
+                offModal()
+                httpClient.delete(config.REACT_APP_BASEURL + '/news/' + record.key)
+                    .then(function (response) {
+                        const code = response.data.code
+                        if (code === 200) {
+                            message.success(response.data.message);
+                            getData()
+                        }
+                    })
+                    .catch(function (error) {
+                        console.log(error);
+                        message.error(error.data.message);
+                    })
             },
             content: record.topic,
         })
-        showModal()
+        onModal()
     }
-
-    const showModal = () => {
+    const onModal = () => {
         setIsModalVisible(true)
     };
 
-    const handleOk = () => {
+    const offModal = () => {
         setIsModalVisible(false)
     };
-
-    const handleCancel = () => {
-        setIsModalVisible(false)
-    };
-
 
     const columns = [
         {
             title: 'วันที่',
             dataIndex: 'date',
             key: 'date',
+            width: '120px'
         },
         {
             title: 'หัวข้อ',
             dataIndex: 'topic',
             key: 'topic',
-            width: '50%',
+            width: '500px',
             ellipsis: true,
-            render: (text, record) => (<Link to="/home/view" style={{ color: '#000' }}>{record.topic}</Link>),
+            render: (text, record) => (<Link to={`/home/view/${record.key}`}style={{ color: '#000' }}>{record.topic}</Link>),
         },
         {
             title: 'ประเภท',
             dataIndex: 'category',
             key: 'category',
+            width: '100px'
         },
         {
             title: 'สถานะ',
             dataIndex: 'status',
             key: 'status',
+            width: '100px'
         },
         {
             title: '',
-            // width: '10%',
+            fixed: 'right',
+            width: '120px',
             key: 'action',
             render: (text, record) => (
                 <Space >
@@ -108,8 +161,8 @@ const Home = () => {
                         <FieldTimeOutlined className="admin-icon-time" onClick={() => { onTimeline(record) }}></FieldTimeOutlined>
                     </Tooltip>
                     <Tooltip placement="bottom" title="แก้ไข">
-                        <Link to={`/home/edit/123456`}>
-                        <EditOutlined className="admin-icon-edit" />
+                        <Link to={`/home/edit/${record.key}`}>
+                            <EditOutlined className="admin-icon-edit" />
                         </Link>
                     </Tooltip>
                     <Tooltip placement="bottom" title="ลบ">
@@ -125,7 +178,7 @@ const Home = () => {
                 <Breadcrumb.Item>หน้าแรก</Breadcrumb.Item>
             </Breadcrumb>
             <Content className="admin-home-Content">
-                <Row style={{ height: '120px' }} >
+                <Row>
                     <Col span={8} >
                         <div className="admin-home-Box-Left">
                             <Row align="middle" style={{ height: '100%' }}>
@@ -133,7 +186,7 @@ const Home = () => {
                                     <UnorderedListOutlined className="admin-home-Icon" />
                                 </Col>
                                 <Col span={8}>
-                                    <p className="admin-home-Number">6</p>
+                                    <p className="admin-home-Number"> {numderNews.all} </p>
                                     <p className="admin-home-Text">ข่าวทั้งหมด</p>
                                 </Col>
                             </Row>
@@ -146,7 +199,7 @@ const Home = () => {
                                     <SendOutlined className="admin-home-Icon" />
                                 </Col>
                                 <Col span={8}>
-                                    <p className="admin-home-Number">6</p>
+                                    <p className="admin-home-Number"> {numderNews.sdnt} </p>
                                     <p className="admin-home-Text">ข่าวส่งแล้ว</p>
                                 </Col>
                             </Row>
@@ -159,7 +212,7 @@ const Home = () => {
                                     <EditOutlined className="admin-home-Icon" />
                                 </Col>
                                 <Col span={8}>
-                                    <p className="admin-home-Number">6</p>
+                                    <p className="admin-home-Number"> {numderNews.draft} </p>
                                     <p className="admin-home-Text">ข่าวร่าง</p>
                                 </Col>
                             </Row>
@@ -172,14 +225,15 @@ const Home = () => {
                     </Col>
                     <Col flex="220px">
                         <Input.Group >
-                            <Select defaultValue="1" style={{ width: '100%' }}>
+                            <Select defaultValue="1" style={{ width: '100%' }} onChange={onCategory}>
                                 <Option value="1">ประเภทข่าวทั้งหมด</Option>
-                                <Option value="2">การเมือง</Option>
+                                <Option value="การเมือง">การเมือง</Option>
+                                <Option value="ท่องเที่ยว">ท่องเที่ยว</Option>
                             </Select>
                         </Input.Group>
                     </Col>
                     <Col flex="220px">
-                        <Search placeholder="ค้นหา"></Search>
+                        <Search placeholder="ค้นหา" onSearch={onSearch}></Search>
                     </Col>
                     <Col flex="100px">
                         <Link to="/home/create">
@@ -188,17 +242,18 @@ const Home = () => {
                     </Col>
                 </Row>
                 <Tables
+                    loading={loading}
                     columns={columns}
-                    dataSource={data}
-                    setCurrentPage={'1'}
-                    pageCurrent={'1'}
-                    perPage={2}
-                    totalPage={2}
+                    dataSource={dataSource}
+                    setCurrentPage={currentPage}
+                    pageCurrent={pagination.pageCurrent}
+                    perPage={pagination.perPage}
+                    totalPage={pagination.totalPage}
                 />
                 <Modals
                     isModalVisible={isModalVisible}
                     onOk={modalData.onOk}
-                    onCancel={handleCancel}
+                    onCancel={offModal}
                     modalData={modalData}
                 >
                     <p className="admin-truncate-text">{modalData.content}</p>
