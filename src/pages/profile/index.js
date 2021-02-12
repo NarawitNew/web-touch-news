@@ -194,7 +194,7 @@ const Profile = (props) => {
     let setData = new FormData();
     setData.append('sampleFile', option.file);
     setData.append('save', false)
-    httpClient.post(config.REACT_APP_IMGAE + '/upload', setData)
+    axios.post(config.REACT_APP_IMGAE + '/upload', setData)
       .then(function (response) {
         console.log('response', response)
         const status = response.status
