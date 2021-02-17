@@ -1,22 +1,158 @@
-import { Breadcrumb, Button, Col, Form, Image, Input, Layout, Row, Select } from 'antd';
-import React, { useState } from "react"
+import { AutoComplete, Breadcrumb, Button, Col, Form, Image, Input, Layout, Row, Select, Spin, Tooltip, Upload, message } from 'antd'
+import React, { useContext, useEffect, useState } from "react"
 
-import FroalaEditor from 'components/layout/froala/index'
+import { Context } from '../../../context'
+import FormData from 'form-data'
+import { Froala } from 'components/layout/froala/index'
 import { Link } from "react-router-dom";
-import { PlusCircleOutlined } from '@ant-design/icons';
+import { PlusCircleOutlined } from '@ant-design/icons'
 import Tag from 'components/layout/tag/index'
+import axios from 'axios'
+import config from 'config'
+import { httpClient } from 'HttpClient'
 
-const { Content } = Layout;
-const { Option } = Select;
+const { Content } = Layout
+const { Option } = Select
+
+
 
 const CreateNews = (props) => {
-    const params = props.match.params;
-    const [form] = Form.useForm();
-    const [credit, setCredit] = useState({ inputVisible: false, inputValue: '', tags: [] })
-    const [hashtag, setHashtag] = useState({ inputVisible: false, inputValue: '', tags: [] })
+    const params = props.match.params
+    const context = useContext(Context)
+    const [form] = Form.useForm()
+    // const [formValue] = Form.useForm();
+    const [category, setCategory] = useState(null)
+    const [credit, setCredit] = useState({ inputValue: '', tags: [] })
+    const [hashtag, setHashtag] = useState({ inputValue: '', tags: [] })
+    const [hashtagSource, setHashtagSource] = useState(null)
+    const [image, setImage] = useState()
+    const [spinningImage, setSpinningImage] = useState(false)
     const [newsContent, setNewsContent] = useState('')
+    const [imageContent, setImageContent] = useState()
 
-    const newsContentChange = html => {
+    useEffect(() => {
+        getCategory()
+        getHashtag()
+        if (params.type === 'edit') {
+            getData()
+        }
+    }, [props.location.pathname])
+
+    const getCategory = () => {
+        httpClient.get(config.REACT_APP_BASEURL + '/category')
+            .then(function (response) {
+                const data = response.data.data.data_list
+                const code = response.data.code
+                if (code === 200) {
+                    const dataMap = data.map((item) => {
+                        item = item.category
+                        return item
+                    })
+                    setCategory(dataMap)
+                }
+            })
+            .catch(function (error) {
+                console.log(error)
+            })
+    }
+
+    const getHashtag = () => {
+        httpClient.get(config.REACT_APP_BASEURL + '/news/hashtag')
+            .then(function (response) {
+                const data = response.data.data.data_list
+                const code = response.data.code
+                if (code === 200) {
+                    const dataMap = data.map((item) => {
+                        item = { value: item }
+                        return item
+                    })
+                    setHashtagSource(dataMap)
+                }
+            })
+            .catch(function (error) {
+                console.log(error)
+            })
+    }
+
+    const getData = () => {
+        console.log('getDat', params.id)
+        form.setFieldsValue({
+            topic: params.id,
+        })
+    }
+
+    const uploadImage = (option) => {
+        // console.log('file.originFileObj', file.originFileObj)
+        setSpinningImage(true)
+        let setData = new FormData();
+        setData.append('sampleFile', option.file);
+        setData.append('save', false)
+        axios.post(config.REACT_APP_IMGAE + '/upload', setData)
+            .then(function (response) {
+                console.log('response', response)
+                const status = response.status
+                const data = response.data
+                if (status === 200) {
+                    setImage(data.url)
+                    setSpinningImage(false)
+                }
+            })
+            .catch(function (error) {
+                console.log(error)
+            })
+    }
+
+    const onFinish = async () => {
+        try {
+            const values = await form.validateFields();
+            const setData = JSON.stringify({
+                "category": values.category,
+                "topic": values.topic,
+                "content": newsContent,
+                "image": image,
+                "credit": credit.tags,
+                "hashtag": hashtag.tags,
+                "status": "ร่าง",
+                "by": context.user.firstname + " " + context.user.lastname
+            })
+            httpClient.post(config.REACT_APP_BASEURL + '/news', setData)
+                .then(function (response) {
+                    const code = response.data.code
+                    if (code === 201) {
+                        message.success(response.data.message)
+                        let setData = new FormData();
+                        setData.append('url', image);
+                        axios.post(config.REACT_APP_IMGAE + '/savefile', setData)
+                            .then(function (response) {
+                                console.log(response)
+                            })
+                            .catch(function (error) {
+                                console.log(error)
+                            })
+                        imageContent.map((item) => {
+                            let setData = new FormData();
+                            setData.append('url', item);
+                            axios.post(config.REACT_APP_IMGAE + '/savefile', setData)
+                                .then(function (response) {
+                                    console.log(response)
+                                })
+                                .catch(function (error) {
+                                    console.log(error)
+                                })
+                        })
+                    }
+                })
+                .catch(function (error) {
+                    console.log(error)
+                })
+        } catch (errorInfo) {
+            console.log('Failed:', errorInfo);
+        }
+    }
+
+    const changeNewsContent = html => {
+        console.log('html', html)
+        console.log('imageContent', imageContent)
         setNewsContent(html)
     }
     const creditChange = (e) => {
@@ -31,42 +167,28 @@ const CreateNews = (props) => {
         tags.push(credit.inputValue)
         setCredit({
             tags,
-            inputVisible: false,
             inputValue: '',
         });
     }
-    const hashtagChange = (e) => {
-        setHashtag({ ...hashtag, inputValue: e.target.value });
+    const hashtagChange = (inputValue) => {
+        // setHashtag({ ...hashtag, inputValue: e.target.value });
+        setHashtag({ ...hashtag, inputValue: inputValue });
     };
     const hashtagClose = removedTag => {
         const tags = hashtag.tags.filter(tag => tag !== removedTag);
-        setHashtag({ tags })
+        setHashtag({
+            tags,
+            inputValue: ''
+        })
     }
-    const hashtagConfirm = (e) => {
+    const hashtagConfirm = () => {
         let tags = [...hashtag.tags];
         tags.push(hashtag.inputValue)
         setHashtag({
             tags,
-            inputVisible: false,
             inputValue: '',
         });
     }
-
-    const onFinish = (values) => {
-        console.log('Success:', values);
-        console.log('newsContent', newsContent)
-        console.log('credit', credit)
-        console.log('hashtag', hashtag)
-    };
-
-    const onCheck = async () => {
-        try {
-            const values = await form.validateFields();
-            console.log('Success:', values);
-        } catch (errorInfo) {
-            console.log('Failed:', errorInfo);
-        }
-    };
 
     return (
         <>
@@ -92,7 +214,13 @@ const CreateNews = (props) => {
                         <Col span={12} >
                             <Row gutter={[0, 0]} justify='center'>
                                 <Col>
-                                    <Image width={300} height={300} ></Image>
+                                    <Spin spinning={spinningImage}>
+                                        <Image
+                                            width={300}
+                                            height={300}
+                                            src={image}
+                                        />
+                                    </Spin>
                                 </Col>
                             </Row>
                             <Row gutter={[0, 0]} justify='center'>
@@ -102,7 +230,13 @@ const CreateNews = (props) => {
                             </Row>
                             <Row gutter={[0, 16]} justify='center'>
                                 <Col>
-                                    <Button>รูปภาพ</Button>
+                                    <Upload
+                                        listType="picture"
+                                        customRequest={uploadImage}
+                                        showUploadList={false}
+                                    >
+                                        <Button>อัพโหลดรูปภาพ</Button>
+                                    </Upload>
                                 </Col>
                             </Row>
                             <Row gutter={[8, 8]} align='middle'>
@@ -118,7 +252,9 @@ const CreateNews = (props) => {
                                     />
                                 </Col>
                                 <Col span={2}>
-                                    <PlusCircleOutlined className="create-icon" onClick={creditConfirm}></PlusCircleOutlined>
+                                    <Tooltip placement="bottom" title="เพิ่มเครติด">
+                                        <PlusCircleOutlined className="create-icon" onClick={creditConfirm}></PlusCircleOutlined>
+                                    </Tooltip>
                                 </Col>
                             </Row>
                             <Row gutter={[8, 16]} align='middle'>
@@ -134,16 +270,33 @@ const CreateNews = (props) => {
                                     <div>แฮชแท็ก</div>
                                 </Col>
                                 <Col span={16}>
-                                    <Input
+                                    <Input.Group>
+                                        {/* <Input
                                         value={hashtag.inputValue}
                                         onChange={hashtagChange}
                                         // onBlur={handleTagConfirm}
                                         onPressEnter={hashtagConfirm}
+                                    
+                                    /> */}
+                                        <AutoComplete
+                                            style={{
+                                                width: '100%',
+                                            }}
 
-                                    />
+                                            value={hashtag.inputValue}
+                                            onChange={hashtagChange}
+                                            options={hashtagSource}
+                                            filterOption={(inputValue, option) =>
+                                                option.value.toUpperCase().indexOf(inputValue.toUpperCase()) !== -1
+                                            }
+
+                                        />
+                                    </Input.Group>
                                 </Col>
                                 <Col span={2}>
-                                    <PlusCircleOutlined onClick={hashtagConfirm} className="create-icon"></PlusCircleOutlined>
+                                    <Tooltip placement="bottom" title="เพิ่มแฮชแท็ก">
+                                        <PlusCircleOutlined onClick={hashtagConfirm} className="create-icon"></PlusCircleOutlined>
+                                    </Tooltip>
                                 </Col>
                             </Row>
                             <Row gutter={[8, 16]} align='middle'>
@@ -172,18 +325,14 @@ const CreateNews = (props) => {
                                 rules={[{ required: true, message: 'Please input your username!' }]}
                             >
                                 <Select placeholder="เลือกประเภท">
-                                    <Option value="1">ไอที</Option>
-                                    <Option value="2">ท่องเที่ยว</Option>
-                                    <Option value="3">อาหาร</Option>
-                                    <Option value="4">สุขภาพ</Option>
-                                    <Option value="5">อุบัติเหตุ</Option>
-                                    <Option value="6">กิจกรรม</Option>
-                                    <Option value="7">ทั่วไป</Option>
+                                    {category !== null ? category.map((category) =>
+                                        <Option key={category} value={category}>{category}</Option>) : null
+                                    }
                                 </Select>
                             </Form.Item>
                             <Form.Item
                                 label="หัวเรื่อง"
-                                name="heading"
+                                name="topic"
                                 rules={[{ required: true, message: 'กรุณาใส่ข้อมูล' }]}
                             >
                                 <Input></Input>
@@ -191,14 +340,15 @@ const CreateNews = (props) => {
                             <Form.Item
                                 label="เนื้อหาข่าว"
                             >
-                                <FroalaEditor
-                                    onModelChange={newsContentChange}
+                                <Froala
+                                    onModelChange={changeNewsContent}
+                                    setImageContent={setImageContent}
                                 />
                             </Form.Item>
                         </Col>
                     </Row>
                     <Row justify="end">
-                        <Button className="create-button" type="primary" ghost onClick={onCheck} >บันทึก</Button>
+                        <Button className="create-button" type="primary" ghost onClick={onFinish} >บันทึก</Button>
                         <Link to="/home">
                             <Button className="create-button">ยกเลิก</Button>
                         </Link>

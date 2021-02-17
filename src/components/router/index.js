@@ -25,9 +25,9 @@ export default function Routers(props) {
                 :
                 <Switch>
                     <Route exact component={HomeAdmin} path="/"></Route>
+                    <Route component={ViewNews} path="/home/view/:id"></Route>
                     <Route component={CreateNews} path="/home/:type/:id"></Route>
                     <Route component={CreateNews} path="/home/:type"></Route>
-                    <Route component={ViewNews} path="/home/view"></Route>
                     <Route component={HomeAdmin} path="/home"></Route>
                     <Route component={Manage} path="/manage"></Route>
                     <Route component={Profile} path="/profile"></Route>

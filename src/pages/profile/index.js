@@ -63,8 +63,8 @@ const Profile = (props) => {
             email: response.data.data.email,
             firstname: response.data.data.firstname,
             lastname: response.data.data.lastname,
-            passwordNew: " ",
-            passwordConfirm: " "
+            passwordNew: '',
+            passwordConfirm: '',
           })
         }
       })
@@ -83,7 +83,7 @@ const Profile = (props) => {
       content: 'คุณต้องการยืนยันการสร้างรหัสใหม่นี้หรือไม่ !!! ',
       onOk() {
         // setIsModalVisible(false)
-        httpClient.put(config.REACT_APP_BASEURL + '/admin/resetpassword/' + setId)
+        httpClient.put(config.REACT_APP_BASEURL + '/admin/reset_password/' + setId)
           .then(function (response) {
             const code = response.data.code
             if (code === 201) {
@@ -194,7 +194,7 @@ const Profile = (props) => {
     let setData = new FormData();
     setData.append('sampleFile', option.file);
     setData.append('save', false)
-    httpClient.post(config.REACT_APP_IMGAE + '/upload', setData)
+    axios.post(config.REACT_APP_IMGAE + '/upload', setData)
       .then(function (response) {
         console.log('response', response)
         const status = response.status

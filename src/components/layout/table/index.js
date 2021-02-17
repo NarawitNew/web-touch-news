@@ -20,7 +20,7 @@ const Tables = (props) => {
                 onChange={onChange}
                 style={{ marginTop: '10px' }}
                 pagination={pagination}
-                scroll={{ x: 'fit-content' }}
+                scroll={{ x: 'fit-content'}}
             />
         </>
     );

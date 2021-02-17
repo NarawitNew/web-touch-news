@@ -1,71 +1,95 @@
-import { Breadcrumb, Button, Col, Dropdown, Image, Input, Layout, Menu, Row, Select } from 'antd'
-import { DeleteOutlined, FieldTimeOutlined, MoreOutlined } from '@ant-design/icons';
-import React, { useState } from "react";
+import { Breadcrumb, Button, Col, Dropdown, Image, Input, Layout, Menu, Row, Select, message } from 'antd'
+import { DeleteOutlined, EditOutlined, MoreOutlined } from '@ant-design/icons';
+import React, { useEffect, useState } from "react";
 
+import { FroalaView } from 'components/layout/froala/index'
+import { Link } from "react-router-dom";
 import Modals from 'components/layout/modal'
 import Timeline from 'components/layout/timeline'
+import config from 'config'
+import { httpClient } from 'HttpClient'
 
 const { Content } = Layout
 const { Option } = Select;
 const { TextArea } = Input;
-const type = localStorage.getItem('type')
-
-const dataNews = {
-    id: '1',
-    admin: 'narawit',
-    topic: 'ตร.ค้นโกดังย่านฉลองกรุง ยังไม่พบผิด เร่งเช็กภาพโต๊ะบาคาร่า ตัดต่อหรือไม่',
-    state: 'Submit',
-    image: 'https://www.thairath.co.th/media/dFQROr7oWzulq5Fa4VWesCxyzDRhGiTaaQHKKLE9G1eqrrp8gfV9rJEz93EgR5Xdmao.webp',
-    content: 'รองต๊ะ พล.ต.ต.ปิยะ ต๊ะวิชัย รอง ผบช.น. เผยภาพรวมการตั้งด่านตรวจคัดกรองโควิด-19 ตามแนวรอยต่อกทม.-ปริมณฑลเรียบร้อยดี ส่วนเรื่องค้นโกดังย่านฉลองกรุง เจอไพ่และโพยพนัน ยังไม่สามารถพิสูจน์ได้ว่าเป็นอุปกรณ์ที่ใช้ในการกระทำผิดตาม พ.ร.บ.การพนัน ทำให้ไม่มีมูลพอจะดำเนินคดีฐานพยายามทำลายหลักฐาน',
-    track: '#โควิค 19',
-    credit: 'https://www.thairath.co.th/news/local/central/1998611',
-    timeline: ''
-};
-
 
 const View = (props) => {
+    const params = props.match.params;
+    const type = localStorage.getItem('role')
+    const [dataNews, setDataNews] = useState({})
     const [statusNews, setstatusNews] = useState(dataNews.state); //(Draft/Submit/Approve/Public)
     const [isModalVisible, setIsModalVisible] = useState(false);
-    const [modalData, setmodalData] = useState({ type: '', icon: null, title: '', cancelButton: '', okButton: null, email: null, okText: '' });
+    const [modalData, setModalData] = useState({ type: '', icon: null, title: '', okColor: '', content: null, okText: '' });
 
+    useEffect(() => {
+        getData()
+    }, [params,])
+
+    const getData = () => {
+        httpClient.get(config.REACT_APP_BASEURL + '/news/data/' + params.id)
+            .then(function (response) {
+                console.log('response', response)
+                const code = response.data.code
+                if (code === 200) {
+                    setDataNews(response.data.data)
+                    console.log('data', response.data.data)
+                }
+            })
+            .catch(function (error) {
+                console.log(error);
+            });
+    }
     const menu = () => {
         return (
             <Menu>
                 <Menu.Item >
-                    <FieldTimeOutlined style={{ color: '#6AC9FF' }}></FieldTimeOutlined>
-              ไทม์ไลน์
-          </Menu.Item>
-                <Menu.Item >
-                    <DeleteOutlined style={{ color: 'red' }}></DeleteOutlined>
-              ลบ
-          </Menu.Item>
+                    <Link to={`/home/edit/${params.id}`}>
+                        <EditOutlined style={{ color: 'orange' }}></EditOutlined>
+                        แก้ไข
+                    </Link>
+                </Menu.Item>
+                <Menu.Item
+                    onClick={() => { onDelete() }}
+                >
+                    <DeleteOutlined style={{ color: 'red' }} ></DeleteOutlined>
+                    ลบ
+                </Menu.Item>
             </Menu>
         );
 
     }
 
     const onDelete = () => {
-        setmodalData({
+        setModalData({
             type: 'confirm',
-            icon: <DeleteOutlined className="manage-Icon-delete" />,
+            icon: <DeleteOutlined className="manage-icon-delete" />,
             title: 'คุณต้องการลบข่าวนี้ หรือไม่ ! ',
-            cancelButton: '',
-            okButton: { backgroundColor: 'white', color: 'red', borderColor: 'red' },
+            okColor: 'red',
             okText: 'ลบ',
-            email: dataNews.topic,
+            onOk() {
+                offModal()
+                httpClient.delete(config.REACT_APP_BASEURL + '/news/' + params.id)
+                    .then(function (response) {
+                        const code = response.data.code
+                        if (code === 200) {
+                            message.success(response.data.message);
+                            props.history.push("/home")
+                        }
+                    })
+                    .catch(function (error) {
+                        console.log(error);
+                        message.error(error.data.message);
+                    })
+            },
+            content: dataNews.topic,
         })
-        showModal()
+        onModal()
     }
-
-    const showModal = () => {
+    const onModal = () => {
         setIsModalVisible(true)
     };
 
-    const handleOk = () => {
-        setIsModalVisible(false)
-    };
-
-    const handleCancel = () => {
+    const offModal = () => {
         setIsModalVisible(false)
     };
 
@@ -100,12 +124,18 @@ const View = (props) => {
                 </Row>
                 <Row justify="center">
                     <Col span={10}>
-                        <p >{dataNews.content}</p>
+                        <FroalaView
+                            model={dataNews.content}
+                        />
+
+                        {/* <p >{dataNews.content}</p> */}
+
+
                     </Col>
                 </Row>
-                <Row>แฮกแทร็ก : {dataNews.track}</Row>
+                <Row>แฮกแทร็ก : {dataNews.hashtag}  </Row>
                 <Row>เครดิต : {dataNews.credit}</Row>
-                <Row>ผู้ดูแล : {dataNews.admin}</Row>
+                <Row>ผู้ดูแล : {dataNews.by}</Row>
                 <hr />
                 <Row>
                     <Col span={12}>
@@ -114,7 +144,7 @@ const View = (props) => {
                             <Timeline></Timeline>
                         </div>
                     </Col>
-                    {type === 'super' ?
+                    {type === 'Superadmin' ?
                         <Col span={12} >
                             <h3>เปลี่ยนสถานะข่าว</h3>
                             <Row style={{ marginTop: '20px' }}>
@@ -150,7 +180,7 @@ const View = (props) => {
                         : <></>
                     }
                 </Row>
-                {type === 'super' ?
+                {type === 'Superadmin' ?
                     <Row justify="end" style={{ marginTop: '20px' }}>
                         <Button type="primary" ghost className="view-Button">บันทึก</Button>
                         <Button className="view-Button" onClick={onDelete} danger>ลบ</Button>
@@ -160,10 +190,12 @@ const View = (props) => {
                 }
                 <Modals
                     isModalVisible={isModalVisible}
-                    onOk={handleOk}
-                    onCancel={handleCancel}
+                    onOk={modalData.onOk}
+                    onCancel={offModal}
                     modalData={modalData}
-                />
+                >
+                    {modalData.content}
+                </Modals>
             </Content>
         </>
     );

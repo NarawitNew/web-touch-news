@@ -25,7 +25,7 @@ const Manage = () => {
     getData()
   }, [dataFilter, current, isModalVisible, dataSearch])
 
-  const getData =  () => {
+  const getData = () => {
     const params = {
       // per_page: '10',
       page: current,
@@ -48,7 +48,7 @@ const Manage = () => {
             item.name = item.firstname + ' ' + item.lastname
             // item.status = item.status
             const status = item.status
-            item.status = status === 'active'? true:false
+            item.status = status === 'active' ? true : false
             return item
           })
           setDataSource(dataMap)
@@ -165,7 +165,10 @@ const Manage = () => {
       console.log('setData', setData)
       httpClient.put(config.REACT_APP_BASEURL + '/admin/suspend/' + record.key, setData)
         .then(function (response) {
-          message.success('อนุญาติผู้ดูแลระบบสำเร็จ');
+          const code = response.data.code
+          if (code === 200) {
+            message.success('อนุญาติผู้ดูแลระบบสำเร็จ');
+          }
         })
         .catch(function (error) {
           message.error('อนุญาติผู้ดูแลระบบไม่สำเร็จ');
@@ -231,7 +234,7 @@ const Manage = () => {
       </Breadcrumb>
       <Content className="manage-content">
         <Row >
-          <Col xs={24} sm={24} md={14} lg={14} xl={16} style={{marginBottom:'5px'}}>
+          <Col xs={24} sm={24} md={14} lg={14} xl={16} style={{ marginBottom: '5px' }}>
             <Form name="email" layout="inline" onFinish={onInsert}>
               <Form.Item>
                 <div className="manage-Text">ผู้ดูแลระบบ</div>
@@ -242,7 +245,7 @@ const Manage = () => {
                   {
                     required: false,
                     pattern: /^(("[\w-\s]+")|([\w-]+(?:\.[\w-]+)*)|("[\w-\s]+")([\w-]+(?:\.[\w-]+)*))(@((?:[\w-]+\.)*\w[\w-]{0,66})\.([a-z]{2,6}(?:\.[a-z]{2})?)$)|(@\[?((25[0-5]\.|2[0-4][0-9]\.|1[0-9]{2}\.|[0-9]{1,2}\.))((25[0-5]|2[0-4][0-9]|1[0-9]{2}|[0-9]{1,2})\.){2}(25[0-5]|2[0-4][0-9]|1[0-9]{2}|[0-9]{1,2})\]?$)/i,
-                    message:'Enter a valid email address!',
+                    message: 'Enter a valid email address!',
                   },
                   {
                     required: true,
@@ -257,7 +260,7 @@ const Manage = () => {
               </Form.Item>
             </Form>
           </Col>
-          <Col  md={10} lg={10} xl={8} style={{ textAlign: 'right', paddingLeft:'80px'}}>
+          <Col md={10} lg={10} xl={8} style={{ textAlign: 'right', paddingLeft: '80px' }}>
             <Search placeholder="ค้นหา" className="manage-search" onSearch={onSearch} />
           </Col>
         </Row>
