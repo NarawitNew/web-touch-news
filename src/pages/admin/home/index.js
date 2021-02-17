@@ -1,5 +1,5 @@
-import { Breadcrumb, Button, Col, Dropdown, Input, Layout, Menu, Row, Select, Space, Tooltip, message } from 'antd';
-import { DeleteOutlined, EditOutlined, FieldTimeOutlined, PlusOutlined, SendOutlined, UnorderedListOutlined, UserOutlined } from '@ant-design/icons';
+import { Breadcrumb, Button, Col, Input, Layout, Row, Select, Space, Tooltip, message } from 'antd';
+import { DeleteOutlined, EditOutlined, FieldTimeOutlined, PlusOutlined, SendOutlined, UnorderedListOutlined } from '@ant-design/icons';
 import React, { useEffect, useState } from "react";
 
 import { Link } from "react-router-dom";
@@ -17,15 +17,16 @@ const Home = () => {
     const [dataSource, setDataSource] = useState()
     const [numderNews, setNumder] = useState({ all: 0, sdnt: 0, draft: 0 })
     const [loading, setLoading] = useState(true)
-    const [dataSearch, setDataSearch] = useState({ category: 0, filter: "" })
-    const [current, setCurrent] = useState(1)
     const [pagination, setPagination] = useState({ pageCurrent: 1, perPage: 10, totalPage: 1 })
     const [isModalVisible, setIsModalVisible] = useState(false);
     const [modalData, setModalData] = useState({ type: '', icon: null, title: '', okColor: '', content: null, okText: '' });
+    const [dataSearch, setDataSearch] = useState({ category: 0, filter: '' })
+    const [current, setCurrent] = useState(1)
+    const [filters, setFilters] = useState()
 
     useEffect(() => {
         getData()
-    }, [current, dataSearch])
+    }, [current, dataSearch, filters])
 
     const getData = () => {
         const params = {
@@ -39,6 +40,7 @@ const Home = () => {
                 console.log('response', response)
                 const code = response.data.code
                 const data = response.data.data.data_list
+                setLoading(false)
                 if (code === 200) {
                     setPagination({
                         currentPage: response.data.data.pagination.current_page,
@@ -48,13 +50,13 @@ const Home = () => {
                     const dataMap = data.map((item) => {
                         item.key = item.id
                         item.date = item.created_at
-                        item.topic = item.topic
-                        item.status = item.status
+                        item.status = "--"
+                        // item.status = item.status
                         return item
                     })
                     setDataSource(dataMap)
-                    setLoading(false)
                 } else {
+                    setDataSource()
                 }
             })
             .catch(function (error) {
@@ -103,7 +105,7 @@ const Home = () => {
                         const code = response.data.code
                         if (code === 200) {
                             message.success(response.data.message);
-                            getData()
+                            setFilters(record.key)
                         }
                     })
                     .catch(function (error) {
@@ -136,7 +138,7 @@ const Home = () => {
             key: 'topic',
             width: '500px',
             ellipsis: true,
-            render: (text, record) => (<Link to={`/home/view/${record.key}`}style={{ color: '#000' }}>{record.topic}</Link>),
+            render: (text, record) => (<Link to={`/home/view/${record.key}`} style={{ color: '#000' }}>{record.topic}</Link>),
         },
         {
             title: 'ประเภท',
@@ -177,43 +179,43 @@ const Home = () => {
             <Breadcrumb style={{ margin: '4px 0' }}>
                 <Breadcrumb.Item>หน้าแรก</Breadcrumb.Item>
             </Breadcrumb>
-            <Content className="admin-home-Content">
-                <Row>
-                    <Col span={8} >
-                        <div className="admin-home-Box-Left">
+            <Content className="admin-home-content">
+                <Row gutter={[16, 16]} >
+                    <Col xs={24} sm={12} md={12} lg={8} xl={8}>
+                        <div className="admin-home-box-left">
                             <Row align="middle" style={{ height: '100%' }}>
                                 <Col span={8} offset={4}>
-                                    <UnorderedListOutlined className="admin-home-Icon" />
+                                    <UnorderedListOutlined className="admin-home-icon" />
                                 </Col>
                                 <Col span={8}>
-                                    <p className="admin-home-Number"> {numderNews.all} </p>
-                                    <p className="admin-home-Text">ข่าวทั้งหมด</p>
+                                    <p className="admin-home-number"> {numderNews.all} </p>
+                                    <p className="admin-home-text">ข่าวทั้งหมด</p>
                                 </Col>
                             </Row>
                         </div>
                     </Col>
-                    <Col span={8} >
-                        <div className="admin-home-Box-Center" >
+                    <Col xs={24} sm={12} md={12} lg={8} xl={8} >
+                        <div className="admin-home-box-center" >
                             <Row align="middle" style={{ height: '100%' }}>
                                 <Col span={8} offset={4}>
-                                    <SendOutlined className="admin-home-Icon" />
+                                    <SendOutlined className="admin-home-icon" />
                                 </Col>
                                 <Col span={8}>
-                                    <p className="admin-home-Number"> {numderNews.sdnt} </p>
-                                    <p className="admin-home-Text">ข่าวส่งแล้ว</p>
+                                    <p className="admin-home-number"> {numderNews.sdnt} </p>
+                                    <p className="admin-home-text">ข่าวส่งแล้ว</p>
                                 </Col>
                             </Row>
                         </div>
                     </Col>
-                    <Col span={8} >
-                        <div className="admin-home-Box-Right" >
+                    <Col xs={24} sm={12} md={12} lg={8} xl={8} >
+                        <div className="admin-home-box-right" >
                             <Row align="middle" style={{ height: '100%' }}>
                                 <Col span={8} offset={4}>
-                                    <EditOutlined className="admin-home-Icon" />
+                                    <EditOutlined className="admin-home-icon" />
                                 </Col>
                                 <Col span={8}>
-                                    <p className="admin-home-Number"> {numderNews.draft} </p>
-                                    <p className="admin-home-Text">ข่าวร่าง</p>
+                                    <p className="admin-home-number"> {numderNews.draft} </p>
+                                    <p className="admin-home-text">ข่าวร่าง</p>
                                 </Col>
                             </Row>
                         </div>
@@ -221,7 +223,7 @@ const Home = () => {
                 </Row>
                 <Row gutter={8} style={{ marginTop: '20px' }} >
                     <Col flex="auto">
-                        <div className="admin-home-Text-List">รายการ</div>
+                        <div className="admin-home-text-list">รายการ</div>
                     </Col>
                     <Col flex="220px">
                         <Input.Group >
@@ -256,7 +258,7 @@ const Home = () => {
                     onCancel={offModal}
                     modalData={modalData}
                 >
-                    <p className="admin-truncate-text">{modalData.content}</p>
+                    {modalData.content}
                 </Modals>
             </Content>
         </>

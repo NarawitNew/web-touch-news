@@ -1,19 +1,20 @@
-import { Breadcrumb, Button, Col, Form, Image, Input, Layout, Row, Select, Upload, Spin, message } from 'antd'
-import React, { useState, useEffect, useContext } from "react"
+import { AutoComplete, Breadcrumb, Button, Col, Form, Image, Input, Layout, Row, Select, Spin, Tooltip, Upload, message } from 'antd'
+import React, { useContext, useEffect, useState } from "react"
 
-import FroalaEditor from 'components/layout/froala/index'
+import { Context } from '../../../context'
+import FormData from 'form-data'
+import { Froala } from 'components/layout/froala/index'
 import { Link } from "react-router-dom";
 import { PlusCircleOutlined } from '@ant-design/icons'
 import Tag from 'components/layout/tag/index'
+import axios from 'axios'
 import config from 'config'
 import { httpClient } from 'HttpClient'
-import { Context } from '../../../context'
-import axios from 'axios'
-import FormData from 'form-data'
-
 
 const { Content } = Layout
 const { Option } = Select
+
+
 
 const CreateNews = (props) => {
     const params = props.match.params
@@ -21,15 +22,18 @@ const CreateNews = (props) => {
     const [form] = Form.useForm()
     // const [formValue] = Form.useForm();
     const [category, setCategory] = useState(null)
-    const [credit, setCredit] = useState({ inputVisible: false, inputValue: '', tags: [] })
-    const [hashtag, setHashtag] = useState({ inputVisible: false, inputValue: '', tags: [] })
-    const [image, setImage] = useState('error')
+    const [credit, setCredit] = useState({ inputValue: '', tags: [] })
+    const [hashtag, setHashtag] = useState({ inputValue: '', tags: [] })
+    const [hashtagSource, setHashtagSource] = useState(null)
+    const [image, setImage] = useState()
     const [spinningImage, setSpinningImage] = useState(false)
     const [newsContent, setNewsContent] = useState('')
+    const [imageContent, setImageContent] = useState()
 
     useEffect(() => {
         getCategory()
-        if(params.type === 'edit'){
+        getHashtag()
+        if (params.type === 'edit') {
             getData()
         }
     }, [props.location.pathname])
@@ -52,11 +56,29 @@ const CreateNews = (props) => {
             })
     }
 
-    const getData = () =>{
-        console.log('getDat',params.id)
+    const getHashtag = () => {
+        httpClient.get(config.REACT_APP_BASEURL + '/news/hashtag')
+            .then(function (response) {
+                const data = response.data.data.data_list
+                const code = response.data.code
+                if (code === 200) {
+                    const dataMap = data.map((item) => {
+                        item = { value: item }
+                        return item
+                    })
+                    setHashtagSource(dataMap)
+                }
+            })
+            .catch(function (error) {
+                console.log(error)
+            })
+    }
+
+    const getData = () => {
+        console.log('getDat', params.id)
         form.setFieldsValue({
             topic: params.id,
-          })
+        })
     }
 
     const uploadImage = (option) => {
@@ -88,9 +110,9 @@ const CreateNews = (props) => {
                 "topic": values.topic,
                 "content": newsContent,
                 "image": image,
-                "cerdit": "เครติด 1",
-                "hashtag": "แฮชแท็ก 1",
-                "status": "ส่ง",
+                "credit": credit.tags,
+                "hashtag": hashtag.tags,
+                "status": "ร่าง",
                 "by": context.user.firstname + " " + context.user.lastname
             })
             httpClient.post(config.REACT_APP_BASEURL + '/news', setData)
@@ -107,9 +129,21 @@ const CreateNews = (props) => {
                             .catch(function (error) {
                                 console.log(error)
                             })
+                        imageContent.map((item) => {
+                            let setData = new FormData();
+                            setData.append('url', item);
+                            axios.post(config.REACT_APP_IMGAE + '/savefile', setData)
+                                .then(function (response) {
+                                    console.log(response)
+                                })
+                                .catch(function (error) {
+                                    console.log(error)
+                                })
+                        })
                     }
                 })
                 .catch(function (error) {
+                    console.log(error)
                 })
         } catch (errorInfo) {
             console.log('Failed:', errorInfo);
@@ -117,6 +151,8 @@ const CreateNews = (props) => {
     }
 
     const changeNewsContent = html => {
+        console.log('html', html)
+        console.log('imageContent', imageContent)
         setNewsContent(html)
     }
     const creditChange = (e) => {
@@ -131,23 +167,25 @@ const CreateNews = (props) => {
         tags.push(credit.inputValue)
         setCredit({
             tags,
-            inputVisible: false,
             inputValue: '',
         });
     }
-    const hashtagChange = (e) => {
-        setHashtag({ ...hashtag, inputValue: e.target.value });
+    const hashtagChange = (inputValue) => {
+        // setHashtag({ ...hashtag, inputValue: e.target.value });
+        setHashtag({ ...hashtag, inputValue: inputValue });
     };
     const hashtagClose = removedTag => {
         const tags = hashtag.tags.filter(tag => tag !== removedTag);
-        setHashtag({ tags })
+        setHashtag({
+            tags,
+            inputValue: ''
+        })
     }
-    const hashtagConfirm = (e) => {
+    const hashtagConfirm = () => {
         let tags = [...hashtag.tags];
         tags.push(hashtag.inputValue)
         setHashtag({
             tags,
-            inputVisible: false,
             inputValue: '',
         });
     }
@@ -214,7 +252,9 @@ const CreateNews = (props) => {
                                     />
                                 </Col>
                                 <Col span={2}>
-                                    <PlusCircleOutlined className="create-icon" onClick={creditConfirm}></PlusCircleOutlined>
+                                    <Tooltip placement="bottom" title="เพิ่มเครติด">
+                                        <PlusCircleOutlined className="create-icon" onClick={creditConfirm}></PlusCircleOutlined>
+                                    </Tooltip>
                                 </Col>
                             </Row>
                             <Row gutter={[8, 16]} align='middle'>
@@ -230,16 +270,33 @@ const CreateNews = (props) => {
                                     <div>แฮชแท็ก</div>
                                 </Col>
                                 <Col span={16}>
-                                    <Input
+                                    <Input.Group>
+                                        {/* <Input
                                         value={hashtag.inputValue}
                                         onChange={hashtagChange}
                                         // onBlur={handleTagConfirm}
                                         onPressEnter={hashtagConfirm}
+                                    
+                                    /> */}
+                                        <AutoComplete
+                                            style={{
+                                                width: '100%',
+                                            }}
 
-                                    />
+                                            value={hashtag.inputValue}
+                                            onChange={hashtagChange}
+                                            options={hashtagSource}
+                                            filterOption={(inputValue, option) =>
+                                                option.value.toUpperCase().indexOf(inputValue.toUpperCase()) !== -1
+                                            }
+
+                                        />
+                                    </Input.Group>
                                 </Col>
                                 <Col span={2}>
-                                    <PlusCircleOutlined onClick={hashtagConfirm} className="create-icon"></PlusCircleOutlined>
+                                    <Tooltip placement="bottom" title="เพิ่มแฮชแท็ก">
+                                        <PlusCircleOutlined onClick={hashtagConfirm} className="create-icon"></PlusCircleOutlined>
+                                    </Tooltip>
                                 </Col>
                             </Row>
                             <Row gutter={[8, 16]} align='middle'>
@@ -269,10 +326,8 @@ const CreateNews = (props) => {
                             >
                                 <Select placeholder="เลือกประเภท">
                                     {category !== null ? category.map((category) =>
-                                        <Option key={category} value={category}>{category}</Option>) : null}
-                                    {/* {category.map((category) =>
-                                        <Option >{category.data.data}</Option>  
-                                    )} */}
+                                        <Option key={category} value={category}>{category}</Option>) : null
+                                    }
                                 </Select>
                             </Form.Item>
                             <Form.Item
@@ -285,8 +340,9 @@ const CreateNews = (props) => {
                             <Form.Item
                                 label="เนื้อหาข่าว"
                             >
-                                <FroalaEditor
+                                <Froala
                                     onModelChange={changeNewsContent}
+                                    setImageContent={setImageContent}
                                 />
                             </Form.Item>
                         </Col>
