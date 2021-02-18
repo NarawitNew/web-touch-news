@@ -11,9 +11,11 @@ const Siderbar = (props) => {
     const [activeMenu, setActiveMenu] = useState(props.location.pathname)
 
     useEffect(() => {
-        // console.log('object', props.location.pathname)
+        console.log('object', props)
         setActiveMenu(props.location.pathname)
-        if (props.location.pathname === '/') {
+        if (props.location.pathname === '/' ) {
+            setActiveMenu('/home')
+        }else if (props.location.pathname.substring(1, 5) === 'home' ) {
             setActiveMenu('/home')
         }
     }, [props.location.pathname]);

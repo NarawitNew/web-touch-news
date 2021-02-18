@@ -25,7 +25,7 @@ const Modals = (props) =>{
                 </div>
             ]}
         >
-            {props.children}
+            <p className="truncate-text">{props.children}</p>
         </Modal>
 
     );

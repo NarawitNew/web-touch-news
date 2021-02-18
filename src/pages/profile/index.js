@@ -1,5 +1,5 @@
 import { Avatar, Breadcrumb, Button, Col, Form, Input, Layout, Row, Spin, Upload, message } from 'antd'
-import { ExclamationCircleOutlined, UserOutlined } from '@ant-design/icons';
+import { ExclamationCircleOutlined, UnlockOutlined, UserOutlined } from '@ant-design/icons';
 import React, { useContext, useEffect, useState } from "react"
 
 import { Context } from '../../context'
@@ -48,8 +48,8 @@ const Profile = (props) => {
       email: data.email,
       firstname: data.firstname,
       lastname: data.lastname,
-      passwordNew: " ",
-      passwordConfirm: " "
+      passwordNew: '',
+      passwordConfirm: ''
     })
   }
 
@@ -63,8 +63,8 @@ const Profile = (props) => {
             email: response.data.data.email,
             firstname: response.data.data.firstname,
             lastname: response.data.data.lastname,
-            passwordNew: " ",
-            passwordConfirm: " "
+            passwordNew: '',
+            passwordConfirm: '',
           })
         }
       })
@@ -83,7 +83,7 @@ const Profile = (props) => {
       content: 'คุณต้องการยืนยันการสร้างรหัสใหม่นี้หรือไม่ !!! ',
       onOk() {
         // setIsModalVisible(false)
-        httpClient.put(config.REACT_APP_BASEURL + '/admin/resetpassword/' + setId)
+        httpClient.put(config.REACT_APP_BASEURL + '/admin/reset_password/' + setId)
           .then(function (response) {
             const code = response.data.code
             if (code === 201) {
@@ -153,7 +153,7 @@ const Profile = (props) => {
             })
             let setData = new FormData();
             setData.append('url', image);
-            axios.post(config.REACT_APP_IMGAE+ '/savefile', setData)
+            axios.post(config.REACT_APP_IMGAE + '/savefile', setData)
               .then(function (response) {
                 console.log(response)
               })
@@ -163,6 +163,7 @@ const Profile = (props) => {
           }
         })
         .catch(function (error) {
+          console.log(error)
         })
     }
   }
@@ -174,8 +175,8 @@ const Profile = (props) => {
     else {
       setShowInputPass(false)
       formValue.setFieldsValue({
-        passwordNew: " ",
-        passwordConfirm: " "
+        passwordNew: '',
+        passwordConfirm: ''
       })
     }
   }
@@ -230,10 +231,10 @@ const Profile = (props) => {
             >
               <Form.Item className="profile-Center">
                 <Spin spinning={spinningImage}>
-                <Avatar  
-                size={{ xs: 150, sm: 150, md: 150, lg: 150, xl: 150, xxl: 250 }}
-                 src={image} />
-                 </Spin>
+                  <Avatar
+                    size={{ xs: 150, sm: 150, md: 150, lg: 150, xl: 150, xxl: 250 }}
+                    src={image} />
+                </Spin>
               </Form.Item>
               <Form.Item className="profile-Center">
                 <Upload
@@ -270,17 +271,16 @@ const Profile = (props) => {
                   <Form.Item
                     name="passwordNew"
                     label='รหัสผ่านใหม่' {...layout}>
-                    <Input />
+                    <Input.Password />
                   </Form.Item>
                   <Form.Item
                     name="passwordConfirm"
                     label='ยืนยันรหัสผ่านใหม่' {...layout}>
-                    <Input />
+                    <Input.Password />
                   </Form.Item>
                 </>
                 :
-                <>
-                </>
+                null
               }
               <Form.Item className="profile-Right">
                 <Button className="profile-button" type="primary" ghost htmlType="submit">บันทึก</Button>
