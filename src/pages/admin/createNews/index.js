@@ -279,10 +279,7 @@ const CreateNews = (props) => {
                                     
                                     /> */}
                                         <AutoComplete
-                                            style={{
-                                                width: '100%',
-                                            }}
-
+                                            style={{width: '100%',}}
                                             value={hashtag.inputValue}
                                             onChange={hashtagChange}
                                             options={hashtagSource}

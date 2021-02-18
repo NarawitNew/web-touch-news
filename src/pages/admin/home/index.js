@@ -43,7 +43,7 @@ const Home = () => {
                 setLoading(false)
                 if (code === 200) {
                     setPagination({
-                        currentPage: response.data.data.pagination.current_page,
+                        pageCurrent: response.data.data.pagination.current_page,
                         perPage: response.data.data.pagination.per_page,
                         totalPage: response.data.data.pagination.total
                     })
@@ -117,6 +117,7 @@ const Home = () => {
         })
         onModal()
     }
+    
     const onModal = () => {
         setIsModalVisible(true)
     };
