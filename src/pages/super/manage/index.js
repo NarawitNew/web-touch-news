@@ -12,6 +12,7 @@ const { Search } = Input;
 const { Content } = Layout;
 
 const Manage = () => {
+  const [formValue] = Form.useForm();
   const [dataSource, setDataSource] = useState()
   const [loading, setLoading] = useState(true)
   const [dataFilter, setDataFilter] = useState("")
@@ -88,6 +89,9 @@ const Manage = () => {
           })
           onModal()
           setDataFilter(response.data.data.email)
+          formValue.setFieldsValue({
+            email: ""
+          })
         }
         else if (code === 200) {
           message.error(response.data.message);
@@ -235,7 +239,7 @@ const Manage = () => {
       <Content className="manage-content">
         <Row >
           <Col xs={24} sm={24} md={14} lg={14} xl={16} style={{ marginBottom: '5px' }}>
-            <Form name="email" layout="inline" onFinish={onInsert}>
+            <Form form={formValue} name="email" layout="inline" onFinish={onInsert}>
               <Form.Item>
                 <div className="manage-Text">ผู้ดูแลระบบ</div>
               </Form.Item>

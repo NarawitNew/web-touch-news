@@ -14,13 +14,10 @@ import { httpClient } from 'HttpClient'
 const { Content } = Layout
 const { Option } = Select
 
-
-
 const CreateNews = (props) => {
     const params = props.match.params
     const context = useContext(Context)
     const [form] = Form.useForm()
-    // const [formValue] = Form.useForm();
     const [category, setCategory] = useState(null)
     const [credit, setCredit] = useState({ inputValue: '', tags: [] })
     const [hashtag, setHashtag] = useState({ inputValue: '', tags: [] })
@@ -29,7 +26,7 @@ const CreateNews = (props) => {
     const [spinningImage, setSpinningImage] = useState(false)
     const [newsContent, setNewsContent] = useState('')
     const [imageContent, setImageContent] = useState()
-
+    const [cause, setCause] = useState('')
     useEffect(() => {
         getCategory()
         getHashtag()
@@ -38,6 +35,35 @@ const CreateNews = (props) => {
         }
     }, [props.location.pathname])
 
+    const getData = () => {
+        httpClient.get(config.REACT_APP_BASEURL + '/news/data/' + params.id)
+            .then(function (response) {
+                const code = response.data.code
+                const data = response.data.data
+                const hashtag = response.data.data.hashtag
+                const credit = response.data.data.credit
+                if (code === 200) {
+                    form.setFieldsValue({
+                        topic: data.topic,
+                        category: data.category,
+                    })
+                    setImage(data.image)
+                    setCause(data.cause)
+                    setCredit({
+                        tags:credit,
+                        inputValue:''
+                    })
+                    setHashtag({
+                        tags:hashtag,
+                        inputValue:''
+                    })
+                }
+            })
+            .catch(function (error) {
+                console.log(error);
+            });
+    }
+
     const getCategory = () => {
         httpClient.get(config.REACT_APP_BASEURL + '/category')
             .then(function (response) {
@@ -45,10 +71,11 @@ const CreateNews = (props) => {
                 const code = response.data.code
                 if (code === 200) {
                     const dataMap = data.map((item) => {
-                        item = item.category
+                        item = <Option key={item.id} value={item.category}>{item.category}</Option>
                         return item
                     })
                     setCategory(dataMap)
+
                 }
             })
             .catch(function (error) {
@@ -59,7 +86,7 @@ const CreateNews = (props) => {
     const getHashtag = () => {
         httpClient.get(config.REACT_APP_BASEURL + '/news/hashtag')
             .then(function (response) {
-                const data = response.data.data.data_list
+                const data = response.data.data
                 const code = response.data.code
                 if (code === 200) {
                     const dataMap = data.map((item) => {
@@ -74,12 +101,6 @@ const CreateNews = (props) => {
             })
     }
 
-    const getData = () => {
-        console.log('getDat', params.id)
-        form.setFieldsValue({
-            topic: params.id,
-        })
-    }
 
     const uploadImage = (option) => {
         // console.log('file.originFileObj', file.originFileObj)
@@ -129,17 +150,21 @@ const CreateNews = (props) => {
                             .catch(function (error) {
                                 console.log(error)
                             })
-                        imageContent.map((item) => {
-                            let setData = new FormData();
-                            setData.append('url', item);
-                            axios.post(config.REACT_APP_IMGAE + '/savefile', setData)
-                                .then(function (response) {
-                                    console.log(response)
-                                })
-                                .catch(function (error) {
-                                    console.log(error)
-                                })
-                        })
+                        if (imageContent !== undefined) {
+                            imageContent.map((item) => {
+                                let setData = new FormData();
+                                setData.append('url', item);
+                                axios.post(config.REACT_APP_IMGAE + '/savefile', setData)
+                                    .then(function (response) {
+                                        console.log(response)
+                                    })
+                                    .catch(function (error) {
+                                        console.log(error)
+                                    })
+                            })
+                        }
+                        props.history.push(`/home/view/${response.data.data}`)
+                        console.log('response.data.data', response.data.data)
                     }
                 })
                 .catch(function (error) {
@@ -279,10 +304,7 @@ const CreateNews = (props) => {
                                     
                                     /> */}
                                         <AutoComplete
-                                            style={{
-                                                width: '100%',
-                                            }}
-
+                                            style={{ width: '100%', }}
                                             value={hashtag.inputValue}
                                             onChange={hashtagChange}
                                             options={hashtagSource}
@@ -307,15 +329,20 @@ const CreateNews = (props) => {
                                     />
                                 </Col>
                             </Row>
-                            <Row gutter={[8, 8]}>
-                                <Col style={{ textAlign: 'right' }} span={5}>
-                                    <div>สิ่งที่ควรแก้ไข</div>
-                                </Col>
-                                <Col span={17}>
-                                    <div style={{ color: 'red' }}>คำแนะนำจาก Super Admin</div>
-                                    <div>ข่าว-----</div>
-                                </Col>
-                            </Row>
+                            {params.type === 'edit' ?
+                                <Row gutter={[8, 8]}>
+                                    <Col style={{ textAlign: 'right' }} span={5}>
+                                        <div>สิ่งที่ควรแก้ไข</div>
+                                    </Col>
+                                    <Col span={17}>
+
+                                        <div style={{ color: 'red' }}>คำแนะนำจาก Super Admin</div>
+                                        <div>{cause}</div>
+                                    </Col>
+                                </Row>
+                                :
+                                null
+                            }
                         </Col>
                         <Col span={12}>
 
@@ -325,9 +352,8 @@ const CreateNews = (props) => {
                                 rules={[{ required: true, message: 'Please input your username!' }]}
                             >
                                 <Select placeholder="เลือกประเภท">
-                                    {category !== null ? category.map((category) =>
-                                        <Option key={category} value={category}>{category}</Option>) : null
-                                    }
+                                    {category}
+
                                 </Select>
                             </Form.Item>
                             <Form.Item

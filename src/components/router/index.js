@@ -14,7 +14,7 @@ export default function Routers(props) {
             {props.type === 'Superadmin' ?
                 <Switch>
                     <Route exact component={HomeSuper} path="/"></Route>
-                    <Route component={ViewNews} path="/home/view"></Route>
+                    <Route component={ViewNews} path="/home/view/:id"></Route>
                     <Route component={HomeSuper} path="/home"></Route>
                     <Route component={Profile} path="/:state/profile/:id" ></Route>
                     <Route component={Manage} path="/manage"></Route>

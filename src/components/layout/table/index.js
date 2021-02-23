@@ -1,25 +1,28 @@
+import React, { useEffect, useState } from "react";
+
 import { Table } from 'antd'
 
 const Tables = (props) => {
-    const pagination = {
-        pageSize: props.perPage,
-        total: props.totalPage,
-        current: props.pageCurrent
-    }
+    const [order, setOrder] = useState()
     const onChange = (pagination, filters, sorter, extra) => {
-        // console.log('params', pagination, filters, sorter, extra)
-        props.setCurrentPage(pagination.current)
-    }
+        if(sorter.order !== undefined){
+            console.log('sorter', sorter.order.substring(0,sorter.order.length -3))
+            setOrder(sorter.order.substring(0,sorter.order.length -3))
+        }
+        props.setPagination({...props.pagination,
+            current:pagination.current,
+            sorter:order,
+        })
+    } 
     return (
         <>
             <Table
                 loading={props.loading}
-                pagination={false}
                 columns={props.columns}
                 dataSource={props.dataSource}
                 onChange={onChange}
                 style={{ marginTop: '10px' }}
-                pagination={pagination}
+                pagination={props.pagination}
                 scroll={{ x: 'fit-content'}}
             />
         </>
