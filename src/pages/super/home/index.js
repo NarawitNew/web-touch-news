@@ -17,21 +17,22 @@ const { Option } = Select;
 const Home = () => {
   const [dataSource, setDataSource] = useState()
   const [category, setCategory] = useState(null)
-  const [numderNews, setNumder] = useState({ all: 0, sdnt: 0, draft: 0 })
+  // const [numderNews, setNumder] = useState({ all: 0, sdnt: 0, draft: 0 })
   const [loading, setLoading] = useState(true)
-  const [pagination, setPagination] = useState({ pageCurrent: 1, perPage: 10, totalPage: 1 })
+  const [pagination, setPagination] = useState({ current: 1, sorter:'dsc', pageSize: 1, total: 1 })
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [modalData, setModalData] = useState({ type: '', icon: null, title: '', okColor: '', content: null, okText: '' });
   const [dataSearch, setDataSearch] = useState({ category: '', filter: '' })
-  const [current, setCurrent] = useState(1)
+  // const [current, setCurrent] = useState(1)
   const [filters, setFilters] = useState()
 
   useEffect(() => {
     getData()
     getCategory()
-  }, [current, dataSearch, filters])
+  }, [pagination.current,pagination.sorter,dataSearch, filters])
 
   const getData = () => {
+    setLoading(true)
     // const params = {
     //   // per_page: '10',
     //   page: current,
@@ -40,27 +41,26 @@ const Home = () => {
     //   // filters: `topic:like:${dataSearch.filter}`,
     // }
     var params = new URLSearchParams()
-    params.append("page", current)
+    params.append("page", pagination.current)
+    params.append("sorts", `created_at:${pagination.sorter}`)
     params.append("filters", `topic:like:${dataSearch.filter}`)
     params.append("filters", `category:like:${dataSearch.category}`)
 
     httpClient.get(config.REACT_APP_BASEURL + '/news', { params })
       .then(function (response) {
-        console.log('response', response)
+        console.log('response',response.data.data.pagination.sorts[0].value)
         const code = response.data.code
         const data = response.data.data.data_list
         setLoading(false)
         if (code === 200) {
           setPagination({
-            pageCurrent: response.data.data.pagination.current_page,
-            perPage: response.data.data.pagination.per_page,
-            totalPage: response.data.data.pagination.total
+            current: response.data.data.pagination.current_page,
+            pageSize: response.data.data.pagination.per_page,
+            total: response.data.data.pagination.total,
+            sorter:response.data.data.pagination.sorts[0].value
           })
           const dataMap = data.map((item) => {
             item.key = item.id
-            item.date = item.created_at
-            item.status = item.status
-            item.admin = item.by
             return item
           })
           setDataSource(dataMap)
@@ -80,19 +80,16 @@ const Home = () => {
         const code = response.data.code
         if (code === 200) {
           const dataMap = data.map((item) => {
-            item = item.category
+            item = <Option key={item.id} value={item.category}>{item.category}</Option>
             return item
           })
           setCategory(dataMap)
+          
         }
       })
       .catch(function (error) {
         console.log(error)
       })
-  }
-
-  const currentPage = (value) => {
-    setCurrent(value);
   }
 
   const onCategory = (value) => {
@@ -129,30 +126,33 @@ const Home = () => {
     onModal()
   }
 
-  const onModal = () => {
-    setIsModalVisible(true)
-  };
-
-  const offModal = () => {
-    setIsModalVisible(false)
-  };
-
-  const onTimeline = (value) => {
+  const onTimeline = (record) => {
     setModalData({
       type: 'show',
       icon: <FieldTimeOutlined className="manage-icon-insert" />,
       title: 'ไทม์ไลน์',
       okColor: '#216258',
       okText: 'ตกลง',
-      content: <div style={{ width: '180px' }}><Timeline /></div>
+      onOk() {
+        setIsModalVisible(false)
+      },
+      content: <Timeline idNews={record.key}/>,
     })
     onModal()
+  }
+
+  const onModal = () => {
+    setIsModalVisible(true)
+  }
+
+  const offModal = () => {
+    setIsModalVisible(false)
   }
 
   const menu = (record) => {
     return (
       <Menu>
-        <Menu.Item onClick={onTimeline}>
+        <Menu.Item onClick={() => { onTimeline(record); }}>
           <FieldTimeOutlined style={{ color: '#6AC9FF' }}></FieldTimeOutlined>
           ไทม์ไลน์
       </Menu.Item>
@@ -168,9 +168,12 @@ const Home = () => {
   const columns = [
     {
       title: 'วันที่',
-      dataIndex: 'date',
-      key: 'date',
+      dataIndex: 'created_at',
+      key: 'created_at',
       width: '120px',
+      sorter: true,
+      // sorter: (a, b) => a.created_at.length - b.created_at.length,
+      // sortOrder: sortedInfo.columnKey === 'created_at' && sortedInfo.order,
     },
     {
       title: 'หัวข้อ',
@@ -181,8 +184,8 @@ const Home = () => {
     },
     {
       title: 'ผู้ดูแลระบบ',
-      dataIndex: 'admin',
-      key: 'admin',
+      dataIndex: 'by',
+      key: 'by',
       width: '200px',
     },
     {
@@ -202,7 +205,7 @@ const Home = () => {
       width: '50px',
       key: 'action',
       fixed: 'right',
-      render: (text, record) => (<Dropdown placement="bottomRight" overlay={menu(record)}><MoreOutlined /></Dropdown>),
+      render: (record) => (<Dropdown placement="bottomRight" overlay={menu(record)}><MoreOutlined /></Dropdown>),
     }
   ];
   return (
@@ -260,9 +263,7 @@ const Home = () => {
             <Input.Group className="home-Input-Group">
               <Select placeholder="เลือกประเภท" className="home-Select" onChange={onCategory}>
                 <Option value="">ทั้งหมด</Option>
-                {category !== null ? category.map((category) =>
-                  <Option key={category} value={category}>{category}</Option>) : null
-                }
+                {category}
               </Select>
             </Input.Group>
           </Col>
@@ -274,10 +275,8 @@ const Home = () => {
           loading={loading}
           columns={columns}
           dataSource={dataSource}
-          setCurrentPage={currentPage}
-          pageCurrent={pagination.pageCurrent}
-          perPage={pagination.perPage}
-          totalPage={pagination.totalPage}
+          setPagination={setPagination}
+          pagination={pagination}
         />
 
         <Modals
@@ -287,9 +286,9 @@ const Home = () => {
           modalData={modalData}
         >
           {modalData.type === 'show' ?
-            <div style={{ marginLeft: '100px' }}>{modalData.content}</div>
+            <div style={{marginTop:'5px'}}>{modalData.content}</div>
             :
-            <p style={{ marginLeft: '80px' }} className="text-overflow">{modalData.content}</p>
+            <p className="truncate-text">{modalData.content}</p>
           }
         </Modals>
       </Content>

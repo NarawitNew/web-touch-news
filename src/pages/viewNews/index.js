@@ -18,6 +18,7 @@ const View = (props) => {
     const type = localStorage.getItem('role')
     const [dataNews, setDataNews] = useState({})
     const [statusNews, setStatusNews] = useState();
+    const [cause, setCause] = useState('')
     const [isModalVisible, setIsModalVisible] = useState(false);
     const [modalData, setModalData] = useState({ type: '', icon: null, title: '', okColor: '', content: null, okText: '' });
 
@@ -43,6 +44,7 @@ const View = (props) => {
                     })
                     setDataNews({ ...data, hashtag: hashtagMap, credit: creditMap })
                     setStatusNews(data.status)
+                    setCause(data.cause)
                 }
             })
             .catch(function (error) {
@@ -70,14 +72,33 @@ const View = (props) => {
 
     }
 
+    const onStatusNews = (value) => {
+        setStatusNews(value)
+        console.log('value', value)
+    }
+
+    const changeCause = ({ target: { value } }) => {
+        setCause(value)
+        console.log('value', cause)
+    }
+
     const onFinish = () =>{
-        // const setData = JSON.stringify({
-        //     "status": "ร่าง",
-        // })
-        // httpClient.post(config.REACT_APP_BASEURL + '/news', setData)
-        //     .then(function (response) {
-        //         const code = response.data.code
-        //         if (code === 201) {
+        const setData = JSON.stringify({
+            "status": statusNews,
+            "cause": cause,
+        })
+        httpClient.put(config.REACT_APP_BASEURL + '/news/update_status/'+ params.id , setData)
+            .then(function (response) {
+                const code = response.data.code
+                if (code === 201) {
+                    message.success(response.data.message);
+                }else{
+                    message.success(response.data.message);
+                }
+            })
+            .catch(function (error) {
+                console.log(error);
+            })
     }
 
     const onDelete = () => {
@@ -114,9 +135,7 @@ const View = (props) => {
         setIsModalVisible(false)
     };
 
-    const onStatusNews = (value) => {
-        setStatusNews(value)
-    }
+    
     return (
         <>
             <Breadcrumb style={{ margin: '4px 0' }}>
@@ -167,7 +186,7 @@ const View = (props) => {
                 <Row>
                     <Col span={12}>
                         <h3>ไทม์ไลน์</h3>
-                        <div style={{ width: "200px", marginTop: '20px' }}>
+                        <div style={{ width: "400px", marginTop: '20px' }}>
                             <Timeline idNews={params.id}></Timeline>
                         </div>
                     </Col>
@@ -180,38 +199,37 @@ const View = (props) => {
                             </Col>
                                 <Col span={20}>
                                     <Input.Group>
-                                        <Select defaultValue={statusNews} onChange={onStatusNews} className="view-Input-Group">
-                                            <Option value="Submit">ส่ง</Option>
-                                            <Option value="Draft">ร่าง</Option>
-                                            <Option value="Approve">อนุมัติ</Option>
-                                            <Option value="Public">สาธารณะ</Option>
+                                        <Select placeholder={statusNews} onChange={onStatusNews} className="view-Input-Group">
+                                            <Option value="ส่ง">ส่ง</Option>
+                                            <Option value="แก้ไข">แก้ไข</Option>
+                                            <Option value="อนุมัติ">อนุมัติ</Option>
+                                            <Option value="สาธารณะ">สาธารณะ</Option>
                                         </Select>
                                     </Input.Group>
                                 </Col>
                             </Row>
                             <Row>
                                 <Col span={20} offset={4}>
-                                    {statusNews === 'Draft' ?
-                                        <><div className="view-Input-TextArea">
+                                    {statusNews === 'แก้ไข' ?
+                                        <div className="view-Input-TextArea">
                                             <div style={{ color: 'red' }}>*กรุณากรอกสิ่งที่ต้องแก้ไข</div>
-                                            <TextArea rows={1} />
-
+                                            <TextArea  value={cause} autoSize={{ minRows: 1, maxRows: 5 }} onChange={changeCause} />
                                         </div>
-                                        </>
-                                        : <></>
+                                        : null
                                     }
                                 </Col>
-
                             </Row>
                         </Col>
-                        : <></>
+                        : null
                     }
                 </Row>
                 {type === 'Superadmin' ?
                     <Row justify="end" style={{ marginTop: '20px' }}>
-                        <Button type="primary" ghost className="view-Button">บันทึก</Button>
+                        <Button type="primary" ghost className="view-Button" onClick={onFinish} >บันทึก</Button>
                         <Button className="view-Button" onClick={onDelete} danger>ลบ</Button>
+                    <Link to="/home">
                         <Button className="view-Button">ยกเลิก</Button>
+                        </Link>
                     </Row>
                     : <></>
                 }

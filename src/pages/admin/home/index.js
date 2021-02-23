@@ -17,24 +17,25 @@ const Home = () => {
     const [dataSource, setDataSource] = useState()
     const [numderNews, setNumder] = useState({ all: 0, sdnt: 0, draft: 0 })
     const [loading, setLoading] = useState(true)
-    const [pagination, setPagination] = useState({ pageCurrent: 1, perPage: 10, totalPage: 1 })
+    const [pagination, setPagination] = useState({ current: 1, sorter: 'dsc', pageSize: 1, total: 1 })
+    const [category, setCategory] = useState(null)
     const [isModalVisible, setIsModalVisible] = useState(false);
     const [modalData, setModalData] = useState({ type: '', icon: null, title: '', okColor: '', content: null, okText: '' });
-    const [dataSearch, setDataSearch] = useState({ category: 0, filter: '' })
+    const [dataSearch, setDataSearch] = useState({ category: '', filter: '' })
     const [current, setCurrent] = useState(1)
     const [filters, setFilters] = useState()
 
     useEffect(() => {
         getData()
-    }, [current, dataSearch, filters])
+        getCategory()
+    }, [pagination.current, pagination.sorter, dataSearch, filters])
 
     const getData = () => {
-        const params = {
-            // per_page: '10',
-            page: current,
-            filters: `category:like:${dataSearch.category}`,
-            filters: `topic:like:${dataSearch.filter}`,
-        }
+        var params = new URLSearchParams()
+        params.append("page", pagination.current)
+        params.append("sorts", `created_at:${pagination.sorter}`)
+        params.append("filters", `topic:like:${dataSearch.filter}`)
+        params.append("filters", `category:like:${dataSearch.category}`)
         httpClient.get(config.REACT_APP_BASEURL + '/news', { params })
             .then(function (response) {
                 console.log('response', response)
@@ -43,15 +44,15 @@ const Home = () => {
                 setLoading(false)
                 if (code === 200) {
                     setPagination({
-                        pageCurrent: response.data.data.pagination.current_page,
-                        perPage: response.data.data.pagination.per_page,
-                        totalPage: response.data.data.pagination.total
+                        current: response.data.data.pagination.current_page,
+                        pageSize: response.data.data.pagination.per_page,
+                        total: response.data.data.pagination.total,
+                        sorter: response.data.data.pagination.sorts[0].value
                     })
                     const dataMap = data.map((item) => {
                         item.key = item.id
                         item.date = item.created_at
-                        item.status = "--"
-                        // item.status = item.status
+                        item.status = item.status
                         return item
                     })
                     setDataSource(dataMap)
@@ -61,6 +62,25 @@ const Home = () => {
             })
             .catch(function (error) {
                 console.log(error);
+            })
+    }
+
+    const getCategory = () => {
+        httpClient.get(config.REACT_APP_BASEURL + '/category')
+            .then(function (response) {
+                const data = response.data.data.data_list
+                const code = response.data.code
+                if (code === 200) {
+                    const dataMap = data.map((item) => {
+                        item = <Option key={item.id} value={item.category}>{item.category}</Option>
+                        return item
+                    })
+                    setCategory(dataMap)
+
+                }
+            })
+            .catch(function (error) {
+                console.log(error)
             })
     }
 
@@ -86,7 +106,7 @@ const Home = () => {
             onOk() {
                 offModal()
             },
-            content: <div style={{ width: '180px' }}><Timeline /></div>
+            content: <Timeline idNews={record.key} />,
         })
         onModal()
     }
@@ -106,18 +126,20 @@ const Home = () => {
                         if (code === 200) {
                             message.success(response.data.message);
                             setFilters(record.key)
+                        } else {
+                            message.success(response.data.message);
                         }
                     })
                     .catch(function (error) {
                         console.log(error);
-                        message.error(error.data.message);
+                        message.error('เชื่อมต่อ Server ล้มเหลว');
                     })
             },
             content: record.topic,
         })
         onModal()
     }
-    
+
     const onModal = () => {
         setIsModalVisible(true)
     };
@@ -131,7 +153,8 @@ const Home = () => {
             title: 'วันที่',
             dataIndex: 'date',
             key: 'date',
-            width: '120px'
+            width: '120px',
+            sorter: true,
         },
         {
             title: 'หัวข้อ',
@@ -163,14 +186,28 @@ const Home = () => {
                     <Tooltip placement="bottom" title="ไทม์ไลน์">
                         <FieldTimeOutlined className="admin-icon-time" onClick={() => { onTimeline(record) }}></FieldTimeOutlined>
                     </Tooltip>
-                    <Tooltip placement="bottom" title="แก้ไข">
-                        <Link to={`/home/edit/${record.key}`}>
-                            <EditOutlined className="admin-icon-edit" />
-                        </Link>
-                    </Tooltip>
-                    <Tooltip placement="bottom" title="ลบ">
-                        <DeleteOutlined className="admin-icon-delete" onClick={() => { onDelete(record) }} />
-                    </Tooltip>
+                    {record.status === 'ร่าง' ||  record.status === 'แก้ไข'?
+                        <>
+                            <Tooltip placement="bottom" title="แก้ไข">
+                                <Link to={`/home/edit/${record.key}`}>
+                                    <EditOutlined className="admin-icon-edit" />
+                                </Link>
+                            </Tooltip>
+                            <Tooltip placement="bottom" title="ลบ">
+                                <DeleteOutlined className="admin-icon-delete" onClick={() => { onDelete(record) }} />
+                            </Tooltip>
+                        </>
+                        :
+                        <>
+                            <Tooltip placement="bottom" title="แก้ไข">
+                                <EditOutlined className="admin-icon-disabled" />
+                            </Tooltip>
+                            <Tooltip placement="bottom" title="ลบ">
+                                <DeleteOutlined className="admin-icon-disabled" />
+                            </Tooltip>
+                        </>
+                    }
+                  
                 </Space>
             ),
         }
@@ -228,10 +265,9 @@ const Home = () => {
                     </Col>
                     <Col flex="220px">
                         <Input.Group >
-                            <Select defaultValue="1" style={{ width: '100%' }} onChange={onCategory}>
-                                <Option value="1">ประเภทข่าวทั้งหมด</Option>
-                                <Option value="การเมือง">การเมือง</Option>
-                                <Option value="ท่องเที่ยว">ท่องเที่ยว</Option>
+                            <Select placeholder="เลือกประเภท" style={{ width: '100%' }} onChange={onCategory}>
+                                <Option value="">ทั้งหมด</Option>
+                                {category}
                             </Select>
                         </Input.Group>
                     </Col>
@@ -248,10 +284,8 @@ const Home = () => {
                     loading={loading}
                     columns={columns}
                     dataSource={dataSource}
-                    setCurrentPage={currentPage}
-                    pageCurrent={pagination.pageCurrent}
-                    perPage={pagination.perPage}
-                    totalPage={pagination.totalPage}
+                    setPagination={setPagination}
+                    pagination={pagination}
                 />
                 <Modals
                     isModalVisible={isModalVisible}
@@ -259,7 +293,11 @@ const Home = () => {
                     onCancel={offModal}
                     modalData={modalData}
                 >
-                    {modalData.content}
+                    {modalData.type === 'show' ?
+                        <div style={{ marginTop: '5px', marginLeft: '20px' }}>{modalData.content}</div>
+                        :
+                        <p className="truncate-text">{modalData.content}</p>
+                    }
                 </Modals>
             </Content>
         </>
