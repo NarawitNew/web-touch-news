@@ -3,7 +3,6 @@ import { BellOutlined, ExportOutlined } from '@ant-design/icons';
 import React, { useContext, useEffect, useState } from "react"
 
 import { Context } from '../../../context'
-import axios from 'axios'
 import config from 'config'
 import { httpClient } from 'HttpClient'
 
@@ -104,9 +103,9 @@ const Headerbar = () => {
                                 visible={visible}
                                 onVisibleChange={handleVisibleChange}
                             >
-                                <Badge count={dataUser.badge} size="small">
+                                {/* <Badge count={dataUser.badge} size="small">
                                     <BellOutlined className="header-icon" />
-                                </Badge>
+                                </Badge> */}
                             </Popover>
 
                         </Col>

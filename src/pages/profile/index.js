@@ -1,5 +1,5 @@
 import { Avatar, Breadcrumb, Button, Col, Form, Input, Layout, Row, Spin, Upload, message } from 'antd'
-import { ExclamationCircleOutlined, UnlockOutlined, UserOutlined } from '@ant-design/icons';
+import { ExclamationCircleOutlined, UserOutlined } from '@ant-design/icons';
 import React, { useContext, useEffect, useState } from "react"
 
 import { Context } from '../../context'
@@ -13,7 +13,8 @@ import { httpClient } from 'HttpClient'
 const { Content } = Layout
 const layout = {
   labelCol: {
-    span: 5,
+    xs: { span: 2 },
+    sm: { span: 10 },
   },
   wrapperCol: {
     span: 20,
@@ -82,7 +83,6 @@ const Profile = (props) => {
       okText: 'ตกลง',
       content: 'คุณต้องการยืนยันการสร้างรหัสใหม่นี้หรือไม่ !!! ',
       onOk() {
-        // setIsModalVisible(false)
         httpClient.put(config.REACT_APP_BASEURL + '/admin/reset_password/' + setId)
           .then(function (response) {
             const code = response.data.code
@@ -118,7 +118,6 @@ const Profile = (props) => {
   }
 
   const submitUpdate = (value) => {
-    // console.log('value', value)
     if (showInputPass === true) {
       if (value.passwordNew === value.passwordConfirm) {
         const setData = JSON.stringify({
@@ -223,29 +222,32 @@ const Profile = (props) => {
         }
       </Breadcrumb>
       <Content className="content-layout-background">
+        <Row justify='center' gutter={[16, 16]} style={{ marginTop: '20px' }}>
+          <Col>
+            <Spin spinning={spinningImage}>
+              <Avatar
+                size={{ xs: 150, sm: 150, md: 150, lg: 150, xl: 150, xxl: 250 }}
+                src={image} />
+            </Spin>
+          </Col>
+        </Row>
+        <Row justify='center' gutter={[16, 16]}>
+          <Col>
+            <Upload
+              listType="picture"
+              customRequest={customRequest}
+              showUploadList={false}
+            >
+              <Button>อัพโหลดรูปภาพโปรไฟล์</Button>
+            </Upload>
+          </Col>
+        </Row>
         <Row style={{ marginTop: '20px' }}>
-          <Col span={12} offset={6}>
+          <Col span={12} offset={4}>
             <Form
               form={formValue}
               onFinish={submitUpdate}
             >
-              <Form.Item className="profile-Center">
-                <Spin spinning={spinningImage}>
-                  <Avatar
-                    size={{ xs: 150, sm: 150, md: 150, lg: 150, xl: 150, xxl: 250 }}
-                    src={image} />
-                </Spin>
-              </Form.Item>
-              <Form.Item className="profile-Center">
-                <Upload
-                  listType="picture"
-                  customRequest={customRequest}
-                  showUploadList={false}
-                >
-                  <Button>อัพโหลดรูปภาพโปรไฟล์</Button>
-                </Upload>
-
-              </Form.Item>
               <Form.Item name="email" label='อีเมล' {...layout}>
                 <Input disabled={true}></Input>
               </Form.Item>
@@ -255,15 +257,11 @@ const Profile = (props) => {
               <Form.Item name="lastname" label='นามสกุล' {...layout}>
                 <Input disabled={showInputPass}></Input>
               </Form.Item>
-              <Form.Item className="profile-Right">
+              <Form.Item className="profile-right">
                 {params.state === 'manage' ?
-                  <>
-                    <a onClick={conFirmPassword}><u>เปลี่ยนรหัสผ่าน</u></a>
-                  </>
+                  <a onClick={conFirmPassword}><u>เปลี่ยนรหัสผ่าน</u></a>
                   :
-                  <>
-                    <a onClick={ShowInputPassword}><u>เปลี่ยนรหัสผ่าน</u></a>
-                  </>
+                  <a onClick={ShowInputPassword}><u>เปลี่ยนรหัสผ่าน</u></a>
                 }
               </Form.Item>
               {showInputPass === true ?
@@ -282,18 +280,14 @@ const Profile = (props) => {
                 :
                 null
               }
-              <Form.Item className="profile-Right">
+              <Form.Item className="profile-right">
                 <Button className="profile-button" type="primary" ghost htmlType="submit">บันทึก</Button>
                 {params.state === 'manage' ?
-                  <>
-                    <Link to="/manage">
-                      <Button className="profile-button" style={{ marginLeft: '10px' }}>ยกเลิก</Button>
-                    </Link>
-                  </>
+                  <Link to="/manage">
+                    <Button className="profile-button" style={{ marginLeft: '10px' }}>ยกเลิก</Button>
+                  </Link>
                   :
-                  <>
-                    <Button className="profile-button" onClick={cancelUpdate} style={{ marginLeft: '10px' }}>ยกเลิก</Button>
-                  </>
+                  <Button className="profile-button" onClick={cancelUpdate} style={{ marginLeft: '10px' }}>ยกเลิก</Button>
                 }
               </Form.Item>
             </Form>

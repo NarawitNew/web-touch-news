@@ -2,7 +2,6 @@ import ContextProider from './context';
 import React from 'react';
 import ReactDOM from 'react-dom';
 import Root from './Root';
-import { from } from 'form-data';
 import reportWebVitals from './reportWebVitals';
 
 ReactDOM.render(
