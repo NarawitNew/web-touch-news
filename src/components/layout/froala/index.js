@@ -55,7 +55,13 @@ export const Froala = (props) => {
 
   return (
     <div >
-      <FroalaEditor onModelChange={props.onModelChange} config={config} tag="textarea" />
+      <FroalaEditor 
+      model={props.mode}
+      onModelChange={props.onModelChange} 
+      config={config} 
+      tag="textarea" 
+      
+      />
     </div>
   )
 }

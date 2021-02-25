@@ -22,7 +22,6 @@ const Home = () => {
     const [isModalVisible, setIsModalVisible] = useState(false);
     const [modalData, setModalData] = useState({ type: '', icon: null, title: '', okColor: '', content: null, okText: '' });
     const [dataSearch, setDataSearch] = useState({ category: '', filter: '' })
-    const [current, setCurrent] = useState(1)
     const [filters, setFilters] = useState()
 
     useEffect(() => {
@@ -86,14 +85,12 @@ const Home = () => {
 
     const onSearch = (value) => {
         setDataSearch({ ...dataSearch, filter: value })
+        setLoading(true)
     }
 
     const onCategory = (value) => {
         setDataSearch({ ...dataSearch, category: value })
-    }
-
-    const currentPage = (value) => {
-        setCurrent(value);
+        setLoading(true)
     }
 
     const onTimeline = (record) => {
@@ -168,7 +165,7 @@ const Home = () => {
             title: 'ประเภท',
             dataIndex: 'category',
             key: 'category',
-            width: '100px'
+            width: '150px'
         },
         {
             title: 'สถานะ',
@@ -179,35 +176,42 @@ const Home = () => {
         {
             title: '',
             fixed: 'right',
-            width: '120px',
+            width: '140px',
             key: 'action',
             render: (text, record) => (
                 <Space >
                     <Tooltip placement="bottom" title="ไทม์ไลน์">
-                        <FieldTimeOutlined className="admin-icon-time" onClick={() => { onTimeline(record) }}></FieldTimeOutlined>
+                        {/* <FieldTimeOutlined className="admin-icon-time" onClick={() => { onTimeline(record) }}></FieldTimeOutlined> */}
+                        <Button  icon={<FieldTimeOutlined className="admin-icon-time"/>} size={'middle'} onClick={() => { onTimeline(record) }}/> 
+
                     </Tooltip>
-                    {record.status === 'ร่าง' ||  record.status === 'แก้ไข'?
+                    {record.status === 'ร่าง'?
                         <>
                             <Tooltip placement="bottom" title="แก้ไข">
                                 <Link to={`/home/edit/${record.key}`}>
-                                    <EditOutlined className="admin-icon-edit" />
+                                    {/* <EditOutlined className="admin-icon-edit" /> */}
+                                    <Button  icon={<EditOutlined className="admin-icon-edit" />} size={'middle'} /> 
                                 </Link>
                             </Tooltip>
                             <Tooltip placement="bottom" title="ลบ">
-                                <DeleteOutlined className="admin-icon-delete" onClick={() => { onDelete(record) }} />
+                                {/* <DeleteOutlined className="admin-icon-delete" onClick={() => { onDelete(record) }} /> */}
+                                <Button  icon={<DeleteOutlined className="admin-icon-delete"/>} size={'middle'} onClick={() => { onDelete(record) }}/> 
                             </Tooltip>
                         </>
                         :
                         <>
                             <Tooltip placement="bottom" title="แก้ไข">
-                                <EditOutlined className="admin-icon-disabled" />
+                                {/* <EditOutlined className="admin-icon-disabled" /> */}
+                                <Button  icon={<EditOutlined className="admin-icon-disabled" />} size={'middle'} disabled/> 
+
                             </Tooltip>
                             <Tooltip placement="bottom" title="ลบ">
-                                <DeleteOutlined className="admin-icon-disabled" />
+                                {/* <DeleteOutlined className="admin-icon-disabled" /> */}
+                                <Button  icon={<DeleteOutlined className="admin-icon-disabled"/>} size={'middle'} disabled/> 
+
                             </Tooltip>
                         </>
                     }
-                  
                 </Space>
             ),
         }
@@ -260,7 +264,7 @@ const Home = () => {
                     </Col>
                 </Row>
                 <Row gutter={8} style={{ marginTop: '20px' }} >
-                    <Col flex="auto">
+                    <Col flex="auto" xs={24} sm={12} md={12} lg={12} xl={12}>
                         <div className="admin-home-text-list">รายการ</div>
                     </Col>
                     <Col flex="220px">
