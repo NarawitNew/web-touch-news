@@ -14,7 +14,7 @@ const { Content } = Layout
 const layout = {
   labelCol: {
     xs: { span: 2 },
-    sm: { span: 10 },
+    sm: { span: 4 },
   },
   wrapperCol: {
     span: 20,
@@ -243,7 +243,7 @@ const Profile = (props) => {
           </Col>
         </Row>
         <Row style={{ marginTop: '20px' }}>
-          <Col span={12} offset={4}>
+        <Col xs={{ span: 22, offset: 1 }} sm={{ span: 22, offset: 1 }} md={{ span: 18, offset: 3 }} lg={{ span: 18, offset: 3 }} xl={{ span: 18, offset: 3 }}>
             <Form
               form={formValue}
               onFinish={submitUpdate}

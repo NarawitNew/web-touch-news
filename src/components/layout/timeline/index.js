@@ -23,12 +23,14 @@ const Timelines = (props) => {
                             item =  <Timeline.Item key={key} dot={<FileTextOutlined style={{ color: 'gray' }} />} label={item.Status}>{item.Date}</Timeline.Item>
                         }else if(item.Status === 'ส่ง'){
                             item = <Timeline.Item  key={key} dot={<SendOutlined style={{ color: 'blue' }} />} label={item.Status}>{item.Date}</Timeline.Item>
-                        }else if(item.Status === 'แก้ไข'){
+                        }else if(item.Status === 'ขอแก้ไข'){
                             item = <Timeline.Item  key={key} dot={<EditOutlined style={{ color: 'orange' }} />} label={item.Status}>{item.Date}</Timeline.Item>
                         }else if(item.Status === 'อนุมัติ'){
                             item = <Timeline.Item  key={key} dot={<CheckOutlined style={{ color: 'green' }} />} label={item.Status}>{item.Date}</Timeline.Item>
                         }else if(item.Status === 'สาธารณะ'){
                             item = <Timeline.Item  key={key} dot={<GlobalOutlined style={{ color: 'red' }} />} label={item.Status}>{item.Date}</Timeline.Item>
+                        }else{
+                            // item = <Timeline.Item  key={key} >ผิดพลาด</Timeline.Item>
                         }
                     return item
                     })

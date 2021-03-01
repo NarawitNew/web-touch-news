@@ -15,16 +15,17 @@ const { TextArea } = Input;
 
 const View = (props) => {
     const params = props.match.params;
-    const type = localStorage.getItem('role')
+    const role = localStorage.getItem('role')
     const [dataNews, setDataNews] = useState({})
     const [statusNews, setStatusNews] = useState();
-    const [cause, setCause] = useState('')
+    const [cause, setCause] = useState()
     const [isModalVisible, setIsModalVisible] = useState(false);
     const [modalData, setModalData] = useState({ type: '', icon: null, title: '', okColor: '', content: null, okText: '' });
 
     useEffect(() => {
+        console.log('useEffect')
         getData()
-    }, [params,])
+    }, [params])
 
     const getData = () => {
         httpClient.get(config.REACT_APP_BASEURL + '/news/data/' + params.id)
@@ -52,27 +53,7 @@ const View = (props) => {
             });
     }
 
-    const menu = () => {
-        return (
-            <Menu>
-                <Menu.Item >
-                    <Link to={`/home/edit/${params.id}`}>
-                        <EditOutlined style={{ color: 'orange' }}></EditOutlined>
-                        แก้ไข
-                    </Link>
-                </Menu.Item>
-                <Menu.Item
-                    onClick={() => { onDelete() }}
-                >
-                    <DeleteOutlined style={{ color: 'red' }} ></DeleteOutlined>
-                    ลบ
-                </Menu.Item>
-            </Menu>
-        );
-
-    }
-
-    const onStatusNews = (value) => {
+    const handleSelectStatus = (value) => {
         setStatusNews(value)
         console.log('value', value)
     }
@@ -82,17 +63,18 @@ const View = (props) => {
         console.log('value', cause)
     }
 
-    const onFinish = () =>{
+    const submitUpdate = (status) => {
         const setData = JSON.stringify({
-            "status": statusNews,
+            "status": status,
             "cause": cause,
         })
-        httpClient.put(config.REACT_APP_BASEURL + '/news/update_status/'+ params.id , setData)
+        httpClient.put(config.REACT_APP_BASEURL + '/news/update_status/' + params.id, setData)
             .then(function (response) {
                 const code = response.data.code
-                if (code === 201) {
+                if (code === 200) {
                     message.success(response.data.message);
-                }else{
+                    setDataNews({ ...dataNews, status: status })
+                } else {
                     message.success(response.data.message);
                 }
             })
@@ -135,7 +117,62 @@ const View = (props) => {
         setIsModalVisible(false)
     };
 
-    
+    const ButtonAction = () => {
+        if (role === 'Superadmin') {
+            return (
+                <>
+                    <Button type="primary" ghost className="view-Button" onClick={() => { submitUpdate(statusNews) }} >บันทึก</Button>
+                    <Button className="view-Button" onClick={onDelete} danger>ลบ</Button>
+                </>
+            );
+        } else if (role === 'admin') {
+            if (dataNews.status === 'ร่าง') {
+                return (
+                    <Button type="primary" ghost className="view-Button" onClick={() => { submitUpdate('ส่ง') }} >ส่ง</Button>
+                );
+            } else if (dataNews.status === 'ส่ง') {
+                return (
+                    <Button type="primary" ghost className="view-Button" onClick={() => { submitUpdate('ขอแก้ไข') }}>ขอแก้ไข</Button>
+                );
+            }
+        }
+    }
+
+    const menu = () => {
+        if (dataNews.status === 'ร่าง') {
+            return (
+                <Menu>
+                    <Menu.Item >
+                        <Link to={`/home/edit/${params.id}`}>
+                            <EditOutlined style={{ color: 'orange' }}></EditOutlined>
+                            แก้ไข
+                        </Link>
+                    </Menu.Item>
+                    <Menu.Item
+                        onClick={() => { onDelete() }}
+                    >
+                        <DeleteOutlined style={{ color: 'red' }} ></DeleteOutlined>
+                    ลบ
+                </Menu.Item>
+                </Menu>
+            );
+        }
+        else {
+            return (
+                <Menu>
+                    <Menu.Item disabled>
+                        <EditOutlined style={{ color: '#DADADA' }} ></EditOutlined>
+                            แก้ไข
+                    </Menu.Item>
+                    <Menu.Item disabled>
+                        <DeleteOutlined style={{ color: '#DADADA' }} ></DeleteOutlined>
+                        ลบ
+                    </Menu.Item>
+                </Menu>
+            );
+        }
+    }
+
     return (
         <>
             <Breadcrumb style={{ margin: '4px 0' }}>
@@ -147,11 +184,17 @@ const View = (props) => {
                     <Col flex='auto'>
                         <div className="view-titel-news">{dataNews.topic}</div>
                     </Col>
-                    {type === 'admin' ?
-                        <Col flex='10px'>
-                            <Dropdown placement="bottomRight" overlay={menu()}><MoreOutlined style={{ fontSize: '20px' }} /></Dropdown>
-                        </Col>
-                        : <></>
+                    {role === 'admin' ?
+                        <Row>
+                            <Col>
+                               {/* สถานะ {dataNews.status} */}
+                            </Col>
+                            <Col flex='15px'>
+                                <Dropdown placement="bottomRight" overlay={menu()}><MoreOutlined style={{ fontSize: '20px' }} /></Dropdown>
+                            </Col>
+                        </Row>
+                        :
+                        null
                     }
                 </Row>
                 <hr />
@@ -190,7 +233,7 @@ const View = (props) => {
                             <Timeline idNews={params.id}></Timeline>
                         </div>
                     </Col>
-                    {type === 'Superadmin' ?
+                    {role === 'Superadmin' ?
                         <Col span={12} >
                             <h3>เปลี่ยนสถานะข่าว</h3>
                             <Row style={{ marginTop: '20px' }}>
@@ -199,9 +242,9 @@ const View = (props) => {
                             </Col>
                                 <Col span={20}>
                                     <Input.Group>
-                                        <Select placeholder={statusNews} onChange={onStatusNews} className="view-Input-Group">
-                                            <Option value="ส่ง">ส่ง</Option>
-                                            <Option value="แก้ไข">แก้ไข</Option>
+                                        <Select placeholder={statusNews} onChange={handleSelectStatus} className="view-Input-Group">
+                                            {/* <Option value="ส่ง">ส่ง</Option> */}
+                                            <Option value="ร่าง">ร่าง</Option>
                                             <Option value="อนุมัติ">อนุมัติ</Option>
                                             <Option value="สาธารณะ">สาธารณะ</Option>
                                         </Select>
@@ -210,10 +253,10 @@ const View = (props) => {
                             </Row>
                             <Row>
                                 <Col span={20} offset={4}>
-                                    {statusNews === 'แก้ไข' ?
+                                    {statusNews === 'ร่าง' ?
                                         <div className="view-Input-TextArea">
                                             <div style={{ color: 'red' }}>*กรุณากรอกสิ่งที่ต้องแก้ไข</div>
-                                            <TextArea  value={cause} autoSize={{ minRows: 1, maxRows: 5 }} onChange={changeCause} />
+                                            <TextArea value={cause} autoSize={{ minRows: 1, maxRows: 5 }} onChange={changeCause} />
                                         </div>
                                         : null
                                     }
@@ -223,23 +266,41 @@ const View = (props) => {
                         : null
                     }
                 </Row>
-                {type === 'Superadmin' ?
-                    <Row justify="end" style={{ marginTop: '20px' }}>
-                        <Button type="primary" ghost className="view-Button" onClick={onFinish} >บันทึก</Button>
-                        <Button className="view-Button" onClick={onDelete} danger>ลบ</Button>
+                <Row justify="end" style={{ marginTop: '20px' }}>
+                    {ButtonAction()}
                     <Link to="/home">
-                        <Button className="view-Button">ยกเลิก</Button>
+                        <Button className="view-Button">ย้อนกลับ</Button>
+                    </Link>
+                </Row>
+                {/* {role === 'Superadmin' ?
+                    <Row justify="end" style={{ marginTop: '20px' }}>
+                        <Button type="primary" ghost className="view-Button" onClick={()=>{submitUpdate(statusNews)}} >บันทึก</Button>
+                        <Button className="view-Button" onClick={onDelete} danger>ลบ</Button>
+                        <Link to="/home">
+                            <Button className="view-Button">ยกเลิก</Button>
                         </Link>
                     </Row>
-                    : <></>
-                }
+                :
+                    <Row justify="end" style={{ marginTop: '20px' }}>
+                        {dataNews.status === 'ร่าง' ?
+                            <Button type="primary" ghost className="view-Button" onClick={()=>{submitUpdate('ส่ง')}} >ส่ง</Button>
+                            // <Button type="primary" ghost className="view-Button" >ขอแก้ไข</Button>
+                        :
+                            <Button type="primary" ghost className="view-Button" >ขอแก้ไข</Button>
+                            // <Button type="primary" ghost className="view-Button" onClick={()=>{submitUpdate('ส่ง')}} >ส่ง</Button>
+                        }
+                        <Link to="/home">
+                            <Button className="view-Button">ย้อนกลับ</Button>
+                        </Link>
+                    </Row>
+                } */}
                 <Modals
                     isModalVisible={isModalVisible}
                     onOk={modalData.onOk}
                     onCancel={offModal}
                     modalData={modalData}
                 >
-                    {modalData.content}
+                    <p className="truncate-text">{modalData.content}</p>
                 </Modals>
             </Content>
         </>

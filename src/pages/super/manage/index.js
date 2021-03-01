@@ -218,11 +218,13 @@ const Manage = () => {
         <Space >
           <Tooltip placement="bottom" title="แก้ไข">
             <Link to={`/manage/profile/${record.key}`}>
-              <EditOutlined className="manage-icon-edit" />
+            <Button  icon={<EditOutlined className="manage-icon-edit" />} size={'middle'} /> 
+              {/* <EditOutlined className="manage-icon-edit" /> */}
             </Link>
           </Tooltip>
           <Tooltip placement="bottom" title="ลบ">
-            <DeleteOutlined className="manage-icon-delete" onClick={() => { onDelete(record) }} />
+            <Button  icon={<DeleteOutlined className="manage-icon-delete"/>} size={'middle'} onClick={() => { onDelete(record) }} /> 
+            {/* <DeleteOutlined className="manage-icon-delete" onClick={() => { onDelete(record) }} /> */}
           </Tooltip>
           <Tooltip placement="bottom" title="ระงับ">
             <Switch size="small" defaultChecked={record.status} onClick={(e) => { onSuspend(e, record) }} />
