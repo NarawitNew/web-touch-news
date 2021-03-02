@@ -17,13 +17,13 @@ const { Option } = Select;
 const Home = () => {
   const [dataSource, setDataSource] = useState()
   const [category, setCategory] = useState(null)
-  const [total, setTotal] = useState({ all: 1, date: 0, admin: 0 })
+  const [totalNews, setTotalNews] = useState({ all: 0, toDate: 0})
+  const [totalAdmin, setTotalAdmin] = useState(0)
   const [loading, setLoading] = useState(true)
   const [pagination, setPagination] = useState({ current: 1, sorter: 'dsc', pageSize: 1, total: 1 })
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [modalData, setModalData] = useState({ type: '', icon: null, title: '', okColor: '', content: null, okText: '' });
   const [dataSearch, setDataSearch] = useState({ category: '', filter: '' })
-  // const [current, setCurrent] = useState(1)
   const [filters, setFilters] = useState()
 
   useEffect(() => {
@@ -42,7 +42,6 @@ const Home = () => {
     params.append("filters", `category:like:${dataSearch.category}`)
     httpClient.get(config.REACT_APP_BASEURL + '/news/super', { params })
       .then(function (response) {
-        // console.log('response', response)
         const code = response.data.code
         const data = response.data.data.data_list
         setLoading(false)
@@ -71,12 +70,17 @@ const Home = () => {
     httpClient.get(config.REACT_APP_BASEURL + '/news/countsuper')
       .then(function (response) {
         const code = response.data.code
+        console.log('getTotalNews', response.data.data)
         if (code === 200) {
-          setTotal({...total,
+          setTotalNews({
             all:response.data.data[0],
-            date:response.data.data[1]
+            toDate:response.data.data[1],
           })
         } else {
+          setTotalNews({
+            all:0,
+            toDate:0,
+          })
         }
       })
       .catch(function (error) {
@@ -87,13 +91,10 @@ const Home = () => {
   const getTotalAdmin = () => {
     httpClient.get(config.REACT_APP_BASEURL + '/admin/count')
       .then(function (response) {
-        console.log('response', response)
+        console.log('getTotalAdmin', response.data.data[0])
         const code = response.data.code
         if (code === 200) {
-          console.log('total', response.data.data)
-          setTotal({...total,
-            admin:response.data.data[0]
-          })
+          setTotalAdmin(response.data.data[0])
         } else {
         }
       })
@@ -251,7 +252,7 @@ const Home = () => {
                   <UnorderedListOutlined className="home-Icon" />
                 </Col>
                 <Col span={8}>
-                  <p className="home-Number">{total.all}</p>
+                  <p className="home-Number">{totalNews.all}</p>
                   <p className="home-Text">ข่าวทั้งหมด</p>
                 </Col>
               </Row>
@@ -264,7 +265,7 @@ const Home = () => {
                   <TeamOutlined className="home-Icon" />
                 </Col>
                 <Col span={8}>
-                  <p className="home-Number">{total.admin}</p>
+                  <p className="home-Number">{totalAdmin}</p>
                   <p className="home-Text">ผู้ดูแลระบบ</p>
                 </Col>
               </Row>
@@ -277,7 +278,7 @@ const Home = () => {
                   <SendOutlined className="home-Icon" />
                 </Col>
                 <Col span={8}>
-                  <p className="home-Number">{total.date}</p>
+                  <p className="home-Number">{totalNews.toDate}</p>
                   <p className="home-Text">ข่าววันนี้</p>
                 </Col>
               </Row>
