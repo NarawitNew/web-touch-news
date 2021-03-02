@@ -19,8 +19,6 @@ export default function Routers(props) {
                     <Route component={Profile} path="/:state/profile/:id" ></Route>
                     <Route component={Manage} path="/manage"></Route>
                     <Route component={Profile} path="/profile"></Route>
-                    {/* <Profile type='' title='โปรไฟล์'></Profile> */}
-                    {/* <Profile type='manage' title='ผู้ดูแลระบบ'></Profile> */}
                 </Switch>
                 :
                 <Switch>
@@ -31,8 +29,6 @@ export default function Routers(props) {
                     <Route component={HomeAdmin} path="/home"></Route>
                     <Route component={Manage} path="/manage"></Route>
                     <Route component={Profile} path="/profile"></Route>
-                    {/* <Profile type='' title='โปรไฟล์'></Profile> */}
-                    {/* <Profile type='manage' title='ผู้ดูแลระบบ'></Profile> */}
                 </Switch>
             }
         </>

@@ -11,8 +11,6 @@ const Login = (props) => {
     const [username] = useState((localStorage.getItem('checkbox') ? localStorage.getItem('email') : ''))
     const [password] = useState((localStorage.getItem('checkbox') ? localStorage.getItem('password') : ''))
     const [isCheckbox, setIsCheckbox] = useState((localStorage.getItem('checkbox') === 'true' ? true : false))
-
-    // console.log('isCheckbox', isCheckbox)
     const onFinish = values => {
         if (isCheckbox && values.username !== "") {
             localStorage.setItem('email', values.username)
@@ -28,7 +26,6 @@ const Login = (props) => {
             "email": `${values.username}`,
             "password": `${values.password}`
         })
-        // console.log('setData', setData)
         axios.post(config.REACT_APP_BASEURL + '/login', setData)
             .then(function (response) {
                 console.log('response', response)
@@ -56,6 +53,7 @@ const Login = (props) => {
     const onCheckbox = (e) => {
         setIsCheckbox(e.target.checked)
     }
+    
     return (
         <div className="Login">
             <div className="Login-box">

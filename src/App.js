@@ -6,7 +6,6 @@ import { BrowserRouter as Router } from "react-router-dom";
 import Sider from 'components/layout/sider/index';
 
 function App(props) {
-  // console.log('props', props)
   const type = localStorage.getItem('role')
 
   return (

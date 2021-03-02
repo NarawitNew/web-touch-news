@@ -269,7 +269,7 @@ const View = (props) => {
                         dataNews.status === 'ร่าง' || dataNews.status === 'แก้ไข' ?
                             <Button type="primary" ghost className="view-Button" onClick={() => { submitUpdate('ส่ง') }} >ส่ง</Button>
                             : dataNews.status === 'ส่ง' ?
-                                <Button type="primary" ghost className="view-Button" onClick={() => { submitUpdate('ขอแก้ไข')}} >ขอแก้ไข</Button>
+                                <Button type="primary" ghost className="view-Button" onClick={() => { submitUpdate('ขอแก้ไข') }} >ขอแก้ไข</Button>
                                 :
                                 null
                     }
