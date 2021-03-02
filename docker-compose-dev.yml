@@ -4,7 +4,7 @@ services:
     container_name: web-touch-news
     image: web-touch-news:dev
     ports:
-      - '6000:3000'
+      - '3000:3000'
     volumes:
       - ./:/app
 
