@@ -5,7 +5,6 @@ import { UnlockOutlined, UserOutlined } from '@ant-design/icons';
 import { Context } from '../../context'
 import axios from 'axios'
 import config from 'config'
-import sha256 from 'js-sha256'
 
 const Login = (props) => {
     const context = useContext(Context)

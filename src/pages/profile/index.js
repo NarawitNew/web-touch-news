@@ -14,7 +14,7 @@ const { Content } = Layout
 const layout = {
   labelCol: {
     xs: { span: 2 },
-    sm: { span: 4 },
+    sm: { span: 6 },
   },
   wrapperCol: {
     span: 20,
@@ -67,6 +67,8 @@ const Profile = (props) => {
             passwordNew: '',
             passwordConfirm: '',
           })
+        }else{
+          message.error('โหลดข้อมูลล้มเหลว');
         }
       })
       .catch(function (error) {
@@ -102,6 +104,8 @@ const Profile = (props) => {
                 }),
               })
               onModal()
+            }else{
+              message.error('เปลี่ยนรหัสผ่านไม่สำเร็จ');
             }
           })
           .catch(function (error) {
@@ -115,28 +119,29 @@ const Profile = (props) => {
 
   const cancelUpdate = () => {
     getData()
+    setShowInputPass(false)
+    formValue.setFieldsValue({
+      password: '',
+      confirm: ''
+    })
   }
 
   const submitUpdate = (value) => {
     if (showInputPass === true) {
-      if (value.passwordNew === value.passwordConfirm) {
-        const setData = JSON.stringify({
-          "password": value.passwordNew
+      const setData = JSON.stringify({
+        "password": value.passwordNew
+      })
+      httpClient.put(config.REACT_APP_BASEURL + '/user/password/' + setId, setData)
+        .then(function (response) {
+          console.log('response', response)
+          message.success('เปลี่ยนรหัสผ่านสำเร็จ');
         })
-        httpClient.put(config.REACT_APP_BASEURL + '/user/password/' + setId, setData)
-          .then(function (response) {
-            console.log('response', response)
-            message.success('เปลี่ยนรหัสผ่านสำเร็จ');
-          })
-          .catch(function (error) {
-            message.error('เปลี่ยนรหัสผ่านไม่สำเร็จ');
-          })
-      } else {
-        message.error('รหัสผ่านไม่ตรงกัน');
-      }
+        .catch(function (error) {
+          message.error('เปลี่ยนรหัสผ่านไม่สำเร็จ');
+        })
       formValue.setFieldsValue({
-        passwordNew: '',
-        passwordConfirm: ''
+        password: '',
+        confirm: ''
       })
     }
     else {
@@ -178,8 +183,8 @@ const Profile = (props) => {
     else {
       setShowInputPass(false)
       formValue.setFieldsValue({
-        passwordNew: '',
-        passwordConfirm: ''
+        password: '',
+        confirm: ''
       })
     }
   }
@@ -205,6 +210,8 @@ const Profile = (props) => {
         const data = response.data
         if (status === 200) {
           setImage(data.url)
+          setSpinningImage(false)
+        } else {
           setSpinningImage(false)
         }
       })
@@ -247,7 +254,7 @@ const Profile = (props) => {
           </Col>
         </Row>
         <Row style={{ marginTop: '20px' }}>
-        <Col xs={{ span: 22, offset: 1 }} sm={{ span: 22, offset: 1 }} md={{ span: 18, offset: 3 }} lg={{ span: 18, offset: 3 }} xl={{ span: 18, offset: 3 }}>
+          <Col xs={{ span: 22, offset: 1 }} sm={{ span: 22, offset: 1 }} md={{ span: 18, offset: 3 }} lg={{ span: 18, offset: 3 }} xl={{ span: 18, offset: 3 }}>
             <Form
               form={formValue}
               onFinish={submitUpdate}
@@ -263,21 +270,48 @@ const Profile = (props) => {
               </Form.Item>
               <Form.Item className="profile-right">
                 {params.state === 'manage' ?
-                  <a onClick={conFirmPassword}><u>เปลี่ยนรหัสผ่าน</u></a>
+                  <Button type="link" onClick={conFirmPassword}><u>เปลี่ยนรหัสผ่าน</u></Button>
                   :
-                  <a onClick={ShowInputPassword}><u>เปลี่ยนรหัสผ่าน</u></a>
+                  <Button type="link" onClick={ShowInputPassword}><u>เปลี่ยนรหัสผ่าน</u></Button>
                 }
               </Form.Item>
               {showInputPass === true ?
                 <>
                   <Form.Item
-                    name="passwordNew"
-                    label='รหัสผ่านใหม่' {...layout}>
+                    {...layout}
+                    name="password"
+                    label='รหัสผ่านใหม่'
+                    rules={[
+                      {
+                        required: true,
+                        message: 'รหัสผ่านไม่ถูกต้อง !',
+                      },
+                    ]}
+                    hasFeedback
+                  >
                     <Input.Password />
                   </Form.Item>
                   <Form.Item
-                    name="passwordConfirm"
-                    label='ยืนยันรหัสผ่านใหม่' {...layout}>
+                    name="confirm"
+                    label='ยืนยันรหัสผ่านใหม่' {...layout}
+                    dependencies={['password']}
+                    hasFeedback
+                    rules={[
+                      {
+                        required: true,
+                        message: 'รหัสผ่านไม่ถูกต้อง !',
+                      },
+                      ({ getFieldValue }) => ({
+                        validator(_, value) {
+                          if (!value || getFieldValue('password') === value) {
+                            return Promise.resolve();
+                          }
+
+                          return Promise.reject(new Error('รหัสผ่านไม่ถูกต้อง'));
+                        },
+                      }),
+                    ]}
+                  >
                     <Input.Password />
                   </Form.Item>
                 </>
