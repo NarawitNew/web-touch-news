@@ -52,12 +52,12 @@ const CreateNews = (props) => {
                     setImage(data.image)
                     setCause(data.cause)
                     setCredit({
-                        tags:credit,
-                        inputValue:''
+                        tags: credit,
+                        inputValue: ''
                     })
                     setHashtag({
-                        tags:hashtag,
-                        inputValue:''
+                        tags: hashtag,
+                        inputValue: ''
                     })
                 }
             })
@@ -96,7 +96,7 @@ const CreateNews = (props) => {
                         return item
                     })
                     setHashtagSource(dataMap)
-                }else{
+                } else {
                     console.log('map Error')
                 }
             })
@@ -164,6 +164,7 @@ const CreateNews = (props) => {
                                     .catch(function (error) {
                                         console.log(error)
                                     })
+                                return(item)
                             })
                         }
                         props.history.push(`/home/view/${response.data.data}`)
@@ -215,6 +216,7 @@ const CreateNews = (props) => {
                                     .catch(function (error) {
                                         console.log(error)
                                     })
+                                return(item)
                             })
                         }
                         props.history.push(`/home/view/${params.id}`)
@@ -228,7 +230,7 @@ const CreateNews = (props) => {
             console.log('Failed:', errorInfo);
         }
     }
-    
+
 
     const changeNewsContent = html => {
         console.log('html', html)
@@ -324,8 +326,8 @@ const CreateNews = (props) => {
                                     </Upload>
                                 </Col>
                             </Row>
-                            <Row gutter={[8, 8]} align='middle' style={{marginTop:'20px'}}>
-                                <Col style={{ textAlign: 'right'}} span={5}>
+                            <Row gutter={[8, 8]} align='middle' style={{ marginTop: '20px' }}>
+                                <Col style={{ textAlign: 'right' }} span={5}>
                                     <div>เครติด</div>
                                 </Col>
                                 <Col span={16}>
@@ -391,7 +393,7 @@ const CreateNews = (props) => {
                                         <div>{cause}</div>
                                     </Col>
                                 </Row>
-                            :
+                                :
                                 null
                             }
                         </Col>
@@ -424,10 +426,10 @@ const CreateNews = (props) => {
                         </Col>
                     </Row>
                     <Row justify="end">
-                    {params.type === 'create' ?
-                        <Button className="create-button" type="primary" ghost onClick={submitCreate} >บันทึก</Button>
-                        :
-                        <Button className="create-button" type="primary" ghost onClick={submitEdit} >บันทึก</Button>
+                        {params.type === 'create' ?
+                            <Button className="create-button" type="primary" ghost onClick={submitCreate} >บันทึก</Button>
+                            :
+                            <Button className="create-button" type="primary" ghost onClick={submitEdit} >บันทึก</Button>
                         }
                         <Link to="/home">
                             <Button className="create-button">ยกเลิก</Button>

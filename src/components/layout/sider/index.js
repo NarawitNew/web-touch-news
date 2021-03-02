@@ -34,7 +34,7 @@ const Siderbar = (props) => {
             }}
         >
             <div className="logo">
-                {type === 'Superadmin' ?
+                {type === 'superadmin' ?
                     <>SUPER ADMIN</>
                     :
                     <>ADMIN</>
