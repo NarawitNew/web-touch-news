@@ -183,7 +183,7 @@ const Home = () => {
     return (
       <Menu>
         <Menu.Item onClick={() => { onTimeline(record); }}>
-          <FieldTimeOutlined style={{ color: '@blue-6' }}></FieldTimeOutlined>
+          <FieldTimeOutlined className="admin-icon-time"></FieldTimeOutlined>
           ไทม์ไลน์
       </Menu.Item>
         <Menu.Item onClick={() => { onDelete(record); }}>
@@ -192,7 +192,6 @@ const Home = () => {
       </Menu.Item>
       </Menu>
     );
-
   }
 
   const columns = [
@@ -202,8 +201,6 @@ const Home = () => {
       key: 'created_at',
       width: '120px',
       sorter: true,
-      // sorter: (a, b) => a.created_at.length - b.created_at.length,
-      // sortOrder: sortedInfo.columnKey === 'created_at' && sortedInfo.order,
     },
     {
       title: 'หัวข้อ',
@@ -308,7 +305,6 @@ const Home = () => {
           setPagination={setPagination}
           pagination={pagination}
         />
-
         <Modals
           isModalVisible={isModalVisible}
           onOk={modalData.onOk}

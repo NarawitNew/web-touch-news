@@ -45,7 +45,6 @@ const Manage = () => {
         if (code === 200) {
           const dataMap = data.map((item) => {
             item.key = item.id
-            item.email = item.email
             item.name = item.firstname + ' ' + item.lastname
             // item.status = item.status
             const status = item.status

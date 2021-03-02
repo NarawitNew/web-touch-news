@@ -270,9 +270,9 @@ const Profile = (props) => {
               </Form.Item>
               <Form.Item className="profile-right">
                 {params.state === 'manage' ?
-                  <a onClick={conFirmPassword}><u>เปลี่ยนรหัสผ่าน</u></a>
+                  <Button type="link" onClick={conFirmPassword}><u>เปลี่ยนรหัสผ่าน</u></Button>
                   :
-                  <a onClick={ShowInputPassword}><u>เปลี่ยนรหัสผ่าน</u></a>
+                  <Button type="link" onClick={ShowInputPassword}><u>เปลี่ยนรหัสผ่าน</u></Button>
                 }
               </Form.Item>
               {showInputPass === true ?
