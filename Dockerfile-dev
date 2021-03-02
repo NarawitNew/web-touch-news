@@ -1,6 +1,4 @@
-FROM mhart/alpine-node:14.4.0 AS builder
+FROM node:15.5.1-alpine
 WORKDIR /app
-COPY . .
-RUN mv .env-dev .env
 RUN npm install
-RUN npm run start
+CMD ["npm", "start"]

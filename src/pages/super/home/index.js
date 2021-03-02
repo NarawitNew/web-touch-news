@@ -1,133 +1,141 @@
 import { Breadcrumb, Col, Dropdown, Input, Layout, Menu, Row, Select, message } from 'antd';
 import { DeleteOutlined, FieldTimeOutlined, MoreOutlined, SendOutlined, TeamOutlined, UnorderedListOutlined } from '@ant-design/icons';
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState } from 'react';
 
-import { Link } from "react-router-dom";
-import Modals from 'components/layout/modal'
-import Tables from 'components/layout/table'
-import Timeline from 'components/layout/timeline'
-import config from 'config'
-import { httpClient } from 'HttpClient'
+import { Link } from 'react-router-dom';
+import Modals from 'components/layout/modal';
+import Tables from 'components/layout/table';
+import Timeline from 'components/layout/timeline';
+import config from 'config';
+import { httpClient } from 'HttpClient';
 
 const { Content } = Layout;
 const { Search } = Input;
 const { Option } = Select;
 
-
 const Home = () => {
-  const [dataSource, setDataSource] = useState()
-  const [category, setCategory] = useState(null)
-  const [totalNews, setTotalNews] = useState({ all: 0, toDate: 0})
-  const [totalAdmin, setTotalAdmin] = useState(0)
-  const [loading, setLoading] = useState(true)
-  const [pagination, setPagination] = useState({ current: 1, sorter: 'dsc', pageSize: 1, total: 1 })
+  const [dataSource, setDataSource] = useState();
+  const [category, setCategory] = useState(null);
+  const [totalNews, setTotalNews] = useState({ all: 0, toDate: 0 });
+  const [totalAdmin, setTotalAdmin] = useState(0);
+  const [loading, setLoading] = useState(true);
+  const [pagination, setPagination] = useState({ current: 1, sorter: 'dsc', pageSize: 1, total: 1 });
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [modalData, setModalData] = useState({ type: '', icon: null, title: '', okColor: '', content: null, okText: '' });
-  const [dataSearch, setDataSearch] = useState({ category: '', filter: '' })
-  const [filters, setFilters] = useState()
+  const [dataSearch, setDataSearch] = useState({ category: '', filter: '' });
+  const [filters, setFilters] = useState();
 
   useEffect(() => {
-    getData()
-    getCategory()
-    getTotalAdmin()
-    getTotalNews()
-  }, [pagination.current, pagination.sorter, dataSearch, filters])
+    setTimeout(() => {
+      getData();
+      getCategory();
+      getTotalAdmin();
+      getTotalNews();
+    }, 1000);
+  }, [pagination.current, pagination.sorter, dataSearch, filters]);
 
   const getData = () => {
-    setLoading(true)
-    var params = new URLSearchParams()
-    params.append("page", pagination.current)
-    params.append("sorts", `created_at:${pagination.sorter}`)
-    params.append("filters", `topic:like:${dataSearch.filter}`)
-    params.append("filters", `category:like:${dataSearch.category}`)
-    httpClient.get(config.REACT_APP_BASEURL + '/news/super', { params })
+    setLoading(true);
+    var params = new URLSearchParams();
+    params.append('page', pagination.current);
+    params.append('sorts', `created_at:${pagination.sorter}`);
+    params.append('filters', `topic:like:${dataSearch.filter}`);
+    params.append('filters', `category:like:${dataSearch.category}`);
+    httpClient
+      .get(config.REACT_APP_BASEURL + '/news/super', { params })
       .then(function (response) {
-        const code = response.data.code
-        const data = response.data.data.data_list
-        setLoading(false)
+        const code = response.data.code;
+        const data = response.data.data.data_list;
+        setLoading(false);
         if (code === 200) {
           setPagination({
             current: response.data.data.pagination.current_page,
             pageSize: response.data.data.pagination.per_page,
             total: response.data.data.pagination.total,
-            sorter: response.data.data.pagination.sorts[0].value
-          })
+            sorter: response.data.data.pagination.sorts[0].value,
+          });
           const dataMap = data.map((item) => {
-            item.key = item.id
-            return item
-          })
-          setDataSource(dataMap)
+            item.key = item.id;
+            return item;
+          });
+          setDataSource(dataMap);
         } else {
-          setDataSource()
+          setDataSource();
         }
       })
       .catch(function (error) {
         console.log(error);
-      })
-  }
+      });
+  };
 
   const getTotalNews = () => {
-    httpClient.get(config.REACT_APP_BASEURL + '/news/countsuper')
+    httpClient
+      .get(config.REACT_APP_BASEURL + '/news/countsuper')
       .then(function (response) {
-        const code = response.data.code
-        console.log('getTotalNews', response.data.data)
+        const code = response.data.code;
+        console.log('getTotalNews', response.data.data);
         if (code === 200) {
           setTotalNews({
-            all:response.data.data[0],
-            toDate:response.data.data[1],
-          })
+            all: response.data.data[0],
+            toDate: response.data.data[1],
+          });
         } else {
           setTotalNews({
-            all:0,
-            toDate:0,
-          })
+            all: 0,
+            toDate: 0,
+          });
         }
       })
       .catch(function (error) {
         console.log(error);
-      })
-  }
+      });
+  };
 
   const getTotalAdmin = () => {
-    httpClient.get(config.REACT_APP_BASEURL + '/admin/count')
+    httpClient
+      .get(config.REACT_APP_BASEURL + '/admin/count')
       .then(function (response) {
-        console.log('getTotalAdmin', response.data.data[0])
-        const code = response.data.code
+        console.log('getTotalAdmin', response.data.data[0]);
+        const code = response.data.code;
         if (code === 200) {
-          setTotalAdmin(response.data.data[0])
+          setTotalAdmin(response.data.data[0]);
         } else {
         }
       })
       .catch(function (error) {
         console.log(error);
-      })
-  }
+      });
+  };
 
   const getCategory = () => {
-    httpClient.get(config.REACT_APP_BASEURL + '/category')
+    httpClient
+      .get(config.REACT_APP_BASEURL + '/category')
       .then(function (response) {
-        const data = response.data.data.data_list
-        const code = response.data.code
+        const data = response.data.data.data_list;
+        const code = response.data.code;
         if (code === 200) {
           const dataMap = data.map((item) => {
-            item = <Option key={item.id} value={item.category}>{item.category}</Option>
-            return item
-          })
-          setCategory(dataMap)
-
+            item = (
+              <Option key={item.id} value={item.category}>
+                {item.category}
+              </Option>
+            );
+            return item;
+          });
+          setCategory(dataMap);
         }
       })
       .catch(function (error) {
-        console.log(error)
-      })
-  }
+        console.log(error);
+      });
+  };
 
   const onCategory = (value) => {
-    setDataSearch({ ...dataSearch, category: value })
-  }
+    setDataSearch({ ...dataSearch, category: value });
+  };
   const onSearch = (value) => {
-    setDataSearch({ ...dataSearch, filter: value })
-  }
+    setDataSearch({ ...dataSearch, filter: value });
+  };
 
   const onDelete = (record) => {
     setModalData({
@@ -137,24 +145,25 @@ const Home = () => {
       okColor: 'red',
       okText: 'ลบ',
       onOk() {
-        offModal()
-        httpClient.delete(config.REACT_APP_BASEURL + '/news/' + record.key)
+        offModal();
+        httpClient
+          .delete(config.REACT_APP_BASEURL + '/news/' + record.key)
           .then(function (response) {
-            const code = response.data.code
+            const code = response.data.code;
             if (code === 200) {
               message.success(response.data.message);
-              setFilters(record.key)
+              setFilters(record.key);
             }
           })
           .catch(function (error) {
             console.log(error);
             message.error(error.data.message);
-          })
+          });
       },
       content: record.topic,
-    })
-    onModal()
-  }
+    });
+    onModal();
+  };
 
   const onTimeline = (record) => {
     setModalData({
@@ -164,35 +173,43 @@ const Home = () => {
       okColor: '#216258',
       okText: 'ตกลง',
       onOk() {
-        setIsModalVisible(false)
+        setIsModalVisible(false);
       },
       content: <Timeline idNews={record.key} />,
-    })
-    onModal()
-  }
+    });
+    onModal();
+  };
 
   const onModal = () => {
-    setIsModalVisible(true)
-  }
+    setIsModalVisible(true);
+  };
 
   const offModal = () => {
-    setIsModalVisible(false)
-  }
+    setIsModalVisible(false);
+  };
 
   const menu = (record) => {
     return (
       <Menu>
-        <Menu.Item onClick={() => { onTimeline(record); }}>
-          <FieldTimeOutlined className='admin-icon-time'></FieldTimeOutlined>
+        <Menu.Item
+          onClick={() => {
+            onTimeline(record);
+          }}
+        >
+          <FieldTimeOutlined className="admin-icon-time"></FieldTimeOutlined>
           ไทม์ไลน์
-      </Menu.Item>
-        <Menu.Item onClick={() => { onDelete(record); }}>
-          <DeleteOutlined className='admin-icon-delete'></DeleteOutlined>
+        </Menu.Item>
+        <Menu.Item
+          onClick={() => {
+            onDelete(record);
+          }}
+        >
+          <DeleteOutlined style={{ color: '@red-6' }}></DeleteOutlined>
           ลบ
-      </Menu.Item>
+        </Menu.Item>
       </Menu>
     );
-  }
+  };
 
   const columns = [
     {
@@ -207,7 +224,11 @@ const Home = () => {
       key: 'topic',
       width: '400px',
       ellipsis: true,
-      render: (record) => (<Link to={`/home/view/${record.key}`} style={{ color: '#000' }}>{record.topic}</Link>),
+      render: (record) => (
+        <Link to={`/home/view/${record.key}`} style={{ color: '#000' }}>
+          {record.topic}
+        </Link>
+      ),
     },
     {
       title: 'ผู้ดูแลระบบ',
@@ -232,8 +253,12 @@ const Home = () => {
       width: '50px',
       key: 'action',
       fixed: 'right',
-      render: (record) => (<Dropdown placement="bottomRight" overlay={menu(record)}><MoreOutlined /></Dropdown>),
-    }
+      render: (record) => (
+        <Dropdown placement="bottomRight" overlay={menu(record)}>
+          <MoreOutlined />
+        </Dropdown>
+      ),
+    },
   ];
   return (
     <>
@@ -241,8 +266,8 @@ const Home = () => {
         <Breadcrumb.Item>หน้าแรก</Breadcrumb.Item>
       </Breadcrumb>
       <Content className="home-Content">
-        <Row gutter={[16, 16]} >
-          <Col xs={24} sm={12} md={12} lg={8} xl={8} >
+        <Row gutter={[16, 16]}>
+          <Col xs={24} sm={12} md={12} lg={8} xl={8}>
             <div className="home-Box-Left">
               <Row align="middle" style={{ height: '100%' }}>
                 <Col span={8} offset={4}>
@@ -255,8 +280,8 @@ const Home = () => {
               </Row>
             </div>
           </Col>
-          <Col xs={24} sm={12} md={12} lg={8} xl={8} >
-            <div className="home-Box-Center" >
+          <Col xs={24} sm={12} md={12} lg={8} xl={8}>
+            <div className="home-Box-Center">
               <Row align="middle" style={{ height: '100%' }}>
                 <Col span={8} offset={4}>
                   <TeamOutlined className="home-Icon" />
@@ -268,8 +293,8 @@ const Home = () => {
               </Row>
             </div>
           </Col>
-          <Col xs={24} sm={12} md={12} lg={8} xl={8} >
-            <div className="home-Box-Right" >
+          <Col xs={24} sm={12} md={12} lg={8} xl={8}>
+            <div className="home-Box-Right">
               <Row align="middle" style={{ height: '100%' }}>
                 <Col span={8} offset={4}>
                   <SendOutlined className="home-Icon" />
@@ -298,27 +323,12 @@ const Home = () => {
             <Search placeholder="ค้นหา" onSearch={onSearch}></Search>
           </Col>
         </Row>
-        <Tables
-          loading={loading}
-          columns={columns}
-          dataSource={dataSource}
-          setPagination={setPagination}
-          pagination={pagination}
-        />
-        <Modals
-          isModalVisible={isModalVisible}
-          onOk={modalData.onOk}
-          onCancel={offModal}
-          modalData={modalData}
-        >
-          {modalData.type === 'show' ?
-            <div style={{ marginTop: '5px' }}>{modalData.content}</div>
-            :
-            <p className="truncate-text">{modalData.content}</p>
-          }
+        <Tables loading={loading} columns={columns} dataSource={dataSource} setPagination={setPagination} pagination={pagination} />
+        <Modals isModalVisible={isModalVisible} onOk={modalData.onOk} onCancel={offModal} modalData={modalData}>
+          {modalData.type === 'show' ? <div style={{ marginTop: '5px' }}>{modalData.content}</div> : <p className="truncate-text">{modalData.content}</p>}
         </Modals>
       </Content>
     </>
   );
-}
-export default Home
+};
+export default Home;
