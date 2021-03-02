@@ -129,7 +129,7 @@ const Profile = (props) => {
   const submitUpdate = (value) => {
     if (showInputPass === true) {
       const setData = JSON.stringify({
-        "password": value.passwordNew
+        "password": value.password
       })
       httpClient.put(config.REACT_APP_BASEURL + '/user/password/' + setId, setData)
         .then(function (response) {
@@ -198,7 +198,6 @@ const Profile = (props) => {
   };
 
   const customRequest = (option) => {
-    // console.log('file.originFileObj', file.originFileObj)
     setSpinningImage(true)
     let setData = new FormData();
     setData.append('sampleFile', option.file);
@@ -232,7 +231,7 @@ const Profile = (props) => {
           <Breadcrumb.Item>โปรไฟล์</Breadcrumb.Item>
         }
       </Breadcrumb>
-      <Content className="content-layout-background">
+      <Content className="profile-layout-background">
         <Row justify='center' gutter={[16, 16]} style={{ marginTop: '20px' }}>
           <Col>
             <Spin spinning={spinningImage}>
@@ -254,7 +253,7 @@ const Profile = (props) => {
           </Col>
         </Row>
         <Row style={{ marginTop: '20px' }}>
-          <Col xs={{ span: 22, offset: 1 }} sm={{ span: 22, offset: 1 }} md={{ span: 18, offset: 3 }} lg={{ span: 18, offset: 3 }} xl={{ span: 18, offset: 3 }}>
+          <Col xs={{ span: 22, offset: 1 }} sm={{ span: 22, offset: 1 }} md={{ span: 18, offset: 2 }} lg={{ span: 18, offset: 2 }} xl={{ span: 18, offset: 2 }}>
             <Form
               form={formValue}
               onFinish={submitUpdate}

@@ -28,7 +28,6 @@ const Manage = () => {
 
   const getData = () => {
     const params = {
-      // per_page: '10',
       page: current,
       filters: `firstname:like:${dataSearch}`
     }
@@ -46,7 +45,6 @@ const Manage = () => {
           const dataMap = data.map((item) => {
             item.key = item.id
             item.name = item.firstname + ' ' + item.lastname
-            // item.status = item.status
             const status = item.status
             item.status = status === 'active' ? true : false
             return item
@@ -56,7 +54,6 @@ const Manage = () => {
         } else {
           setLoading(false)
           setDataSource(data)
-          // message.error(response.data.message)
         }
       })
       .catch(function (error) {

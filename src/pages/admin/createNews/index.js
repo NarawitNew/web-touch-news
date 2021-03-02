@@ -7,7 +7,6 @@ import { Froala } from 'components/layout/froala/index'
 import { Link } from "react-router-dom";
 import { PlusCircleOutlined } from '@ant-design/icons'
 import Tag from 'components/layout/tag/index'
-import axios from 'axios'
 import config from 'config'
 import { httpClient } from 'HttpClient'
 import imgError from 'assets/image/img_error2.png'
@@ -86,7 +85,7 @@ const CreateNews = (props) => {
     }
 
     const getHashtag = () => {
-        httpClient.get(config.REACT_APP_BASEURL + '/hashtag')
+        httpClient.get(config.REACT_APP_BASEURL + '/news/hashtag')
             .then(function (response) {
                 const code = response.data.code
                 if (code === 200) {
@@ -112,7 +111,7 @@ const CreateNews = (props) => {
         let setData = new FormData();
         setData.append('sampleFile', option.file);
         setData.append('save', false)
-        axios.post(config.REACT_APP_IMGAE + '/upload', setData)
+        httpClient.post(config.REACT_APP_IMGAE + '/upload', setData)
             .then(function (response) {
                 console.log('response', response)
                 const status = response.status
@@ -146,7 +145,7 @@ const CreateNews = (props) => {
                         message.success(response.data.message)
                         let setData = new FormData();
                         setData.append('url', image);
-                        axios.post(config.REACT_APP_IMGAE + '/savefile', setData)
+                        httpClient.post(config.REACT_APP_IMGAE + '/savefile', setData)
                             .then(function (response) {
                                 console.log(response)
                             })
@@ -157,7 +156,7 @@ const CreateNews = (props) => {
                             imageContent.map((item) => {
                                 let setData = new FormData();
                                 setData.append('url', item);
-                                axios.post(config.REACT_APP_IMGAE + '/savefile', setData)
+                                httpClient.post(config.REACT_APP_IMGAE + '/savefile', setData)
                                     .then(function (response) {
                                         console.log(response)
                                     })
@@ -198,7 +197,7 @@ const CreateNews = (props) => {
                         message.success(response.data.message)
                         let setData = new FormData();
                         setData.append('url', image);
-                        axios.post(config.REACT_APP_IMGAE + '/savefile', setData)
+                        httpClient.post(config.REACT_APP_IMGAE + '/savefile', setData)
                             .then(function (response) {
                                 console.log(response)
                             })
@@ -209,7 +208,7 @@ const CreateNews = (props) => {
                             imageContent.map((item) => {
                                 let setData = new FormData();
                                 setData.append('url', item);
-                                axios.post(config.REACT_APP_IMGAE + '/savefile', setData)
+                                httpClient.post(config.REACT_APP_IMGAE + '/savefile', setData)
                                     .then(function (response) {
                                         console.log(response)
                                     })
@@ -230,7 +229,6 @@ const CreateNews = (props) => {
             console.log('Failed:', errorInfo);
         }
     }
-
 
     const changeNewsContent = html => {
         console.log('html', html)
@@ -359,6 +357,7 @@ const CreateNews = (props) => {
                                 <Col span={16}>
                                     <Input.Group>
                                         <AutoComplete
+                                        onPressEnter={hashtagConfirm}
                                             style={{ width: '100%', }}
                                             value={hashtag.inputValue}
                                             onChange={hashtagChange}

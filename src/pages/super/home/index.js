@@ -183,11 +183,11 @@ const Home = () => {
     return (
       <Menu>
         <Menu.Item onClick={() => { onTimeline(record); }}>
-          <FieldTimeOutlined className="admin-icon-time"></FieldTimeOutlined>
+          <FieldTimeOutlined className='admin-icon-time'></FieldTimeOutlined>
           ไทม์ไลน์
       </Menu.Item>
         <Menu.Item onClick={() => { onDelete(record); }}>
-          <DeleteOutlined style={{ color: '@red-6' }}></DeleteOutlined>
+          <DeleteOutlined className='admin-icon-delete'></DeleteOutlined>
           ลบ
       </Menu.Item>
       </Menu>
