@@ -15,7 +15,7 @@ const { Option } = Select;
 
 const Home = () => {
     const [dataSource, setDataSource] = useState()
-    const [numderNews, setNumder] = useState({ all: 0, sdnt: 0, draft: 0 })
+    const [total, setTotal] = useState({ all: 0, sdnt: 0, draft: 0 })
     const [loading, setLoading] = useState(true)
     const [pagination, setPagination] = useState({ current: 1, sorter: 'dsc', pageSize: 1, total: 1 })
     const [category, setCategory] = useState(null)
@@ -26,6 +26,7 @@ const Home = () => {
 
     useEffect(() => {
         getData()
+        getTotalNews()
         getCategory()
     }, [pagination.current, pagination.sorter, dataSearch, filters])
 
@@ -35,7 +36,7 @@ const Home = () => {
         params.append("sorts", `created_at:${pagination.sorter}`)
         params.append("filters", `topic:like:${dataSearch.filter}`)
         params.append("filters", `category:like:${dataSearch.category}`)
-        httpClient.get(config.REACT_APP_BASEURL + '/news', { params })
+        httpClient.get(config.REACT_APP_BASEURL + '/news/admin', { params })
             .then(function (response) {
                 console.log('response', response)
                 const code = response.data.code
@@ -51,10 +52,10 @@ const Home = () => {
                     const dataMap = data.map((item) => {
                         item.key = item.id
                         item.date = item.created_at
-                        item.status = item.status
                         return item
                     })
                     setDataSource(dataMap)
+
                 } else {
                     setDataSource()
                 }
@@ -63,6 +64,27 @@ const Home = () => {
                 console.log(error);
             })
     }
+
+    const getTotalNews = () => {
+        httpClient.get(config.REACT_APP_BASEURL + '/news/countadmin')
+          .then(function (response) {
+            console.log('response', response)
+            const code = response.data.code
+            if (code === 200) {
+              console.log('total', response.data.data)
+              setTotal({...total,
+                all:pagination.total,
+                sdnt:response.data.data[1],
+                draft:response.data.data[0]
+
+              })
+            } else {
+            }
+          })
+          .catch(function (error) {
+            console.log(error);
+          })
+      }
 
     const getCategory = () => {
         httpClient.get(config.REACT_APP_BASEURL + '/category')
@@ -96,7 +118,7 @@ const Home = () => {
     const onTimeline = (record) => {
         setModalData({
             type: 'show',
-            icon: <FieldTimeOutlined className="manage-icon-insert" />,
+            icon: <FieldTimeOutlined className="admin-icon-time" />,
             title: 'ไทม์ไลน์',
             okColor: '#216258',
             okText: 'ตกลง',
@@ -111,7 +133,7 @@ const Home = () => {
     const onDelete = (record) => {
         setModalData({
             type: 'confirm',
-            icon: <DeleteOutlined className="manage-icon-delete" />,
+            icon: <DeleteOutlined className="admin-icon-delete" />,
             title: 'คุณต้องการลบข่าวนี้ หรือไม่ ! ',
             okColor: 'red',
             okText: 'ลบ',
@@ -185,7 +207,7 @@ const Home = () => {
                         <Button  icon={<FieldTimeOutlined className="admin-icon-time"/>} size={'middle'} onClick={() => { onTimeline(record) }}/> 
 
                     </Tooltip>
-                    {record.status === 'ร่าง'?
+                    {record.status === 'ร่าง' || record.status === 'แก้ไข'?
                         <>
                             <Tooltip placement="bottom" title="แก้ไข">
                                 <Link to={`/home/edit/${record.key}`}>
@@ -230,7 +252,7 @@ const Home = () => {
                                     <UnorderedListOutlined className="admin-home-icon" />
                                 </Col>
                                 <Col span={8}>
-                                    <p className="admin-home-number"> {numderNews.all} </p>
+                                    <p className="admin-home-number"> {total.all} </p>
                                     <p className="admin-home-text">ข่าวทั้งหมด</p>
                                 </Col>
                             </Row>
@@ -243,7 +265,7 @@ const Home = () => {
                                     <SendOutlined className="admin-home-icon" />
                                 </Col>
                                 <Col span={8}>
-                                    <p className="admin-home-number"> {numderNews.sdnt} </p>
+                                    <p className="admin-home-number"> {total.sdnt} </p>
                                     <p className="admin-home-text">ข่าวส่งแล้ว</p>
                                 </Col>
                             </Row>
@@ -256,7 +278,7 @@ const Home = () => {
                                     <EditOutlined className="admin-home-icon" />
                                 </Col>
                                 <Col span={8}>
-                                    <p className="admin-home-number"> {numderNews.draft} </p>
+                                    <p className="admin-home-number"> {total.draft} </p>
                                     <p className="admin-home-text">ข่าวร่าง</p>
                                 </Col>
                             </Row>
@@ -264,7 +286,7 @@ const Home = () => {
                     </Col>
                 </Row>
                 <Row gutter={8} style={{ marginTop: '20px' }} >
-                    <Col flex="auto" xs={24} sm={12} md={12} lg={12} xl={12}>
+                    <Col flex="auto" xs={24} sm={12} md={12} lg={16} xl={16}>
                         <div className="admin-home-text-list">รายการ</div>
                     </Col>
                     <Col flex="220px">

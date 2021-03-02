@@ -22,17 +22,14 @@ const View = (props) => {
     const [cause, setCause] = useState()
     const [isModalVisible, setIsModalVisible] = useState(false);
     const [modalData, setModalData] = useState({ type: '', icon: null, title: '', okColor: '', content: null, okText: '' });
+
     useEffect(() => {
         console.log('useEffect')
-        if (role === 'superadmin') {
-            getData('/news/info/')
-        } else if (role === 'admin') {
-            getData('/admin_news/info/')
-        } else {}
+        getData()
     }, [params])
 
-    const getData = (paht) => {
-        httpClient.get(config.REACT_APP_BASEURL + paht + params.id)
+    const getData = () => {
+        httpClient.get(config.REACT_APP_BASEURL + '/news/info/' + params.id)
             .then(function (response) {
                 const code = response.data.code
                 const data = response.data.data
@@ -259,7 +256,7 @@ const View = (props) => {
                     }
                 </Row>
                 <Row justify="end" style={{ marginTop: '20px' }}>
-                    {role === 'Superadmin' ?
+                    {role === 'superadmin' ?
 
                         <>
                             <Button type="primary" ghost className="view-Button" onClick={() => { submitUpdate(statusNews) }} >บันทึก</Button>
@@ -272,7 +269,7 @@ const View = (props) => {
                         dataNews.status === 'ร่าง' || dataNews.status === 'แก้ไข' ?
                             <Button type="primary" ghost className="view-Button" onClick={() => { submitUpdate('ส่ง') }} >ส่ง</Button>
                             : dataNews.status === 'ส่ง' ?
-                                <Button type="primary" ghost className="view-Button" >ขอแก้ไข</Button>
+                                <Button type="primary" ghost className="view-Button" onClick={() => { submitUpdate('ขอแก้ไข')}} >ขอแก้ไข</Button>
                                 :
                                 null
                     }

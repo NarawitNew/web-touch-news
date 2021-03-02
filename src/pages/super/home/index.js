@@ -17,9 +17,9 @@ const { Option } = Select;
 const Home = () => {
   const [dataSource, setDataSource] = useState()
   const [category, setCategory] = useState(null)
-  // const [numderNews, setNumder] = useState({ all: 0, sdnt: 0, draft: 0 })
+  const [total, setTotal] = useState({ all: 1, date: 0, admin: 0 })
   const [loading, setLoading] = useState(true)
-  const [pagination, setPagination] = useState({ current: 1, sorter:'dsc', pageSize: 1, total: 1 })
+  const [pagination, setPagination] = useState({ current: 1, sorter: 'dsc', pageSize: 1, total: 1 })
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [modalData, setModalData] = useState({ type: '', icon: null, title: '', okColor: '', content: null, okText: '' });
   const [dataSearch, setDataSearch] = useState({ category: '', filter: '' })
@@ -29,26 +29,20 @@ const Home = () => {
   useEffect(() => {
     getData()
     getCategory()
-  }, [pagination.current,pagination.sorter,dataSearch, filters])
+    getTotalAdmin()
+    getTotalNews()
+  }, [pagination.current, pagination.sorter, dataSearch, filters])
 
   const getData = () => {
     setLoading(true)
-    // const params = {
-    //   // per_page: '10',
-    //   page: current,
-    //   filters:[`category:like:${dataSearch.category}`,`topic:like:${dataSearch.filter}`]
-    //   // filters: `category:like:${dataSearch.category}`,
-    //   // filters: `topic:like:${dataSearch.filter}`,
-    // }
     var params = new URLSearchParams()
     params.append("page", pagination.current)
     params.append("sorts", `created_at:${pagination.sorter}`)
     params.append("filters", `topic:like:${dataSearch.filter}`)
     params.append("filters", `category:like:${dataSearch.category}`)
-
-    httpClient.get(config.REACT_APP_BASEURL + '/news', { params })
+    httpClient.get(config.REACT_APP_BASEURL + '/news/super', { params })
       .then(function (response) {
-        console.log('response',response.data.data.pagination.sorts[0].value)
+        // console.log('response', response)
         const code = response.data.code
         const data = response.data.data.data_list
         setLoading(false)
@@ -57,7 +51,7 @@ const Home = () => {
             current: response.data.data.pagination.current_page,
             pageSize: response.data.data.pagination.per_page,
             total: response.data.data.pagination.total,
-            sorter:response.data.data.pagination.sorts[0].value
+            sorter: response.data.data.pagination.sorts[0].value
           })
           const dataMap = data.map((item) => {
             item.key = item.id
@@ -66,6 +60,41 @@ const Home = () => {
           setDataSource(dataMap)
         } else {
           setDataSource()
+        }
+      })
+      .catch(function (error) {
+        console.log(error);
+      })
+  }
+
+  const getTotalNews = () => {
+    httpClient.get(config.REACT_APP_BASEURL + '/news/countsuper')
+      .then(function (response) {
+        const code = response.data.code
+        if (code === 200) {
+          setTotal({...total,
+            all:response.data.data[0],
+            date:response.data.data[1]
+          })
+        } else {
+        }
+      })
+      .catch(function (error) {
+        console.log(error);
+      })
+  }
+
+  const getTotalAdmin = () => {
+    httpClient.get(config.REACT_APP_BASEURL + '/admin/count')
+      .then(function (response) {
+        console.log('response', response)
+        const code = response.data.code
+        if (code === 200) {
+          console.log('total', response.data.data)
+          setTotal({...total,
+            admin:response.data.data[0]
+          })
+        } else {
         }
       })
       .catch(function (error) {
@@ -84,7 +113,7 @@ const Home = () => {
             return item
           })
           setCategory(dataMap)
-          
+
         }
       })
       .catch(function (error) {
@@ -136,7 +165,7 @@ const Home = () => {
       onOk() {
         setIsModalVisible(false)
       },
-      content: <Timeline idNews={record.key}/>,
+      content: <Timeline idNews={record.key} />,
     })
     onModal()
   }
@@ -153,11 +182,11 @@ const Home = () => {
     return (
       <Menu>
         <Menu.Item onClick={() => { onTimeline(record); }}>
-          <FieldTimeOutlined style={{ color: '#6AC9FF' }}></FieldTimeOutlined>
+          <FieldTimeOutlined style={{ color: '@blue-6' }}></FieldTimeOutlined>
           ไทม์ไลน์
       </Menu.Item>
         <Menu.Item onClick={() => { onDelete(record); }}>
-          <DeleteOutlined style={{ color: 'red' }}></DeleteOutlined>
+          <DeleteOutlined style={{ color: '@red-6' }}></DeleteOutlined>
           ลบ
       </Menu.Item>
       </Menu>
@@ -222,7 +251,7 @@ const Home = () => {
                   <UnorderedListOutlined className="home-Icon" />
                 </Col>
                 <Col span={8}>
-                  <p className="home-Number">6</p>
+                  <p className="home-Number">{total.all}</p>
                   <p className="home-Text">ข่าวทั้งหมด</p>
                 </Col>
               </Row>
@@ -235,7 +264,7 @@ const Home = () => {
                   <TeamOutlined className="home-Icon" />
                 </Col>
                 <Col span={8}>
-                  <p className="home-Number">6</p>
+                  <p className="home-Number">{total.admin}</p>
                   <p className="home-Text">ผู้ดูแลระบบ</p>
                 </Col>
               </Row>
@@ -248,7 +277,7 @@ const Home = () => {
                   <SendOutlined className="home-Icon" />
                 </Col>
                 <Col span={8}>
-                  <p className="home-Number">6</p>
+                  <p className="home-Number">{total.date}</p>
                   <p className="home-Text">ข่าววันนี้</p>
                 </Col>
               </Row>
@@ -286,7 +315,7 @@ const Home = () => {
           modalData={modalData}
         >
           {modalData.type === 'show' ?
-            <div style={{marginTop:'5px'}}>{modalData.content}</div>
+            <div style={{ marginTop: '5px' }}>{modalData.content}</div>
             :
             <p className="truncate-text">{modalData.content}</p>
           }
