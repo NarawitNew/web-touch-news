@@ -134,6 +134,10 @@ const Profile = (props) => {
       } else {
         message.error('รหัสผ่านไม่ตรงกัน');
       }
+      formValue.setFieldsValue({
+        passwordNew: '',
+        passwordConfirm: ''
+      })
     }
     else {
       const setData = JSON.stringify({

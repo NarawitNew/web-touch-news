@@ -6,7 +6,7 @@ const Modals = (props) =>{
         <Modal 
             width={450}
             visible={props.isModalVisible}
-            title={<div className="modal-text">{props.modalData.icon}{props.modalData.title}</div>}
+            title={<div className="modal-text">{props.modalData.icon}   {props.modalData.title}</div>}
             onCancel={props.onCancel}
             footer={[props.modalData.type === 'show' ?
                 

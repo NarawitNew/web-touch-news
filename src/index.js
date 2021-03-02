@@ -5,11 +5,11 @@ import Root from './Root';
 import reportWebVitals from './reportWebVitals';
 
 ReactDOM.render(
-  // <React.StrictMode>
+  <React.StrictMode>
   <ContextProider>
     <Root/>
   </ContextProider>
-  // </React.StrictMode>
+ </React.StrictMode>
   ,
   document.getElementById('root')
 );

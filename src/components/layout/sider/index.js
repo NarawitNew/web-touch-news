@@ -51,7 +51,7 @@ const Siderbar = (props) => {
                     icon={<HomeOutlined />}>
                     <Link to="/home">หน้าแรก</Link>
                 </Menu.Item>
-                {type === 'Superadmin' ?
+                {type === 'superadmin' ?
                     <Menu.Item
                         key='/manage'
                         onClick={() => setActiveMenu('/manage')}

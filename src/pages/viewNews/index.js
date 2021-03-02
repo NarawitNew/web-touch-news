@@ -8,6 +8,7 @@ import Modals from 'components/layout/modal'
 import Timeline from 'components/layout/timeline'
 import config from 'config'
 import { httpClient } from 'HttpClient'
+import imgError from 'assets/image/img_error2.png'
 
 const { Content } = Layout
 const { Option } = Select;
@@ -28,7 +29,7 @@ const View = (props) => {
     }, [params])
 
     const getData = () => {
-        httpClient.get(config.REACT_APP_BASEURL + '/news/data/' + params.id)
+        httpClient.get(config.REACT_APP_BASEURL + '/news/info/' + params.id)
             .then(function (response) {
                 const code = response.data.code
                 const data = response.data.data
@@ -46,6 +47,8 @@ const View = (props) => {
                     setDataNews({ ...data, hashtag: hashtagMap, credit: creditMap })
                     setStatusNews(data.status)
                     setCause(data.cause)
+                } else {
+                    setDataNews()
                 }
             })
             .catch(function (error) {
@@ -117,29 +120,12 @@ const View = (props) => {
         setIsModalVisible(false)
     };
 
-    const ButtonAction = () => {
-        if (role === 'Superadmin') {
-            return (
-                <>
-                    <Button type="primary" ghost className="view-Button" onClick={() => { submitUpdate(statusNews) }} >บันทึก</Button>
-                    <Button className="view-Button" onClick={onDelete} danger>ลบ</Button>
-                </>
-            );
-        } else if (role === 'admin') {
-            if (dataNews.status === 'ร่าง') {
-                return (
-                    <Button type="primary" ghost className="view-Button" onClick={() => { submitUpdate('ส่ง') }} >ส่ง</Button>
-                );
-            } else if (dataNews.status === 'ส่ง') {
-                return (
-                    <Button type="primary" ghost className="view-Button" onClick={() => { submitUpdate('ขอแก้ไข') }}>ขอแก้ไข</Button>
-                );
-            }
-        }
+    const onErrorImg = (e) => {
+        e.target.src = imgError
     }
 
     const menu = () => {
-        if (dataNews.status === 'ร่าง') {
+        if (dataNews.status === 'ร่าง' || dataNews.status === 'แก้ไข') {
             return (
                 <Menu>
                     <Menu.Item >
@@ -187,7 +173,7 @@ const View = (props) => {
                     {role === 'admin' ?
                         <Row>
                             <Col>
-                               {/* สถานะ {dataNews.status} */}
+                                {/* สถานะ {dataNews.status} */}
                             </Col>
                             <Col flex='15px'>
                                 <Dropdown placement="bottomRight" overlay={menu()}><MoreOutlined style={{ fontSize: '20px' }} /></Dropdown>
@@ -199,11 +185,14 @@ const View = (props) => {
                 </Row>
                 <hr />
                 <Row justify="center">
-                    <Image
-                        style={{ padding: '20px' }}
-                        width={800}
-                        src={dataNews.image}
-                    />
+                    <Col span={10} justify="center">
+                        <Image
+                            style={{ padding: '20px' }}
+                            width={'100%'}
+                            src={dataNews.image}
+                            onError={onErrorImg}
+                        />
+                    </Col>
                 </Row>
                 <Row justify="center">
                     <Col span={10}>
@@ -233,7 +222,7 @@ const View = (props) => {
                             <Timeline idNews={params.id}></Timeline>
                         </div>
                     </Col>
-                    {role === 'Superadmin' ?
+                    {role === 'superadmin' ?
                         <Col span={12} >
                             <h3>เปลี่ยนสถานะข่าว</h3>
                             <Row style={{ marginTop: '20px' }}>
@@ -267,33 +256,27 @@ const View = (props) => {
                     }
                 </Row>
                 <Row justify="end" style={{ marginTop: '20px' }}>
-                    {ButtonAction()}
-                    <Link to="/home">
+                    {role === 'superadmin' ?
+
+                        <>
+                            <Button type="primary" ghost className="view-Button" onClick={() => { submitUpdate(statusNews) }} >บันทึก</Button>
+                            <Button className="view-Button" onClick={onDelete} danger>ลบ</Button>
+                            <Link to="/home">
+                                <Button className="view-Button">ยกเลิก</Button>
+                            </Link>
+                        </>
+                        :
+                        dataNews.status === 'ร่าง' || dataNews.status === 'แก้ไข' ?
+                            <Button type="primary" ghost className="view-Button" onClick={() => { submitUpdate('ส่ง') }} >ส่ง</Button>
+                            : dataNews.status === 'ส่ง' ?
+                                <Button type="primary" ghost className="view-Button" onClick={() => { submitUpdate('ขอแก้ไข')}} >ขอแก้ไข</Button>
+                                :
+                                null
+                    }
+                    < Link to="/home">
                         <Button className="view-Button">ย้อนกลับ</Button>
                     </Link>
                 </Row>
-                {/* {role === 'Superadmin' ?
-                    <Row justify="end" style={{ marginTop: '20px' }}>
-                        <Button type="primary" ghost className="view-Button" onClick={()=>{submitUpdate(statusNews)}} >บันทึก</Button>
-                        <Button className="view-Button" onClick={onDelete} danger>ลบ</Button>
-                        <Link to="/home">
-                            <Button className="view-Button">ยกเลิก</Button>
-                        </Link>
-                    </Row>
-                :
-                    <Row justify="end" style={{ marginTop: '20px' }}>
-                        {dataNews.status === 'ร่าง' ?
-                            <Button type="primary" ghost className="view-Button" onClick={()=>{submitUpdate('ส่ง')}} >ส่ง</Button>
-                            // <Button type="primary" ghost className="view-Button" >ขอแก้ไข</Button>
-                        :
-                            <Button type="primary" ghost className="view-Button" >ขอแก้ไข</Button>
-                            // <Button type="primary" ghost className="view-Button" onClick={()=>{submitUpdate('ส่ง')}} >ส่ง</Button>
-                        }
-                        <Link to="/home">
-                            <Button className="view-Button">ย้อนกลับ</Button>
-                        </Link>
-                    </Row>
-                } */}
                 <Modals
                     isModalVisible={isModalVisible}
                     onOk={modalData.onOk}

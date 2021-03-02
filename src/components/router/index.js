@@ -11,7 +11,7 @@ import ViewNews from 'pages/viewNews/index'
 export default function Routers(props) {
     return (
         <>
-            {props.type === 'Superadmin' ?
+            {props.type === 'superadmin' ?
                 <Switch>
                     <Route exact component={HomeSuper} path="/"></Route>
                     <Route component={ViewNews} path="/home/view/:id"></Route>
