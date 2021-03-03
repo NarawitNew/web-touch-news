@@ -33,7 +33,6 @@ const Manage = () => {
     }
     httpClient.get(config.REACT_APP_BASEURL + '/admin', { params })
       .then(function (response) {
-        console.log('response', response.data.code)
         const code = response.data.code
         const data = response.data.data.data_list
         setPagination({
@@ -99,7 +98,6 @@ const Manage = () => {
   }
 
   const onDelete = (record) => {
-    console.log('Delete id : ', record.key)
     setModalData({
       type: 'confirm',
       icon: <DeleteOutlined className="manage-icon-delete" />,
@@ -139,10 +137,8 @@ const Manage = () => {
           const setData = JSON.stringify({
             "status": "inactive"
           })
-          console.log('setData', setData)
           httpClient.put(config.REACT_APP_BASEURL + '/admin/suspend/' + record.key, setData)
             .then(function (response) {
-              console.log('response', response)
               const code = response.data.code
               if (code === 200) {
                 message.success('ระงับผู้ดูแลระบบสำเร็จ');
@@ -162,7 +158,6 @@ const Manage = () => {
       const setData = JSON.stringify({
         "status": "active"
       })
-      console.log('setData', setData)
       httpClient.put(config.REACT_APP_BASEURL + '/admin/suspend/' + record.key, setData)
         .then(function (response) {
           const code = response.data.code
@@ -183,7 +178,6 @@ const Manage = () => {
 
   const currentPage = (value) => {
     setCurrent(value);
-    console.log('currentPage', current)
   }
 
   const onModal = () => {
@@ -215,12 +209,10 @@ const Manage = () => {
           <Tooltip placement="bottom" title="แก้ไข">
             <Link to={`/manage/profile/${record.key}`}>
             <Button  icon={<EditOutlined className="manage-icon-edit" />} size={'middle'} /> 
-              {/* <EditOutlined className="manage-icon-edit" /> */}
             </Link>
           </Tooltip>
           <Tooltip placement="bottom" title="ลบ">
             <Button  icon={<DeleteOutlined className="manage-icon-delete"/>} size={'middle'} onClick={() => { onDelete(record) }} /> 
-            {/* <DeleteOutlined className="manage-icon-delete" onClick={() => { onDelete(record) }} /> */}
           </Tooltip>
           <Tooltip placement="bottom" title="ระงับ">
             <Switch size="small" defaultChecked={record.status} onClick={(e) => { onSuspend(e, record) }} />
@@ -229,6 +221,7 @@ const Manage = () => {
       ),
     },
   ];
+
   return (
     <>
       <Breadcrumb style={{ margin: '4px 0' }}>
@@ -295,4 +288,5 @@ const Manage = () => {
     </>
   );
 }
+
 export default Manage

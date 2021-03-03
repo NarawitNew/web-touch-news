@@ -1,4 +1,4 @@
-import { CheckOutlined, EditOutlined, FileExclamationOutlined, FileTextOutlined, GlobalOutlined, SendOutlined } from '@ant-design/icons';
+import { CheckOutlined, FileExclamationOutlined, FileTextOutlined, GlobalOutlined, SendOutlined } from '@ant-design/icons';
 import React, { useEffect, useState } from "react";
 
 import { Timeline } from 'antd'
@@ -9,30 +9,63 @@ const Timelines = (props) => {
     const [timeLine, setTimeLine] = useState(null)
     useEffect(() => {
         getTimeLine()
-    },[props.idNews])
+    }, [props.idNews])
+
+    const color = {
+        Submit: 'blue',
+        Approve: '#73d13d',
+        Public: 'red',
+        Edit: 'orange',
+        Draft: 'grey',
+    }
 
     const getTimeLine = () => {
         httpClient.get(config.REACT_APP_BASEURL + '/news/timeline/' + props.idNews)
             .then(function (response) {
-                console.log('timeline', response)
                 const code = response.data.code
                 const data = response.data.data.timeline
-                if(code === 200){
-                    const dataMap = data.map((item,key)=>{
-                        if(item.Status === 'ร่าง'){
-                            item =  <Timeline.Item key={key} dot={<FileTextOutlined style={{ color: 'gray' }} />} label={item.Status}>{item.Date}</Timeline.Item>
-                        }else if(item.Status === 'ส่ง'){
-                            item = <Timeline.Item  key={key} dot={<SendOutlined style={{ color: 'blue' }} />} label={item.Status}>{item.Date}</Timeline.Item>
-                        }else if(item.Status === 'ขอแก้ไข'){
-                            item = <Timeline.Item  key={key} dot={<FileExclamationOutlined style={{ color: 'orange' }} />} label={item.Status}>{item.Date}</Timeline.Item>
-                        }else if(item.Status === 'อนุมัติ'){
-                            item = <Timeline.Item  key={key} dot={<CheckOutlined style={{ color: 'green' }} />} label={item.Status}>{item.Date}</Timeline.Item>
-                        }else if(item.Status === 'สาธารณะ'){
-                            item = <Timeline.Item  key={key} dot={<GlobalOutlined style={{ color: 'red' }} />} label={item.Status}>{item.Date}</Timeline.Item>
-                        }else if(item.Status === 'แก้ไข'){
-                            item = <Timeline.Item  key={key} dot={<EditOutlined style={{ color: 'orange' }} />} label={item.Status}>{item.Date}</Timeline.Item>
-                        }else{}
-                    return item
+                if (code === 200) {
+                    const dataMap = data.map((item, key) => {
+                        if (item.Status === 'Draft') {
+                            item = <Timeline.Item
+                                key={key}
+                                dot={<FileTextOutlined style={{ color: 'gray' }} />}
+                                label={<div style={{ color: color[item.Status] }}>{item.Status}</div>}>
+                                {item.Date}
+                            </Timeline.Item>
+                        } else if (item.Status === 'Submit') {
+                            item = <Timeline.Item
+                                key={key}
+                                dot={<SendOutlined style={{ color: 'blue' }} />}
+                                label={<div style={{ color: color[item.Status] }}>
+                                    {item.Status}</div>}>
+                                {item.Date}
+                            </Timeline.Item>
+                        } else if (item.Status === 'Edit') {
+                            item = <Timeline.Item
+                                key={key}
+                                dot={<FileExclamationOutlined style={{ color: 'orange' }} />}
+                                label={<div style={{ color: color[item.Status] }}>{item.Status}</div>}>
+                                {item.Date}
+                            </Timeline.Item>
+                        } else if (item.Status === 'Approve') {
+                            item = <Timeline.Item
+                                key={key}
+                                dot={<CheckOutlined style={{ color: 'green' }} />}
+                                label={<div style={{ color: color[item.Status] }}>{item.Status}</div>}>
+                                {item.Date}
+                            </Timeline.Item>
+                        } else if (item.Status === 'Public') {
+                            item = <Timeline.Item
+                                key={key}
+                                dot={<GlobalOutlined style={{ color: 'red' }} />}
+                                label={<div style={{ color: color[item.Status] }}>{item.Status}</div>}>
+                                {item.Date}
+                            </Timeline.Item>
+                        } else { 
+                            <p>Status Empty</p>
+                        }
+                        return item
                     })
                     setTimeLine(dataMap)
 
@@ -48,4 +81,5 @@ const Timelines = (props) => {
         </Timeline>
     );
 }
+
 export default Timelines

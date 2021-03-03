@@ -136,7 +136,7 @@ const CreateNews = (props) => {
                 "image": image,
                 "credit": credit.tags,
                 "hashtag": hashtag.tags,
-                "status": "ร่าง",
+                "status": 'Draft',
             })
             httpClient.post(config.REACT_APP_BASEURL + '/news', setData)
                 .then(function (response) {
@@ -187,8 +187,8 @@ const CreateNews = (props) => {
                 "image": image,
                 "credit": credit.tags,
                 "hashtag": hashtag.tags,
-                "status": "แก้ไข",
-                "by": context.user.firstname + " " + context.user.lastname
+                "status": 'Draft',
+                "by": context.user.firstname + ' ' + context.user.lastname
             })
             httpClient.put(config.REACT_APP_BASEURL + `/news/update/${params.id}`, setData)
                 .then(function (response) {

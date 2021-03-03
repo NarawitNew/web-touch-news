@@ -73,7 +73,6 @@ const Home = () => {
       .get(config.REACT_APP_BASEURL + '/news/countsuper')
       .then(function (response) {
         const code = response.data.code;
-        console.log('getTotalNews', response.data.data);
         if (code === 200) {
           setTotalNews({
             all: response.data.data[0],
@@ -95,7 +94,6 @@ const Home = () => {
     httpClient
       .get(config.REACT_APP_BASEURL + '/admin/count')
       .then(function (response) {
-        console.log('getTotalAdmin', response.data.data[0]);
         const code = response.data.code;
         if (code === 200) {
           setTotalAdmin(response.data.data[0]);
@@ -247,6 +245,19 @@ const Home = () => {
       dataIndex: 'status',
       key: 'status',
       width: '100px',
+      render: (status) => (
+        <div style=
+          {{
+            color: status === 'Submit' ?
+              'blue' : status === 'Approve' ?
+                '#73d13d' : status === 'Public' ?
+                  'red' : status === 'Edit' ?
+                    'orange' : 'black'
+          }}
+        >
+          {status}
+        </div>
+      )
     },
     {
       title: '',
@@ -331,4 +342,5 @@ const Home = () => {
     </>
   );
 };
+
 export default Home;
