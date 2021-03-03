@@ -125,7 +125,7 @@ const View = (props) => {
     }
 
     const menu = () => {
-        if (dataNews.status === 'ร่าง' || dataNews.status === 'แก้ไข') {
+        if (dataNews.status === 'Draft' || dataNews.status === 'Edit') {
             return (
                 <Menu>
                     <Menu.Item >
@@ -232,17 +232,16 @@ const View = (props) => {
                                 <Col span={20}>
                                     <Input.Group>
                                         <Select placeholder={statusNews} onChange={handleSelectStatus} className="view-Input-Group">
-                                            {/* <Option value="ส่ง">ส่ง</Option> */}
-                                            <Option value="ร่าง">ร่าง</Option>
-                                            <Option value="อนุมัติ">อนุมัติ</Option>
-                                            <Option value="สาธารณะ">สาธารณะ</Option>
+                                            <Option value='Draft'>Draft</Option>
+                                            <Option value='Approve'>Approve</Option>
+                                            <Option value='Public'>Public</Option>
                                         </Select>
                                     </Input.Group>
                                 </Col>
                             </Row>
                             <Row>
                                 <Col span={20} offset={4}>
-                                    {statusNews === 'ร่าง' ?
+                                    {statusNews === 'Draft' ?
                                         <div className="view-Input-TextArea">
                                             <div style={{ color: 'red' }}>*กรุณากรอกสิ่งที่ต้องแก้ไข</div>
                                             <TextArea value={cause} autoSize={{ minRows: 1, maxRows: 5 }} onChange={changeCause} />
@@ -266,10 +265,10 @@ const View = (props) => {
                             </Link>
                         </>
                         :
-                        dataNews.status === 'ร่าง' || dataNews.status === 'แก้ไข' ?
-                            <Button type="primary" ghost className="view-Button" onClick={() => { submitUpdate('ส่ง') }} >ส่ง</Button>
-                            : dataNews.status === 'ส่ง' ?
-                                <Button type="primary" ghost className="view-Button" onClick={() => { submitUpdate('ขอแก้ไข') }} >ขอแก้ไข</Button>
+                        dataNews.status === 'Draft' ?
+                            <Button type="primary" ghost className="view-Button" onClick={() => { submitUpdate('Submit') }} >ส่ง</Button>
+                            : dataNews.status === 'Submit' ?
+                                <Button type="primary" ghost className="view-Button" onClick={() => { submitUpdate('Edit') }} >ขอแก้ไข</Button>
                                 :
                                 null
                     }

@@ -38,7 +38,6 @@ const Home = () => {
         params.append("filters", `category:like:${dataSearch.category}`)
         httpClient.get(config.REACT_APP_BASEURL + '/news/admin', { params })
             .then(function (response) {
-                console.log('response', response)
                 const code = response.data.code
                 const data = response.data.data.data_list
                 setLoading(false)
@@ -50,6 +49,7 @@ const Home = () => {
                         sorter: response.data.data.pagination.sorts[0].value
                     })
                     const dataMap = data.map((item) => {
+                        console.log('status', item.status)
                         item.key = item.id
                         item.date = item.created_at
                         return item
@@ -67,24 +67,23 @@ const Home = () => {
 
     const getTotalNews = () => {
         httpClient.get(config.REACT_APP_BASEURL + '/news/countadmin')
-          .then(function (response) {
-            console.log('response', response)
-            const code = response.data.code
-            if (code === 200) {
-              console.log('total', response.data.data)
-              setTotal({...total,
-                all:pagination.total,
-                sdnt:response.data.data[1],
-                draft:response.data.data[0]
-
-              })
-            } else {
-            }
-          })
-          .catch(function (error) {
-            console.log(error);
-          })
-      }
+            .then(function (response) {
+                const code = response.data.code
+                if (code === 200) {
+                    console.log('total', response.data.data)
+                    setTotal({
+                        ...total,
+                        all: pagination.total,
+                        sdnt: response.data.data[1],
+                        draft: response.data.data[0]
+                    })
+                } else {
+                }
+            })
+            .catch(function (error) {
+                console.log(error);
+            })
+    }
 
     const getCategory = () => {
         httpClient.get(config.REACT_APP_BASEURL + '/category')
@@ -97,7 +96,6 @@ const Home = () => {
                         return item
                     })
                     setCategory(dataMap)
-
                 }
             })
             .catch(function (error) {
@@ -193,7 +191,21 @@ const Home = () => {
             title: 'สถานะ',
             dataIndex: 'status',
             key: 'status',
-            width: '100px'
+            width: '100px',
+            render: (status) => (
+                <div style=
+                    {{
+                        color: status === 'Submit' ?
+                            'blue' : status === 'Draft' ?
+                                'grey' : status === 'Approve' ?
+                                    '#73d13d' : status === 'Public' ?
+                                        'red' : status === 'Edit' ?
+                                            'orange' : 'black'
+                    }}
+                >
+                    {status}
+                </div>
+            )
         },
         {
             title: '',
@@ -203,34 +215,26 @@ const Home = () => {
             render: (text, record) => (
                 <Space >
                     <Tooltip placement="bottom" title="ไทม์ไลน์">
-                        {/* <FieldTimeOutlined className="admin-icon-time" onClick={() => { onTimeline(record) }}></FieldTimeOutlined> */}
-                        <Button  icon={<FieldTimeOutlined className="admin-icon-time"/>} size={'middle'} onClick={() => { onTimeline(record) }}/> 
-
+                        <Button icon={<FieldTimeOutlined className="admin-icon-time" />} size={'middle'} onClick={() => { onTimeline(record) }} />
                     </Tooltip>
-                    {record.status === 'ร่าง' || record.status === 'แก้ไข'?
+                    {record.status === 'Draft' || record.status === 'Edit' ?
                         <>
                             <Tooltip placement="bottom" title="แก้ไข">
                                 <Link to={`/home/edit/${record.key}`}>
-                                    {/* <EditOutlined className="admin-icon-edit" /> */}
-                                    <Button  icon={<EditOutlined className="admin-icon-edit" />} size={'middle'} /> 
+                                    <Button icon={<EditOutlined className="admin-icon-edit" />} size={'middle'} />
                                 </Link>
                             </Tooltip>
                             <Tooltip placement="bottom" title="ลบ">
-                                {/* <DeleteOutlined className="admin-icon-delete" onClick={() => { onDelete(record) }} /> */}
-                                <Button  icon={<DeleteOutlined className="admin-icon-delete"/>} size={'middle'} onClick={() => { onDelete(record) }}/> 
+                                <Button icon={<DeleteOutlined className="admin-icon-delete" />} size={'middle'} onClick={() => { onDelete(record) }} />
                             </Tooltip>
                         </>
                         :
                         <>
                             <Tooltip placement="bottom" title="แก้ไข">
-                                {/* <EditOutlined className="admin-icon-disabled" /> */}
-                                <Button  icon={<EditOutlined className="admin-icon-disabled" />} size={'middle'} disabled/> 
-
+                                <Button icon={<EditOutlined className="admin-icon-disabled" />} size={'middle'} disabled />
                             </Tooltip>
                             <Tooltip placement="bottom" title="ลบ">
-                                {/* <DeleteOutlined className="admin-icon-disabled" /> */}
-                                <Button  icon={<DeleteOutlined className="admin-icon-disabled"/>} size={'middle'} disabled/> 
-
+                                <Button icon={<DeleteOutlined className="admin-icon-disabled" />} size={'middle'} disabled />
                             </Tooltip>
                         </>
                     }
@@ -238,6 +242,7 @@ const Home = () => {
             ),
         }
     ];
+    
     return (
         <>
             <Breadcrumb style={{ margin: '4px 0' }}>
@@ -252,7 +257,7 @@ const Home = () => {
                                     <UnorderedListOutlined className="admin-home-icon" />
                                 </Col>
                                 <Col span={8}>
-                                    <p className="admin-home-number"> {total.all} </p>
+                                    <p className="admin-home-number"> {pagination.total} </p>
                                     <p className="admin-home-text">ข่าวทั้งหมด</p>
                                 </Col>
                             </Row>
@@ -329,4 +334,5 @@ const Home = () => {
         </>
     );
 }
+
 export default Home

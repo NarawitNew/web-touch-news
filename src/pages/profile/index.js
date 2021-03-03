@@ -35,10 +35,8 @@ const Profile = (props) => {
   useEffect(() => {
     if (props.location.pathname === '/profile') {
       getData()
-      console.log('profile')
     } else {
       getDataAdmin()
-      console.log('manage/profile')
     }
   }, [params, context])
 
@@ -133,7 +131,6 @@ const Profile = (props) => {
       })
       httpClient.put(config.REACT_APP_BASEURL + '/user/password/' + setId, setData)
         .then(function (response) {
-          console.log('response', response)
           message.success('เปลี่ยนรหัสผ่านสำเร็จ');
         })
         .catch(function (error) {
@@ -163,7 +160,6 @@ const Profile = (props) => {
             setData.append('url', image);
             axios.post(config.REACT_APP_IMGAE + '/savefile', setData)
               .then(function (response) {
-                console.log(response)
               })
               .catch(function (error) {
                 console.log(error)
@@ -204,7 +200,6 @@ const Profile = (props) => {
     setData.append('save', false)
     axios.post(config.REACT_APP_IMGAE + '/upload', setData)
       .then(function (response) {
-        console.log('response', response)
         const status = response.status
         const data = response.data
         if (status === 200) {
@@ -350,4 +345,5 @@ const Profile = (props) => {
     </>
   );
 }
+
 export default Profile
