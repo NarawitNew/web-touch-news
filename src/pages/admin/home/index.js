@@ -40,7 +40,7 @@ const Home = () => {
     current: 1,
     sorter: "dsc",
     pageSize: 1,
-    total: 1,
+    total: 0,
   });
   const [category, setCategory] = useState(null);
   const [isModalVisible, setIsModalVisible] = useState(false);
@@ -215,7 +215,6 @@ const Home = () => {
     },
     {
       title: "หัวข้อ",
-      dataIndex: "topic",
       key: "topic",
       width: "500px",
       ellipsis: true,

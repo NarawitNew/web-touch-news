@@ -199,12 +199,12 @@ const View = (props) => {
         <Breadcrumb.Item>ข่าว</Breadcrumb.Item>
       </Breadcrumb>
       <Content className="view-Content">
-        <Row align="middle">
-          <Col flex="auto">
+        <Row align="top">
+          <Col span={23}>
             <div className="view-titel-news">{dataNews.topic}</div>
           </Col>
           {role === "admin" ? (
-            <Col flex="15px">
+            <Col span={1} style={{ textAlign: "right", paddingTop: "16px" }}>
               <Dropdown placement="bottomRight" overlay={menu()}>
                 <a
                   style={{ color: "black" }}

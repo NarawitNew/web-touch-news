@@ -377,7 +377,6 @@ const CreateNews = (props) => {
                 <Col span={16}>
                   <Input.Group>
                     <AutoComplete
-                      onPressEnter={hashtagConfirm}
                       style={{ width: "100%" }}
                       value={hashtag.inputValue}
                       onChange={hashtagChange}

@@ -155,6 +155,12 @@ const Profile = (props) => {
     onModal();
   };
 
+  const showCancelUpdate = () => {
+    // formValue.getFieldsValue();
+    // console.log("object", formValue.getFieldsValue().firstname);
+    return false;
+  };
+
   const cancelUpdate = () => {
     getData();
     setShowInputPass(false);
@@ -386,7 +392,6 @@ const Profile = (props) => {
                     className="profile-button"
                     onClick={cancelUpdate}
                     style={{ marginLeft: "10px" }}
-                    disabled={false}
                   >
                     ยกเลิก
                   </Button>

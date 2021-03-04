@@ -41,8 +41,8 @@ const Home = (props) => {
   const [pagination, setPagination] = useState({
     current: 1,
     sorter: "dsc",
-    pageSize: 1,
-    total: 1,
+    pageSize: 0,
+    total: 0,
   });
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [modalData, setModalData] = useState({
@@ -280,13 +280,13 @@ const Home = (props) => {
       title: "ผู้ดูแลระบบ",
       dataIndex: "by",
       key: "by",
-      width: "200px",
+      width: "160px",
     },
     {
       title: "ประเภท",
       dataIndex: "category",
       key: "category",
-      width: "200px",
+      width: "100px",
     },
     {
       title: "สถานะ",
