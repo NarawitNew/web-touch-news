@@ -7,9 +7,6 @@ import React, { useState } from 'react'
 import FroalaEditor from 'react-froala-wysiwyg'
 import FroalaEditorView from 'react-froala-wysiwyg/FroalaEditorView';
 
-// Require Editor plugin files.
-// Require Editor CSS files.
-
 export const FroalaView = (props) => {
   return (
     <FroalaEditorView
@@ -29,13 +26,10 @@ export const Froala = (props) => {
     imageUploadMethod: 'POST',
     imageMaxSize: 2 * 1024 * 1024,
     imageAllowedTypes: ['jpeg', 'jpg', 'png', 'gif'],
-
     events: {
       'image.beforeUpload': function (images) {
-        // Return false if you want to stop the image upload.
       },
       'image.uploaded': function (response) {
-        // Image was uploaded to the server.
         response = JSON.parse(response);
         let images = image
         images.push(response.url)
@@ -43,24 +37,19 @@ export const Froala = (props) => {
         props.setImageContent(image)
       },
       'image.inserted': function ($img, response) {
-        // Image was inserted in the editor.
       },
       'image.replaced': function ($img, response) {
-        // Image was replaced in the editor.
-
       }
     }
-
   }
 
   return (
     <div >
-      <FroalaEditor 
-      model={props.mode}
-      onModelChange={props.onModelChange} 
-      config={config} 
-      tag="textarea" 
-      
+      <FroalaEditor
+        model={props.mode}
+        onModelChange={props.onModelChange}
+        config={config}
+        tag="textarea"
       />
     </div>
   )

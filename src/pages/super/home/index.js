@@ -1,28 +1,59 @@
-import { Breadcrumb, Col, Dropdown, Input, Layout, Menu, Row, Select, message } from 'antd';
-import { DeleteOutlined, FieldTimeOutlined, MoreOutlined, SendOutlined, TeamOutlined, UnorderedListOutlined } from '@ant-design/icons';
-import React, { useEffect, useState } from 'react';
+import {
+  Breadcrumb,
+  Col,
+  Dropdown,
+  Input,
+  Layout,
+  Menu,
+  Row,
+  Select,
+  message,
+} from "antd";
+import {
+  DeleteOutlined,
+  EyeOutlined,
+  FieldTimeOutlined,
+  MoreOutlined,
+  SendOutlined,
+  TeamOutlined,
+  UnorderedListOutlined,
+} from "@ant-design/icons";
+import React, { useEffect, useState } from "react";
 
-import { Link } from 'react-router-dom';
-import Modals from 'components/layout/modal';
-import Tables from 'components/layout/table';
-import Timeline from 'components/layout/timeline';
-import config from 'config';
-import { httpClient } from 'HttpClient';
+import { Link } from "react-router-dom";
+import Modals from "components/layout/modal";
+import Tables from "components/layout/table";
+import Timeline from "components/layout/timeline";
+import config from "config";
+import { httpClient } from "HttpClient";
+import moment from "moment";
 
 const { Content } = Layout;
 const { Search } = Input;
 const { Option } = Select;
 
-const Home = () => {
+const Home = (props) => {
   const [dataSource, setDataSource] = useState();
   const [category, setCategory] = useState(null);
   const [totalNews, setTotalNews] = useState({ all: 0, toDate: 0 });
   const [totalAdmin, setTotalAdmin] = useState(0);
   const [loading, setLoading] = useState(true);
-  const [pagination, setPagination] = useState({ current: 1, sorter: 'dsc', pageSize: 1, total: 1 });
+  const [pagination, setPagination] = useState({
+    current: 1,
+    sorter: "dsc",
+    pageSize: 0,
+    total: 0,
+  });
   const [isModalVisible, setIsModalVisible] = useState(false);
-  const [modalData, setModalData] = useState({ type: '', icon: null, title: '', okColor: '', content: null, okText: '' });
-  const [dataSearch, setDataSearch] = useState({ category: '', filter: '' });
+  const [modalData, setModalData] = useState({
+    type: "",
+    icon: null,
+    title: "",
+    okColor: "",
+    content: null,
+    okText: "",
+  });
+  const [dataSearch, setDataSearch] = useState({ category: "", filter: "" });
   const [filters, setFilters] = useState();
 
   useEffect(() => {
@@ -34,15 +65,20 @@ const Home = () => {
     }, 1000);
   }, [pagination.current, pagination.sorter, dataSearch, filters]);
 
+  const dateShow = (time) => {
+    const date = moment(time * 1000).format("DD/MM/YYYY HH:mm:ss ");
+    return date;
+  };
+
   const getData = () => {
     setLoading(true);
     var params = new URLSearchParams();
-    params.append('page', pagination.current);
-    params.append('sorts', `created_at:${pagination.sorter}`);
-    params.append('filters', `topic:like:${dataSearch.filter}`);
-    params.append('filters', `category:like:${dataSearch.category}`);
+    params.append("page", pagination.current);
+    params.append("sorts", `created_at:${pagination.sorter}`);
+    params.append("filters", `topic:like:${dataSearch.filter}`);
+    params.append("filters", `category:like:${dataSearch.category}`);
     httpClient
-      .get(config.REACT_APP_BASEURL + '/news/super', { params })
+      .get(config.REACT_APP_BASEURL + "/news/super", { params })
       .then(function (response) {
         const code = response.data.code;
         const data = response.data.data.data_list;
@@ -56,6 +92,7 @@ const Home = () => {
           });
           const dataMap = data.map((item) => {
             item.key = item.id;
+            item.created_at = dateShow(item.created_at);
             return item;
           });
           setDataSource(dataMap);
@@ -70,7 +107,7 @@ const Home = () => {
 
   const getTotalNews = () => {
     httpClient
-      .get(config.REACT_APP_BASEURL + '/news/countsuper')
+      .get(config.REACT_APP_BASEURL + "/news/countsuper")
       .then(function (response) {
         const code = response.data.code;
         if (code === 200) {
@@ -92,7 +129,7 @@ const Home = () => {
 
   const getTotalAdmin = () => {
     httpClient
-      .get(config.REACT_APP_BASEURL + '/admin/count')
+      .get(config.REACT_APP_BASEURL + "/admin/count")
       .then(function (response) {
         const code = response.data.code;
         if (code === 200) {
@@ -107,7 +144,7 @@ const Home = () => {
 
   const getCategory = () => {
     httpClient
-      .get(config.REACT_APP_BASEURL + '/category')
+      .get(config.REACT_APP_BASEURL + "/category")
       .then(function (response) {
         const data = response.data.data.data_list;
         const code = response.data.code;
@@ -137,15 +174,15 @@ const Home = () => {
 
   const onDelete = (record) => {
     setModalData({
-      type: 'confirm',
+      type: "confirm",
       icon: <DeleteOutlined className="manage-icon-delete" />,
-      title: 'คุณต้องการลบข่าวนี้ หรือไม่ ! ',
-      okColor: 'red',
-      okText: 'ลบ',
+      title: "คุณต้องการลบข่าวนี้ หรือไม่ ! ",
+      okColor: "red",
+      okText: "ลบ",
       onOk() {
         offModal();
         httpClient
-          .delete(config.REACT_APP_BASEURL + '/news/' + record.key)
+          .delete(config.REACT_APP_BASEURL + "/news/" + record.key)
           .then(function (response) {
             const code = response.data.code;
             if (code === 200) {
@@ -165,11 +202,11 @@ const Home = () => {
 
   const onTimeline = (record) => {
     setModalData({
-      type: 'show',
+      type: "show",
       icon: <FieldTimeOutlined className="manage-icon-insert" />,
-      title: 'ไทม์ไลน์',
-      okColor: '#216258',
-      okText: 'ตกลง',
+      title: "ไทม์ไลน์",
+      okColor: "#216258",
+      okText: "ตกลง",
       onOk() {
         setIsModalVisible(false);
       },
@@ -190,19 +227,30 @@ const Home = () => {
     return (
       <Menu>
         <Menu.Item
+          key="0"
+          onClick={() => {
+            props.history.push(`/home/view/${record.key}`);
+          }}
+        >
+          <EyeOutlined style={{ color: "#73d13d" }} />
+          ดูข่าว
+        </Menu.Item>
+        <Menu.Item
+          key="1"
           onClick={() => {
             onTimeline(record);
           }}
         >
-          <FieldTimeOutlined className="admin-icon-time"></FieldTimeOutlined>
+          <FieldTimeOutlined style={{ color: "#1890ff" }} />
           ไทม์ไลน์
         </Menu.Item>
         <Menu.Item
+          key="2"
           onClick={() => {
             onDelete(record);
           }}
         >
-          <DeleteOutlined style={{ color: '@red-6' }}></DeleteOutlined>
+          <DeleteOutlined style={{ color: "red" }} />
           ลบ
         </Menu.Item>
       </Menu>
@@ -211,76 +259,83 @@ const Home = () => {
 
   const columns = [
     {
-      title: 'วันที่',
-      dataIndex: 'created_at',
-      key: 'created_at',
-      width: '120px',
+      title: "วันที่",
+      dataIndex: "created_at",
+      key: "created_at",
+      width: "120px",
       sorter: true,
     },
     {
-      title: 'หัวข้อ',
-      key: 'topic',
-      width: '400px',
+      title: "หัวข้อ",
+      key: "topic",
+      width: "400px",
       ellipsis: true,
       render: (record) => (
-        <Link to={`/home/view/${record.key}`} style={{ color: '#000' }}>
+        <Link to={`/home/view/${record.key}`} style={{ color: "#000" }}>
           {record.topic}
         </Link>
       ),
     },
     {
-      title: 'ผู้ดูแลระบบ',
-      dataIndex: 'by',
-      key: 'by',
-      width: '200px',
+      title: "ผู้ดูแลระบบ",
+      dataIndex: "by",
+      key: "by",
+      width: "160px",
     },
     {
-      title: 'ประเภท',
-      dataIndex: 'category',
-      key: 'category',
-      width: '200px',
+      title: "ประเภท",
+      dataIndex: "category",
+      key: "category",
+      width: "100px",
     },
     {
-      title: 'สถานะ',
-      dataIndex: 'status',
-      key: 'status',
-      width: '100px',
+      title: "สถานะ",
+      dataIndex: "status",
+      key: "status",
+      width: "100px",
       render: (status) => (
-        <div style=
-          {{
-            color: status === 'Submit' ?
-              'blue' : status === 'Approve' ?
-                '#73d13d' : status === 'Public' ?
-                  'red' : status === 'Edit' ?
-                    'orange' : 'black'
+        <div
+          style={{
+            color:
+              status === "Submit"
+                ? "blue"
+                : status === "Approve"
+                ? "#73d13d"
+                : status === "Public"
+                ? "red"
+                : status === "Edit"
+                ? "orange"
+                : "black",
           }}
         >
           {status}
         </div>
-      )
+      ),
     },
     {
-      title: '',
-      width: '50px',
-      key: 'action',
-      fixed: 'right',
+      title: "",
+      width: "50px",
+      key: "action",
+      fixed: "right",
       render: (record) => (
-        <Dropdown placement="bottomRight" overlay={menu(record)}>
-          <MoreOutlined />
+        <Dropdown placement="bottomCenter" overlay={menu(record)}>
+          <a style={{ color: "black" }} onClick={(e) => e.preventDefault()}>
+            <MoreOutlined />
+          </a>
         </Dropdown>
       ),
     },
   ];
   return (
     <>
-      <Breadcrumb style={{ margin: '4px 0' }}>
+      <Breadcrumb style={{ margin: "4px 0" }}>
         <Breadcrumb.Item>หน้าแรก</Breadcrumb.Item>
       </Breadcrumb>
       <Content className="home-Content">
         <Row gutter={[16, 16]}>
           <Col xs={24} sm={12} md={12} lg={8} xl={8}>
             <div className="home-Box-Left">
-              <Row align="middle" style={{ height: '100%' }}>
+              <Row align="middle" style={{ height: "100%" }}>
                 <Col span={8} offset={4}>
                   <UnorderedListOutlined className="home-Icon" />
                 </Col>
@@ -293,7 +348,7 @@ const Home = () => {
           </Col>
           <Col xs={24} sm={12} md={12} lg={8} xl={8}>
             <div className="home-Box-Center">
-              <Row align="middle" style={{ height: '100%' }}>
+              <Row align="middle" style={{ height: "100%" }}>
                 <Col span={8} offset={4}>
                   <TeamOutlined className="home-Icon" />
                 </Col>
@@ -306,7 +361,7 @@ const Home = () => {
           </Col>
           <Col xs={24} sm={12} md={12} lg={8} xl={8}>
             <div className="home-Box-Right">
-              <Row align="middle" style={{ height: '100%' }}>
+              <Row align="middle" style={{ height: "100%" }}>
                 <Col span={8} offset={4}>
                   <SendOutlined className="home-Icon" />
                 </Col>
@@ -318,13 +373,17 @@ const Home = () => {
             </div>
           </Col>
         </Row>
-        <Row style={{ marginTop: '20px' }}>
+        <Row style={{ marginTop: "20px" }}>
           <Col xs={24} sm={24} md={12} lg={12} xl={16}>
             <div className="home-Text-List">รายการ</div>
           </Col>
           <Col xs={12} sm={10} md={6} lg={6} xl={4}>
             <Input.Group className="home-Input-Group">
-              <Select placeholder="เลือกประเภท" className="home-Select" onChange={onCategory}>
+              <Select
+                defaultValue=""
+                className="home-Select"
+                onChange={onCategory}
+              >
                 <Option value="">ทั้งหมด</Option>
                 {category}
               </Select>
@@ -334,9 +393,24 @@ const Home = () => {
             <Search placeholder="ค้นหา" onSearch={onSearch}></Search>
           </Col>
         </Row>
-        <Tables loading={loading} columns={columns} dataSource={dataSource} setPagination={setPagination} pagination={pagination} />
-        <Modals isModalVisible={isModalVisible} onOk={modalData.onOk} onCancel={offModal} modalData={modalData}>
-          {modalData.type === 'show' ? <div style={{ marginTop: '5px' }}>{modalData.content}</div> : <p className="truncate-text">{modalData.content}</p>}
+        <Tables
+          loading={loading}
+          columns={columns}
+          dataSource={dataSource}
+          setPagination={setPagination}
+          pagination={pagination}
+        />
+        <Modals
+          isModalVisible={isModalVisible}
+          onOk={modalData.onOk}
+          onCancel={offModal}
+          modalData={modalData}
+        >
+          {modalData.type === "show" ? (
+            <div style={{ marginTop: "5px" }}>{modalData.content}</div>
+          ) : (
+            <p className="truncate-text">{modalData.content}</p>
+          )}
         </Modals>
       </Content>
     </>
