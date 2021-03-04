@@ -85,7 +85,10 @@ const Headerbar = () => {
     <Header className="header">
       <Row>
         <Col xs={12} sm={12} md={12} lg={12} xl={12}>
-          <div className="header-text">touch korat news</div>
+          <div className="header-text">
+            T<p className="login-text-o">o</p>uch k
+            <p className="login-text-o">o</p>rat news
+          </div>
         </Col>
         <Col xs={12} sm={12} md={12} lg={12} xl={12}>
           <Row justify="end">
@@ -102,7 +105,6 @@ const Headerbar = () => {
                     <p>Content</p>
                   </div>
                 }
-                // title="Title"
                 trigger="click"
                 visible={visible}
                 onVisibleChange={handleVisibleChange}

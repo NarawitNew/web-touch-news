@@ -194,7 +194,7 @@ const View = (props) => {
 
   return (
     <>
-      <Breadcrumb style={{ margin: "4px 0" }}>
+      <Breadcrumb style={{ padding: "1px 0" }}>
         <Breadcrumb.Item>หน้าแรก</Breadcrumb.Item>
         <Breadcrumb.Item>ข่าว</Breadcrumb.Item>
       </Breadcrumb>

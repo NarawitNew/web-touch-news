@@ -14,6 +14,7 @@ import {
   DeleteOutlined,
   EditOutlined,
   FieldTimeOutlined,
+  HomeOutlined,
   PlusOutlined,
   SendOutlined,
   UnorderedListOutlined,
@@ -272,7 +273,7 @@ const Home = () => {
               }}
             />
           </Tooltip>
-          {record.status === "Draft" || record.status === "Edit" ? (
+          {record.status === "Draft" ? (
             <>
               <Tooltip placement="bottom" title="แก้ไข">
                 <Link to={`/home/edit/${record.key}`}>
@@ -317,7 +318,10 @@ const Home = () => {
 
   return (
     <>
-      <Breadcrumb style={{ margin: "4px 0" }}>
+      <Breadcrumb style={{ padding: "1px 0" }}>
+        <Breadcrumb.Item>
+          <HomeOutlined />
+        </Breadcrumb.Item>
         <Breadcrumb.Item>หน้าแรก</Breadcrumb.Item>
       </Breadcrumb>
       <Content className="admin-home-content">
@@ -373,7 +377,7 @@ const Home = () => {
                 style={{ width: "100%" }}
                 onChange={onCategory}
               >
-                <Option value="">ทั้งหมด</Option>
+                <Option value="">ประเภทข่าวทั้งหมด</Option>
                 {category}
               </Select>
             </Input.Group>

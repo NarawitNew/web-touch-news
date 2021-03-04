@@ -11,7 +11,11 @@ import {
   Upload,
   message,
 } from "antd";
-import { ExclamationCircleOutlined, UserOutlined } from "@ant-design/icons";
+import {
+  ExclamationCircleOutlined,
+  HomeOutlined,
+  UserOutlined,
+} from "@ant-design/icons";
 import React, { useContext, useEffect, useState } from "react";
 
 import { Context } from "../../context";
@@ -264,14 +268,22 @@ const Profile = (props) => {
 
   return (
     <>
-      <Breadcrumb style={{ margin: "4px 0" }}>
+      <Breadcrumb style={{ padding: "1px 0" }}>
         {params.state === "manage" ? (
           <>
+            <Breadcrumb.Item>
+              <HomeOutlined />
+            </Breadcrumb.Item>
             <Breadcrumb.Item>ผู้ดูแลระบบ</Breadcrumb.Item>
             <Breadcrumb.Item>โปรไฟล์</Breadcrumb.Item>
           </>
         ) : (
-          <Breadcrumb.Item>โปรไฟล์</Breadcrumb.Item>
+          <>
+            <Breadcrumb.Item>
+              <HomeOutlined />
+            </Breadcrumb.Item>
+            <Breadcrumb.Item>โปรไฟล์</Breadcrumb.Item>
+          </>
         )}
       </Breadcrumb>
       <Content className="profile-layout-background">

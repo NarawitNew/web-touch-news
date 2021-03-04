@@ -15,6 +15,7 @@ import {
   DeleteOutlined,
   EditOutlined,
   ExclamationCircleOutlined,
+  HomeOutlined,
   PlusOutlined,
   UserOutlined,
 } from "@ant-design/icons";
@@ -35,11 +36,11 @@ const Manage = () => {
   const [loading, setLoading] = useState(true);
   const [dataFilter, setDataFilter] = useState("");
   const [dataSearch, setDataSearch] = useState("");
-  const [current, setCurrent] = useState(1);
   const [pagination, setPagination] = useState({
-    pageCurrent: 1,
-    perPage: 15,
-    totalPage: 1,
+    current: 1,
+    sorter: "dsc",
+    pageSize: 1,
+    total: 0,
   });
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [modalData, setModalData] = useState({
@@ -54,25 +55,27 @@ const Manage = () => {
 
   useEffect(() => {
     getData();
-  }, [dataFilter, current, isModalVisible, dataSearch]);
+  }, [dataFilter, pagination.current, isModalVisible, dataSearch]);
 
   const getData = () => {
-    const params = {
-      page: current,
-      filters: `firstname:like:${dataSearch}`,
-    };
+    var params = new URLSearchParams();
+    params.append("page", pagination.current);
+    params.append("filters", `firstname:like:${dataSearch}`);
+    params.append("filters", `lastname:like:${dataSearch}`);
     httpClient
       .get(config.REACT_APP_BASEURL + "/admin", { params })
       .then(function (response) {
         const code = response.data.code;
         const data = response.data.data.data_list;
         setPagination({
-          currentPage: response.data.data.pagination.current_page,
-          perPage: response.data.data.pagination.per_page,
-          totalPage: response.data.data.pagination.total,
+          current: response.data.data.pagination.current_page,
+          pageSize: response.data.data.pagination.per_page,
+          total: response.data.data.pagination.total,
+          sorter: response.data.data.pagination.sorts[0].value,
         });
         if (code === 200) {
-          const dataMap = data.map((item) => {
+          const dataMap = data.map((item, i) => {
+            item.order = i + 1 + (pagination.current - 1) * 10;
             item.key = item.id;
             item.name = item.firstname + " " + item.lastname;
             const status = item.status;
@@ -212,10 +215,6 @@ const Manage = () => {
     setLoading(true);
   };
 
-  const currentPage = (value) => {
-    setCurrent(value);
-  };
-
   const onModal = () => {
     setIsModalVisible(true);
   };
@@ -225,6 +224,12 @@ const Manage = () => {
   };
 
   const columns = [
+    {
+      title: "ลำดับ",
+      dataIndex: "order",
+      key: "order",
+      width: "20px",
+    },
     {
       title: "อีเมล",
       dataIndex: "email",
@@ -275,7 +280,10 @@ const Manage = () => {
 
   return (
     <>
-      <Breadcrumb style={{ margin: "4px 0" }}>
+      <Breadcrumb style={{ padding: "1px 0" }}>
+        <Breadcrumb.Item>
+          <HomeOutlined />
+        </Breadcrumb.Item>
         <Breadcrumb.Item>ผู้ดูแลระบบ</Breadcrumb.Item>
       </Breadcrumb>
       <Content className="manage-content">
@@ -343,10 +351,8 @@ const Manage = () => {
           loading={loading}
           columns={columns}
           dataSource={dataSource}
-          setCurrentPage={currentPage}
-          pageCurrent={pagination.pageCurrent}
-          perPage={pagination.perPage}
-          totalPage={pagination.totalPage}
+          setPagination={setPagination}
+          pagination={pagination}
         />
       </Content>
       <Modals
@@ -361,7 +367,7 @@ const Manage = () => {
               อีเมล : {modalData.content.email}
             </div>
             <div style={{ marginLeft: "80px" }}>
-              รหัสผ่าน {modalData.content.password}
+              รหัสผ่าน : {modalData.content.password}
             </div>
             <div
               style={{ marginLeft: "40px", marginTop: "20px", color: "red" }}
