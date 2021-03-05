@@ -26,8 +26,16 @@ const Timelines = (props) => {
     Draft: "grey",
   };
 
+  const iconTimeLine = {
+    Submit: <SendOutlined style={{ color: "blue" }} />,
+    Approve: <CheckOutlined style={{ color: "green" }} />,
+    Public: <GlobalOutlined style={{ color: "red" }} />,
+    Edit: <FileExclamationOutlined style={{ color: "orange" }} />,
+    Draft: <FileTextOutlined style={{ color: "gray" }} />,
+  };
+
   const dateShow = (time) => {
-    const date = moment(time * 1000).format("DD/MM/YYYY HH:mm:ss ");
+    const date = moment(time * 1000).format("DD/MM/YYYY HH:mm");
     return date;
   };
 
@@ -39,78 +47,40 @@ const Timelines = (props) => {
         const data = response.data.data.timeline;
         if (code === 200) {
           const dataMap = data.map((item, key) => {
-            if (item.Status === "Draft") {
+            if (item.Role === "superadmin") {
               item = (
                 <Timeline.Item
+                  position="right"
                   key={key}
-                  dot={<FileTextOutlined style={{ color: "gray" }} />}
+                  dot={iconTimeLine[item.Status]}
                   label={
                     <div style={{ color: color[item.Status] }}>
                       {item.Status}
                     </div>
                   }
                 >
-                  {dateShow(item.Date)}
-                </Timeline.Item>
-              );
-            } else if (item.Status === "Submit") {
-              item = (
-                <Timeline.Item
-                  key={key}
-                  dot={<SendOutlined style={{ color: "blue" }} />}
-                  label={
-                    <div style={{ color: color[item.Status] }}>
-                      {item.Status}
-                    </div>
-                  }
-                >
-                  {dateShow(item.Date)}
-                </Timeline.Item>
-              );
-            } else if (item.Status === "Edit") {
-              item = (
-                <Timeline.Item
-                  key={key}
-                  dot={<FileExclamationOutlined style={{ color: "orange" }} />}
-                  label={
-                    <div style={{ color: color[item.Status] }}>
-                      {item.Status}
-                    </div>
-                  }
-                >
-                  {dateShow(item.Date)}
-                </Timeline.Item>
-              );
-            } else if (item.Status === "Approve") {
-              item = (
-                <Timeline.Item
-                  key={key}
-                  dot={<CheckOutlined style={{ color: "green" }} />}
-                  label={
-                    <div style={{ color: color[item.Status] }}>
-                      {item.Status}
-                    </div>
-                  }
-                >
-                  {dateShow(item.Date)}
-                </Timeline.Item>
-              );
-            } else if (item.Status === "Public") {
-              item = (
-                <Timeline.Item
-                  key={key}
-                  dot={<GlobalOutlined style={{ color: "red" }} />}
-                  label={
-                    <div style={{ color: color[item.Status] }}>
-                      {item.Status}
-                    </div>
-                  }
-                >
+                  By.{item.ByID}
+                  <br />
                   {dateShow(item.Date)}
                 </Timeline.Item>
               );
             } else {
-              <p>Status Empty</p>;
+              item = (
+                <Timeline.Item
+                  position="left"
+                  key={key}
+                  dot={iconTimeLine[item.Status]}
+                  label={
+                    <div style={{ color: color[item.Status] }}>
+                      {item.Status}
+                    </div>
+                  }
+                >
+                  By.{item.ByID}
+                  <br />
+                  {dateShow(item.Date)}
+                </Timeline.Item>
+              );
             }
             return item;
           });
@@ -122,7 +92,7 @@ const Timelines = (props) => {
       });
   };
 
-  return <Timeline mode="left">{timeLine}</Timeline>;
+  return <Timeline mode="alternate">{timeLine}</Timeline>;
 };
 
 export default Timelines;

@@ -227,34 +227,33 @@ const View = (props) => {
             />
           </Col>
         </Row>
-        <Row justify="center">
+        <Row justify="center" style={{ padding: "20px" }}>
           <Col span={16}>
             <FroalaView model={dataNews.content} />
           </Col>
+        </Row>
+        <Row gutter={[0, 10]}>
+          <Col flex="60px">เครดิต</Col>
+          <Col>{dataNews.credit}</Col>
         </Row>
         <Row gutter={[0, 10]}>
           <Col flex="60px">แฮชแท็ก</Col>
           <Col>{dataNews.hashtag}</Col>
         </Row>
         <Row gutter={[0, 10]}>
-          <Col flex="60px">เครดิต</Col>
-          <Col>{dataNews.credit}</Col>
-        </Row>
-
-        <Row gutter={[0, 10]}>
-          <Col flex="60px">ผู้ดูแล : </Col>
+          <Col flex="60px">ผู้ดูแล </Col>
           <Col>{dataNews.by}</Col>
         </Row>
         <hr />
         <Row>
-          <Col span={12}>
+          <Col span={10}>
             <h3>ไทม์ไลน์</h3>
-            <div style={{ width: "400px", marginTop: "20px" }}>
+            <div style={{ marginTop: "20px" }}>
               <Timeline idNews={params.id} />
             </div>
           </Col>
           {role === "superadmin" ? (
-            <Col span={12}>
+            <Col span={12} offset={2}>
               <h3>เปลี่ยนสถานะข่าว</h3>
               <Row style={{ marginTop: "20px" }}>
                 <Col span={4}>สถานะ :</Col>

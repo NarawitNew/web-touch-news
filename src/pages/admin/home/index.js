@@ -39,7 +39,7 @@ const Home = () => {
   const [loading, setLoading] = useState(true);
   const [pagination, setPagination] = useState({
     current: 1,
-    sorter: "dsc",
+    sorter: "desc",
     pageSize: 1,
     total: 0,
   });
@@ -68,6 +68,7 @@ const Home = () => {
   };
 
   const getData = () => {
+    setLoading(true);
     var params = new URLSearchParams();
     params.append("page", pagination.current);
     params.append("sorts", `created_at:${pagination.sorter}`);
@@ -347,7 +348,7 @@ const Home = () => {
                 </Col>
                 <Col span={8}>
                   <p className="admin-home-number"> {total.sdnt} </p>
-                  <p className="admin-home-text">ข่าวส่งแล้ว</p>
+                  <p className="admin-home-text">ข่าวอนุมัติ</p>
                 </Col>
               </Row>
             </div>
@@ -360,7 +361,7 @@ const Home = () => {
                 </Col>
                 <Col span={8}>
                   <p className="admin-home-number"> {total.draft} </p>
-                  <p className="admin-home-text">ข่าวร่าง</p>
+                  <p className="admin-home-text">ข่าวรอตรวจสอบ</p>
                 </Col>
               </Row>
             </div>
@@ -411,11 +412,11 @@ const Home = () => {
           modalData={modalData}
         >
           {modalData.type === "show" ? (
-            <div style={{ marginTop: "5px", marginLeft: "20px" }}>
-              {modalData.content}
-            </div>
+            <div style={{ marginTop: "5px" }}>{modalData.content}</div>
           ) : (
-            <p className="truncate-text">{modalData.content}</p>
+            <p className="truncate-text" style={{ marginTop: "5px" }}>
+              {modalData.content}
+            </p>
           )}
         </Modals>
       </Content>

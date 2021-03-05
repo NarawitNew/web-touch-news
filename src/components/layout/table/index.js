@@ -3,11 +3,12 @@ import React, { useState } from "react";
 import { Table } from "antd";
 
 const Tables = (props) => {
-  const [order, setOrder] = useState();
+  const [order, setOrder] = useState("desc");
   const onChange = (pagination, filters, sorter, extra) => {
     if (sorter.order !== undefined) {
-      console.log("sorter", sorter.order.substring(0, sorter.order.length - 3));
       setOrder(sorter.order.substring(0, sorter.order.length - 3));
+    } else {
+      setOrder("desc");
     }
     props.setPagination({
       ...props.pagination,

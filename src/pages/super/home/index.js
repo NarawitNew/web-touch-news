@@ -41,7 +41,7 @@ const Home = (props) => {
   const [loading, setLoading] = useState(true);
   const [pagination, setPagination] = useState({
     current: 1,
-    sorter: "dsc",
+    sorter: "desc",
     pageSize: 0,
     total: 0,
   });
