@@ -13,6 +13,7 @@ import {
   DeleteOutlined,
   EyeOutlined,
   FieldTimeOutlined,
+  HomeOutlined,
   MoreOutlined,
   SendOutlined,
   TeamOutlined,
@@ -40,7 +41,7 @@ const Home = (props) => {
   const [loading, setLoading] = useState(true);
   const [pagination, setPagination] = useState({
     current: 1,
-    sorter: "dsc",
+    sorter: "desc",
     pageSize: 0,
     total: 0,
   });
@@ -328,7 +329,10 @@ const Home = (props) => {
   ];
   return (
     <>
-      <Breadcrumb style={{ margin: "4px 0" }}>
+      <Breadcrumb style={{ padding: "1px 0" }}>
+        <Breadcrumb.Item>
+          <HomeOutlined />
+        </Breadcrumb.Item>
         <Breadcrumb.Item>หน้าแรก</Breadcrumb.Item>
       </Breadcrumb>
       <Content className="home-Content">
@@ -384,7 +388,7 @@ const Home = (props) => {
                 className="home-Select"
                 onChange={onCategory}
               >
-                <Option value="">ทั้งหมด</Option>
+                <Option value="">ประเภทข่าวทั้งหมด</Option>
                 {category}
               </Select>
             </Input.Group>

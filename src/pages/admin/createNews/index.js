@@ -14,13 +14,13 @@ import {
   Upload,
   message,
 } from "antd";
+import { HomeOutlined, PlusCircleOutlined } from "@ant-design/icons";
 import React, { useContext, useEffect, useState } from "react";
 
 import { Context } from "../../../context";
 import FormData from "form-data";
 import { Froala } from "components/layout/froala/index";
 import { Link } from "react-router-dom";
-import { PlusCircleOutlined } from "@ant-design/icons";
 import Tag from "components/layout/tag/index";
 import config from "config";
 import { httpClient } from "HttpClient";
@@ -307,11 +307,17 @@ const CreateNews = (props) => {
     <>
       {params.type === "create" ? (
         <Breadcrumb style={{ margin: "4px 0" }}>
+          <Breadcrumb.Item>
+            <HomeOutlined />
+          </Breadcrumb.Item>
           <Breadcrumb.Item>หน้าแรก</Breadcrumb.Item>
           <Breadcrumb.Item>เพิ่ม</Breadcrumb.Item>
         </Breadcrumb>
       ) : (
         <Breadcrumb style={{ margin: "4px 0" }}>
+          <Breadcrumb.Item>
+            <HomeOutlined />
+          </Breadcrumb.Item>
           <Breadcrumb.Item>หน้าแรก</Breadcrumb.Item>
           <Breadcrumb.Item>แก้ไข</Breadcrumb.Item>
         </Breadcrumb>
