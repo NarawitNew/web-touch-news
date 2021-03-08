@@ -1,8 +1,9 @@
+import config from "config";
 import { httpClient } from "HttpClient";
 
-export const getDataNews = (schemas, params) => {
+export const getDataRead = (schemas, params) => {
   return httpClient
-    .get("/news/info/" + params)
+    .get(`${schemas}/${params}`)
     .then(function (response) {
       return response.data;
     })
@@ -11,7 +12,7 @@ export const getDataNews = (schemas, params) => {
     });
 };
 
-export const getData = (schemas, params) => {
+export const getDataList = (schemas, params) => {
   return httpClient
     .get(schemas, params)
     .then(function (response) {
@@ -26,6 +27,40 @@ export const deleteData = (schemas, id) => {
     .delete(`${schemas}/${id}`)
     .then(function (response) {
       return response.data;
+    })
+    .catch(function (error) {
+      throw error;
+    });
+};
+
+export const postData = (schemas, params) => {
+  return httpClient
+    .post(schemas, params)
+    .then(function (response) {
+      // console.log("response", response.data);
+      return response.data;
+    })
+    .catch(function (error) {
+      throw error;
+    });
+};
+
+export const putData = (schemas, id, params) => {
+  return httpClient
+    .put(`${schemas}/${id}`, params)
+    .then(function (response) {
+      return response.data;
+    })
+    .catch(function (error) {
+      throw error;
+    });
+};
+
+export const postIamge = (schemas, params) => {
+  return httpClient
+    .post(config.REACT_APP_IMGAE + schemas, params)
+    .then(function (response) {
+      return response;
     })
     .catch(function (error) {
       throw error;

@@ -20,8 +20,8 @@ import {
   UnorderedListOutlined,
 } from "@ant-design/icons";
 import React, { useEffect, useState } from "react";
-import { admin, categorys, countadmin, news } from "core/schemas/index";
-import { deleteData, getData } from "core/actions/collection";
+import { admin, categoryList, countadmin, news } from "core/schemas/index";
+import { deleteData, getDataList } from "core/actions/collection";
 
 import Box from "components/layout/box";
 import { Link } from "react-router-dom";
@@ -82,7 +82,7 @@ const Home = () => {
     params.append("sorts", `created_at:${paginations.sorter}`);
     params.append("filters", `topic:like:${dataSearch.filter}`);
     params.append("filters", `category:like:${dataSearch.category}`);
-    getData(admin, params)
+    getDataList(admin, params)
       .then(function (response) {
         const code = response?.code || "";
         const { data_list, pagination } = response?.data || "";
@@ -110,7 +110,7 @@ const Home = () => {
   };
 
   const getTotalNews = () => {
-    getData(countadmin)
+    getDataList(countadmin)
       .then(function (response) {
         const { code, data } = response || "";
         if (code === 200) {
@@ -130,7 +130,7 @@ const Home = () => {
   };
 
   const getCategory = () => {
-    getData(categorys)
+    getDataList(categoryList)
       .then((response) => {
         const data = response.data?.data_list || "";
         const code = response?.code || "";
