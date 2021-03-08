@@ -10,12 +10,12 @@ function App(props) {
 
   return (
     <Layout breakpoint="xl" style={{ minHeight: "100vh" }}>
-      <Header></Header>
+      <Header />
       <Layout>
         <Router>
-          <Sider {...props}></Sider>
+          <Sider {...props} />
           <Layout style={{ padding: "0 24px 24px" }}>
-            <Content type={type}></Content>
+            <Content type={type} />
           </Layout>
         </Router>
       </Layout>

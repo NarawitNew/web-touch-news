@@ -109,7 +109,7 @@ const View = (props) => {
           setDataNews({ ...dataNews, status: status });
           props.history.push(`/home`);
         } else {
-          message.success(response.data.message);
+          message.error(response.data.message);
         }
       })
       .catch(function (error) {
@@ -273,7 +273,7 @@ const View = (props) => {
               </Row>
               <Row>
                 <Col span={20} offset={4}>
-                  {statusNews === "Draft" ? (
+                  {statusNews === "Draft" && (
                     <div className="view-Input-TextArea">
                       <div style={{ color: "red" }}>
                         *กรุณากรอกสิ่งที่ต้องแก้ไข
@@ -284,7 +284,7 @@ const View = (props) => {
                         onChange={changeCause}
                       />
                     </div>
-                  ) : null}
+                  )}
                 </Col>
               </Row>
             </Col>

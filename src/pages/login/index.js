@@ -1,13 +1,11 @@
 import { Button, Checkbox, Form, Input, message } from "antd";
-import React, { useContext, useState } from "react";
+import React, { useState } from "react";
 import { UnlockOutlined, UserOutlined } from "@ant-design/icons";
 
-import { Context } from "../../context";
 import axios from "axios";
 import config from "config";
 
 const Login = (props) => {
-  const context = useContext(Context);
   const [username] = useState(
     localStorage.getItem("checkbox") ? localStorage.getItem("email") : ""
   );
@@ -35,23 +33,13 @@ const Login = (props) => {
     axios
       .post(config.REACT_APP_BASEURL + "/login", setData)
       .then(function (response) {
-        console.log("response", response);
+        const data = response.data?.data || "";
         if (response.data.code === 200) {
-          console.log("login_context.user", context.user);
-          console.log(
-            "response.data.data.first_name",
-            response.data.data.first_name
-          );
-          localStorage.setItem(
-            "refresh_token",
-            response.data.data.refresh_token
-          );
-          localStorage.setItem("access_token", response.data.data.access_token);
-          localStorage.setItem("role", response.data.data.role);
-          localStorage.setItem("id", response.data.data.id);
-
+          localStorage.setItem("refresh_token", data.refresh_token);
+          localStorage.setItem("access_token", data.access_token);
+          localStorage.setItem("role", data.role);
+          localStorage.setItem("id", data.id);
           message.success(response.data.message);
-          console.log("response.data.message", response.data.message);
           props.history.push("/home");
           window.location.reload();
         } else {

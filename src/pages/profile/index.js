@@ -124,7 +124,7 @@ const Profile = (props) => {
       title: "ยืนยันการสร้างรหัสผ่านใหม่",
       okColor: "orange",
       okText: "ตกลง",
-      content: "คุณต้องการยืนยันการสร้างรหัสใหม่นี้หรือไม่ !!! ",
+      content: "คุณต้องการยืนยันการสร้างรหัสใหม่นี้หรือไม่ ! ",
       onOk() {
         httpClient
           .put(config.REACT_APP_BASEURL + "/admin/reset_password/" + setId)

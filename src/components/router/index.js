@@ -1,6 +1,6 @@
 import { Route, Switch } from "react-router-dom";
 
-import CreateNews from "pages/admin/createNews/index";
+import CreateNews from "pages/admin/news/index";
 import HomeAdmin from "pages/admin/home/index";
 import HomeSuper from "pages/super/home/index";
 import Manage from "pages/super/manage/index";
@@ -27,7 +27,7 @@ export default function Routers(props) {
           <Route component={CreateNews} path="/home/:type/:id"></Route>
           <Route component={CreateNews} path="/home/:type"></Route>
           <Route component={HomeAdmin} path="/home"></Route>
-          <Route component={Manage} path="/manage"></Route>
+          {/* <Route component={Manage} path="/manage"></Route> */}
           <Route component={Profile} path="/profile"></Route>
         </Switch>
       )}

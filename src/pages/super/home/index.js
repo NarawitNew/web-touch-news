@@ -21,6 +21,7 @@ import {
 } from "@ant-design/icons";
 import React, { useEffect, useState } from "react";
 
+import Box from "components/layout/box";
 import { Link } from "react-router-dom";
 import Modals from "components/layout/modal";
 import Tables from "components/layout/table";
@@ -34,7 +35,7 @@ const { Search } = Input;
 const { Option } = Select;
 
 const Home = (props) => {
-  const [dataSource, setDataSource] = useState();
+  const [dataSource, setDataSource] = useState([]);
   const [category, setCategory] = useState(null);
   const [totalNews, setTotalNews] = useState({ all: 0, toDate: 0 });
   const [totalAdmin, setTotalAdmin] = useState(0);
@@ -79,17 +80,18 @@ const Home = (props) => {
     params.append("filters", `topic:like:${dataSearch.filter}`);
     params.append("filters", `category:like:${dataSearch.category}`);
     httpClient
-      .get(config.REACT_APP_BASEURL + "/news/super", { params })
+      .get("/news/super", { params })
       .then(function (response) {
-        const code = response.data.code;
-        const data = response.data.data.data_list;
+        const code = response.data?.code || "";
+        const data = response.data?.data?.data_list || "";
+        const paginations = response.data?.data?.pagination || "";
         setLoading(false);
         if (code === 200) {
           setPagination({
-            current: response.data.data.pagination.current_page,
-            pageSize: response.data.data.pagination.per_page,
-            total: response.data.data.pagination.total,
-            sorter: response.data.data.pagination.sorts[0].value,
+            current: paginations.current_page,
+            pageSize: paginations.per_page,
+            total: paginations.total,
+            sorter: paginations.sorts[0].value,
           });
           const dataMap = data.map((item) => {
             item.key = item.id;
@@ -108,13 +110,14 @@ const Home = (props) => {
 
   const getTotalNews = () => {
     httpClient
-      .get(config.REACT_APP_BASEURL + "/news/countsuper")
+      .get("/news/countsuper")
       .then(function (response) {
-        const code = response.data.code;
+        const code = response.data?.code || "";
+        const data = response.data?.data || "";
         if (code === 200) {
           setTotalNews({
-            all: response.data.data[0],
-            toDate: response.data.data[1],
+            all: data[0],
+            toDate: data[1],
           });
         } else {
           setTotalNews({
@@ -130,12 +133,14 @@ const Home = (props) => {
 
   const getTotalAdmin = () => {
     httpClient
-      .get(config.REACT_APP_BASEURL + "/admin/count")
+      .get("/admin/count")
       .then(function (response) {
-        const code = response.data.code;
+        const code = response.data?.code || "";
+        const data = response.data?.data || "";
         if (code === 200) {
-          setTotalAdmin(response.data.data[0]);
+          setTotalAdmin(data[0]);
         } else {
+          setTotalAdmin(0);
         }
       })
       .catch(function (error) {
@@ -145,10 +150,10 @@ const Home = (props) => {
 
   const getCategory = () => {
     httpClient
-      .get(config.REACT_APP_BASEURL + "/category")
+      .get("/category")
       .then(function (response) {
-        const data = response.data.data.data_list;
-        const code = response.data.code;
+        const data = response.data?.data?.data_list || "";
+        const code = response.data?.code || "";
         if (code === 200) {
           const dataMap = data.map((item) => {
             item = (
@@ -337,45 +342,24 @@ const Home = (props) => {
       </Breadcrumb>
       <Content className="home-Content">
         <Row gutter={[16, 16]}>
-          <Col xs={24} sm={12} md={12} lg={8} xl={8}>
-            <div className="home-Box-Left">
-              <Row align="middle" style={{ height: "100%" }}>
-                <Col span={8} offset={4}>
-                  <UnorderedListOutlined className="home-Icon" />
-                </Col>
-                <Col span={8}>
-                  <p className="home-Number">{totalNews.all}</p>
-                  <p className="home-Text">ข่าวทั้งหมด</p>
-                </Col>
-              </Row>
-            </div>
-          </Col>
-          <Col xs={24} sm={12} md={12} lg={8} xl={8}>
-            <div className="home-Box-Center">
-              <Row align="middle" style={{ height: "100%" }}>
-                <Col span={8} offset={4}>
-                  <TeamOutlined className="home-Icon" />
-                </Col>
-                <Col span={8}>
-                  <p className="home-Number">{totalAdmin}</p>
-                  <p className="home-Text">ผู้ดูแลระบบ</p>
-                </Col>
-              </Row>
-            </div>
-          </Col>
-          <Col xs={24} sm={12} md={12} lg={8} xl={8}>
-            <div className="home-Box-Right">
-              <Row align="middle" style={{ height: "100%" }}>
-                <Col span={8} offset={4}>
-                  <SendOutlined className="home-Icon" />
-                </Col>
-                <Col span={8}>
-                  <p className="home-Number">{totalNews.toDate}</p>
-                  <p className="home-Text">ข่าววันนี้</p>
-                </Col>
-              </Row>
-            </div>
-          </Col>
+          <Box
+            color="error"
+            icon={<UnorderedListOutlined />}
+            text="ข่าวทั้งหมด"
+            number={totalNews.all}
+          />
+          <Box
+            color="link"
+            icon={<TeamOutlined />}
+            text="ผู้ดูแลระบบ"
+            number={totalAdmin}
+          />
+          <Box
+            color="success"
+            icon={<SendOutlined />}
+            text="ข่าววันนี้"
+            number={totalNews.toDate}
+          />
         </Row>
         <Row style={{ marginTop: "20px" }}>
           <Col xs={24} sm={24} md={12} lg={12} xl={16}>

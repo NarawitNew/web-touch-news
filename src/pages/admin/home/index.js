@@ -21,11 +21,12 @@ import {
 } from "@ant-design/icons";
 import React, { useEffect, useState } from "react";
 
+import Box from "components/layout/box";
 import { Link } from "react-router-dom";
 import Modals from "components/layout/modal";
 import Tables from "components/layout/table";
 import Timeline from "components/layout/timeline";
-import config from "config";
+import { getCategoryList } from "core/actions/collection";
 import { httpClient } from "HttpClient";
 import moment from "moment";
 
@@ -34,7 +35,7 @@ const { Search } = Input;
 const { Option } = Select;
 
 const Home = () => {
-  const [dataSource, setDataSource] = useState();
+  const [dataSource, setDataSource] = useState([]);
   const [total, setTotal] = useState({ all: 0, sdnt: 0, draft: 0 });
   const [loading, setLoading] = useState(true);
   const [pagination, setPagination] = useState({
@@ -63,8 +64,7 @@ const Home = () => {
   }, [pagination.current, pagination.sorter, dataSearch, filters]);
 
   const dateShow = (time) => {
-    const date = moment(time * 1000).format("DD/MM/YYYY HH:mm:ss ");
-    return date;
+    return moment(time * 1000).format("DD/MM/YYYY HH:mm:ss ");
   };
 
   const getData = () => {
@@ -75,17 +75,19 @@ const Home = () => {
     params.append("filters", `topic:like:${dataSearch.filter}`);
     params.append("filters", `category:like:${dataSearch.category}`);
     httpClient
-      .get(config.REACT_APP_BASEURL + "/news/admin", { params })
+      .get("/news/admin", { params })
       .then(function (response) {
-        const code = response.data.code;
-        const data = response.data.data.data_list;
+        const code = response.data?.code || "";
+        const data = response.data?.data?.data_list || "";
+        const paginations = response.data?.data?.pagination || "";
+        // const { data_list, pagination } = response.data?.data || "";
         setLoading(false);
         if (code === 200) {
           setPagination({
-            current: response.data.data.pagination.current_page,
-            pageSize: response.data.data.pagination.per_page,
-            total: response.data.data.pagination.total,
-            sorter: response.data.data.pagination.sorts[0].value,
+            current: paginations.current_page,
+            pageSize: paginations.per_page,
+            total: paginations.total,
+            sorter: paginations.sorts[0].value,
           });
           const dataMap = data.map((item) => {
             item.key = item.id;
@@ -94,7 +96,7 @@ const Home = () => {
           });
           setDataSource(dataMap);
         } else {
-          setDataSource();
+          setDataSource([]);
         }
       })
       .catch(function (error) {
@@ -104,15 +106,15 @@ const Home = () => {
 
   const getTotalNews = () => {
     httpClient
-      .get(config.REACT_APP_BASEURL + "/news/countadmin")
+      .get("/news/countadmin")
       .then(function (response) {
-        const code = response.data.code;
+        const { code, data } = response?.data || "";
         if (code === 200) {
           setTotal({
             ...total,
             all: pagination.total,
-            sdnt: response.data.data[0],
-            draft: response.data.data[1],
+            sdnt: data[0],
+            draft: data[1],
           });
         }
       })
@@ -122,11 +124,10 @@ const Home = () => {
   };
 
   const getCategory = () => {
-    httpClient
-      .get(config.REACT_APP_BASEURL + "/category")
-      .then(function (response) {
-        const data = response.data.data.data_list;
-        const code = response.data.code;
+    getCategoryList()
+      .then((response) => {
+        const data = response.data?.data_list || "";
+        const code = response.code || "";
         if (code === 200) {
           const dataMap = data.map((item) => {
             item = (
@@ -139,8 +140,8 @@ const Home = () => {
           setCategory(dataMap);
         }
       })
-      .catch(function (error) {
-        console.log(error);
+      .catch((error) => {
+        console.log("error", error);
       });
   };
 
@@ -162,11 +163,11 @@ const Home = () => {
       okColor: "#216258",
       okText: "ตกลง",
       onOk() {
-        offModal();
+        setIsModalVisible(false);
       },
       content: <Timeline idNews={record.key} />,
     });
-    onModal();
+    setIsModalVisible(true);
   };
 
   const onDelete = (record) => {
@@ -177,16 +178,16 @@ const Home = () => {
       okColor: "red",
       okText: "ลบ",
       onOk() {
-        offModal();
+        setIsModalVisible(false);
         httpClient
-          .delete(config.REACT_APP_BASEURL + "/news/" + record.key)
+          .delete("/news/" + record.key)
           .then(function (response) {
             const code = response.data.code;
             if (code === 200) {
               message.success(response.data.message);
               setFilters(record.key);
             } else {
-              message.success(response.data.message);
+              message.error(response.data.message);
             }
           })
           .catch(function (error) {
@@ -196,15 +197,7 @@ const Home = () => {
       },
       content: record.topic,
     });
-    onModal();
-  };
-
-  const onModal = () => {
     setIsModalVisible(true);
-  };
-
-  const offModal = () => {
-    setIsModalVisible(false);
   };
 
   const columns = [
@@ -242,7 +235,7 @@ const Home = () => {
           style={{
             color:
               status === "Submit"
-                ? "blue"
+                ? "var(--link-color)"
                 : status === "Draft"
                 ? "grey"
                 : status === "Approve"
@@ -274,44 +267,37 @@ const Home = () => {
               }}
             />
           </Tooltip>
-          {record.status === "Draft" ? (
-            <>
-              <Tooltip placement="bottom" title="แก้ไข">
-                <Link to={`/home/edit/${record.key}`}>
-                  <Button
-                    icon={<EditOutlined className="admin-icon-edit" />}
-                    size={"middle"}
+          <Tooltip placement="bottom" title="แก้ไข">
+            <Link to={`/home/edit/${record.key}`}>
+              <Button
+                icon={
+                  <EditOutlined
+                    className={
+                      record.status === "Draft" ? "admin-icon-edit" : ""
+                    }
                   />
-                </Link>
-              </Tooltip>
-              <Tooltip placement="bottom" title="ลบ">
-                <Button
-                  icon={<DeleteOutlined className="admin-icon-delete" />}
-                  size={"middle"}
-                  onClick={() => {
-                    onDelete(record);
-                  }}
+                }
+                size={"middle"}
+                disabled={record.status !== "Draft" ? true : false}
+              />
+            </Link>
+          </Tooltip>
+          <Tooltip placement="bottom" title="ลบ">
+            <Button
+              icon={
+                <DeleteOutlined
+                  className={
+                    record.status === "Draft" ? "admin-icon-delete" : ""
+                  }
                 />
-              </Tooltip>
-            </>
-          ) : (
-            <>
-              <Tooltip placement="bottom" title="แก้ไข">
-                <Button
-                  icon={<EditOutlined className="admin-icon-disabled" />}
-                  size={"middle"}
-                  disabled
-                />
-              </Tooltip>
-              <Tooltip placement="bottom" title="ลบ">
-                <Button
-                  icon={<DeleteOutlined className="admin-icon-disabled" />}
-                  size={"middle"}
-                  disabled
-                />
-              </Tooltip>
-            </>
-          )}
+              }
+              size={"middle"}
+              onClick={() => {
+                onDelete(record);
+              }}
+              disabled={record.status !== "Draft" ? true : false}
+            />
+          </Tooltip>
         </Space>
       ),
     },
@@ -327,45 +313,24 @@ const Home = () => {
       </Breadcrumb>
       <Content className="admin-home-content">
         <Row gutter={[16, 16]}>
-          <Col xs={24} sm={12} md={12} lg={8} xl={8}>
-            <div className="admin-home-box-left">
-              <Row align="middle" style={{ height: "100%" }}>
-                <Col span={8} offset={4}>
-                  <UnorderedListOutlined className="admin-home-icon" />
-                </Col>
-                <Col span={8}>
-                  <p className="admin-home-number"> {pagination.total} </p>
-                  <p className="admin-home-text">ข่าวทั้งหมด</p>
-                </Col>
-              </Row>
-            </div>
-          </Col>
-          <Col xs={24} sm={12} md={12} lg={8} xl={8}>
-            <div className="admin-home-box-center">
-              <Row align="middle" style={{ height: "100%" }}>
-                <Col span={8} offset={4}>
-                  <SendOutlined className="admin-home-icon" />
-                </Col>
-                <Col span={8}>
-                  <p className="admin-home-number"> {total.sdnt} </p>
-                  <p className="admin-home-text">ข่าวอนุมัติ</p>
-                </Col>
-              </Row>
-            </div>
-          </Col>
-          <Col xs={24} sm={12} md={12} lg={8} xl={8}>
-            <div className="admin-home-box-right">
-              <Row align="middle" style={{ height: "100%" }}>
-                <Col span={8} offset={4}>
-                  <EditOutlined className="admin-home-icon" />
-                </Col>
-                <Col span={8}>
-                  <p className="admin-home-number"> {total.draft} </p>
-                  <p className="admin-home-text">ข่าวรอตรวจสอบ</p>
-                </Col>
-              </Row>
-            </div>
-          </Col>
+          <Box
+            color="error"
+            icon={<UnorderedListOutlined />}
+            text="ข่าวทั้งหมด"
+            number={pagination.total}
+          />
+          <Box
+            color="success"
+            icon={<SendOutlined />}
+            text="ข่าวอนุมัติ"
+            number={total.sdnt}
+          />
+          <Box
+            color="warning"
+            icon={<EditOutlined />}
+            text="ข่าวรอตรวจสอบ"
+            number={total.draft}
+          />
         </Row>
         <Row gutter={8} style={{ marginTop: "20px" }}>
           <Col flex="auto" xs={24} sm={12} md={12} lg={16} xl={16}>
@@ -408,7 +373,7 @@ const Home = () => {
         <Modals
           isModalVisible={isModalVisible}
           onOk={modalData.onOk}
-          onCancel={offModal}
+          onCancel={() => setIsModalVisible(false)}
           modalData={modalData}
         >
           {modalData.type === "show" ? (

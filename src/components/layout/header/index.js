@@ -40,8 +40,8 @@ const Headerbar = () => {
     httpClient
       .get(config.REACT_APP_BASEURL + "/user/" + setData)
       .then(function (response) {
-        const code = response.data.code;
-        const data = response.data.data;
+        const code = response?.data?.code;
+        const data = response?.data?.data || "";
         if (code === 200) {
           setDataUser({
             image: data.image,
@@ -84,19 +84,19 @@ const Headerbar = () => {
   return (
     <Header className="header">
       <Row>
-        <Col xs={12} sm={12} md={12} lg={12} xl={12}>
+        <Col span={12}>
           <div className="header-text">
             T<p className="login-text-o">o</p>uch k
             <p className="login-text-o">o</p>rat news
           </div>
         </Col>
-        <Col xs={12} sm={12} md={12} lg={12} xl={12}>
+        <Col span={12}>
           <Row justify="end">
             <Col>
               <Avatar size={40} src={dataUser.image} />
             </Col>
             <Col className="header-name">{dataUser.firstname}</Col>
-            <Col className="header-col-icon">
+            {/* <Col className="header-col-icon">
               <Popover
                 placement="bottomRight"
                 content={
@@ -109,11 +109,11 @@ const Headerbar = () => {
                 visible={visible}
                 onVisibleChange={handleVisibleChange}
               >
-                {/* <Badge count={dataUser.badge} size="small">
+                <Badge count={dataUser.badge} size="small">
                                     <BellOutlined className="header-icon" />
-                                </Badge> */}
+                                </Badge>
               </Popover>
-            </Col>
+            </Col> */}
             <Col>
               <Tooltip placement="bottomRight" title="ออกจากระบบ">
                 <ExportOutlined className="header-icon" onClick={onLogout} />
@@ -125,4 +125,5 @@ const Headerbar = () => {
     </Header>
   );
 };
+
 export default Headerbar;
