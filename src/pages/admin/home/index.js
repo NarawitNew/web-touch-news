@@ -20,25 +20,33 @@ import {
   UnorderedListOutlined,
 } from "@ant-design/icons";
 import React, { useEffect, useState } from "react";
+import { admin, categorys, countadmin, news } from "core/schemas/index";
+import { deleteData, getData } from "core/actions/collection";
 
 import Box from "components/layout/box";
 import { Link } from "react-router-dom";
 import Modals from "components/layout/modal";
 import Tables from "components/layout/table";
 import Timeline from "components/layout/timeline";
-import { getCategoryList } from "core/actions/collection";
-import { httpClient } from "HttpClient";
 import moment from "moment";
 
 const { Content } = Layout;
 const { Search } = Input;
 const { Option } = Select;
 
+const color = {
+  Submit: "var(--link-color)",
+  Approve: "var(--success-colo)r",
+  Public: "var(--error-color)",
+  Edit: "var(--warning-color)",
+  Draft: "var(--primary-color)",
+};
+
 const Home = () => {
   const [dataSource, setDataSource] = useState([]);
   const [total, setTotal] = useState({ all: 0, sdnt: 0, draft: 0 });
   const [loading, setLoading] = useState(true);
-  const [pagination, setPagination] = useState({
+  const [paginations, setPaginations] = useState({
     current: 1,
     sorter: "desc",
     pageSize: 1,
@@ -55,41 +63,38 @@ const Home = () => {
     okText: "",
   });
   const [dataSearch, setDataSearch] = useState({ category: "", filter: "" });
-  const [filters, setFilters] = useState();
+  const [filters, setFilters] = useState("");
 
   useEffect(() => {
-    getData();
+    getDatas();
     getTotalNews();
     getCategory();
-  }, [pagination.current, pagination.sorter, dataSearch, filters]);
+  }, [paginations.current, paginations.sorter, dataSearch, filters]);
 
   const dateShow = (time) => {
     return moment(time * 1000).format("DD/MM/YYYY HH:mm:ss ");
   };
 
-  const getData = () => {
+  const getDatas = () => {
     setLoading(true);
     var params = new URLSearchParams();
-    params.append("page", pagination.current);
-    params.append("sorts", `created_at:${pagination.sorter}`);
+    params.append("page", paginations.current);
+    params.append("sorts", `created_at:${paginations.sorter}`);
     params.append("filters", `topic:like:${dataSearch.filter}`);
     params.append("filters", `category:like:${dataSearch.category}`);
-    httpClient
-      .get("/news/admin", { params })
+    getData(admin, params)
       .then(function (response) {
-        const code = response.data?.code || "";
-        const data = response.data?.data?.data_list || "";
-        const paginations = response.data?.data?.pagination || "";
-        // const { data_list, pagination } = response.data?.data || "";
+        const code = response?.code || "";
+        const { data_list, pagination } = response?.data || "";
         setLoading(false);
         if (code === 200) {
-          setPagination({
-            current: paginations.current_page,
-            pageSize: paginations.per_page,
-            total: paginations.total,
-            sorter: paginations.sorts[0].value,
+          setPaginations({
+            current: pagination.current_page,
+            pageSize: pagination.per_page,
+            total: pagination.total,
+            sorter: pagination.sorts[0].value,
           });
-          const dataMap = data.map((item) => {
+          const dataMap = data_list.map((item) => {
             item.key = item.id;
             item.date = dateShow(item.created_at);
             return item;
@@ -105,17 +110,18 @@ const Home = () => {
   };
 
   const getTotalNews = () => {
-    httpClient
-      .get("/news/countadmin")
+    getData(countadmin)
       .then(function (response) {
-        const { code, data } = response?.data || "";
+        const { code, data } = response || "";
         if (code === 200) {
           setTotal({
             ...total,
-            all: pagination.total,
+            all: paginations.total,
             sdnt: data[0],
             draft: data[1],
           });
+        } else {
+          setTotal(0);
         }
       })
       .catch(function (error) {
@@ -124,10 +130,10 @@ const Home = () => {
   };
 
   const getCategory = () => {
-    getCategoryList()
+    getData(categorys)
       .then((response) => {
         const data = response.data?.data_list || "";
-        const code = response.code || "";
+        const code = response?.code || "";
         if (code === 200) {
           const dataMap = data.map((item) => {
             item = (
@@ -138,6 +144,8 @@ const Home = () => {
             return item;
           });
           setCategory(dataMap);
+        } else {
+          setCategory(null);
         }
       })
       .catch((error) => {
@@ -179,15 +187,13 @@ const Home = () => {
       okText: "ลบ",
       onOk() {
         setIsModalVisible(false);
-        httpClient
-          .delete("/news/" + record.key)
+        deleteData(news, record.key)
           .then(function (response) {
-            const code = response.data.code;
-            if (code === 200) {
-              message.success(response.data.message);
+            if (response?.code === 200) {
+              message.success(response?.message);
               setFilters(record.key);
             } else {
-              message.error(response.data.message);
+              message.error(response?.message);
             }
           })
           .catch(function (error) {
@@ -233,18 +239,7 @@ const Home = () => {
       render: (status) => (
         <div
           style={{
-            color:
-              status === "Submit"
-                ? "var(--link-color)"
-                : status === "Draft"
-                ? "grey"
-                : status === "Approve"
-                ? "#73d13d"
-                : status === "Public"
-                ? "red"
-                : status === "Edit"
-                ? "orange"
-                : "black",
+            color: color[status],
           }}
         >
           {status}
@@ -317,7 +312,7 @@ const Home = () => {
             color="error"
             icon={<UnorderedListOutlined />}
             text="ข่าวทั้งหมด"
-            number={pagination.total}
+            number={paginations.total}
           />
           <Box
             color="success"
@@ -367,8 +362,8 @@ const Home = () => {
           loading={loading}
           columns={columns}
           dataSource={dataSource}
-          setPagination={setPagination}
-          pagination={pagination}
+          setPagination={setPaginations}
+          pagination={paginations}
         />
         <Modals
           isModalVisible={isModalVisible}

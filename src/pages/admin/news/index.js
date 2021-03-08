@@ -16,6 +16,7 @@ import {
 } from "antd";
 import { HomeOutlined, PlusCircleOutlined } from "@ant-design/icons";
 import React, { useContext, useEffect, useState } from "react";
+import { getData, getDataNews } from "core/actions/collection";
 
 import { Context } from "../../../context";
 import FormData from "form-data";
@@ -46,19 +47,13 @@ const CreateNews = (props) => {
   useEffect(() => {
     getCategory();
     getHashtag();
-    if (params.type === "edit") {
-      getData();
-    }
+    if (params.type === "edit") getDatas();
   }, [props.location.pathname]);
 
-  const getData = () => {
-    httpClient
-      .get(config.REACT_APP_BASEURL + "/news/info/" + params.id)
-      .then(function (response) {
-        const code = response.data.code;
-        const data = response.data.data;
-        const hashtag = response.data.data.hashtag;
-        const credit = response.data.data.credit;
+  const getDatas = () => {
+    getDataNews(params.id)
+      .then((response) => {
+        const { code, data } = response?.data || "";
         if (code === 200) {
           form.setFieldsValue({
             topic: data.topic,
@@ -68,26 +63,27 @@ const CreateNews = (props) => {
           setImage(data.image);
           setCause(data.cause);
           setCredit({
-            tags: credit,
+            tags: data.credit,
             inputValue: "",
           });
           setHashtag({
-            tags: hashtag,
+            tags: data.hashtag,
             inputValue: "",
           });
+        } else {
+          setCredit({ tags: [] });
         }
       })
-      .catch(function (error) {
+      .catch((error) => {
         console.log(error);
       });
   };
 
   const getCategory = () => {
-    httpClient
-      .get(config.REACT_APP_BASEURL + "/category")
-      .then(function (response) {
-        const data = response.data.data.data_list;
-        const code = response.data.code;
+    getData()
+      .then((response) => {
+        const data = response.data?.data_list || "";
+        const code = response.code || "";
         if (code === 200) {
           const dataMap = data.map((item) => {
             item = (
@@ -98,27 +94,28 @@ const CreateNews = (props) => {
             return item;
           });
           setCategory(dataMap);
+        } else {
+          setCategory();
         }
       })
-      .catch(function (error) {
-        console.log(error);
+      .catch((error) => {
+        console.log("error", error);
       });
   };
 
   const getHashtag = () => {
     httpClient
-      .get(config.REACT_APP_BASEURL + "/news/hashtag")
+      .get("/news/hashtag")
       .then(function (response) {
-        const code = response.data.code;
+        const { code, data } = response?.data || "";
         if (code === 200) {
-          const data = response.data?.data;
           const dataMap = data?.map((item) => {
             item = { value: item };
             return item;
           });
           setHashtagSource(dataMap);
         } else {
-          console.log("map Error");
+          setHashtagSource([]);
         }
       })
       .catch(function (error) {
