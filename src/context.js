@@ -4,6 +4,8 @@ export const Context = createContext({});
 
 const ContextProider = ({ children }) => {
   const [user, setUser] = useState({
+    id: "",
+    role: "",
     image: "",
     email: "",
     firstname: "",
@@ -11,6 +13,8 @@ const ContextProider = ({ children }) => {
   });
   const setData = (data) => {
     setUser({
+      id: data.id,
+      role: data.role,
       image: data.image,
       email: data.email,
       firstname: data.firstname,

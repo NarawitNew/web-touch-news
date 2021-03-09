@@ -8,9 +8,9 @@ import {
 import React, { useEffect, useState } from "react";
 
 import { Timeline } from "antd";
-import config from "config";
-import { httpClient } from "HttpClient";
+import { getDataRead } from "core/actions/collection";
 import moment from "moment";
+import { time } from "core/schemas/index";
 
 const Timelines = (props) => {
   const [timeLine, setTimeLine] = useState(null);
@@ -40,12 +40,10 @@ const Timelines = (props) => {
   };
 
   const getTimeLine = () => {
-    httpClient
-      .get(config.REACT_APP_BASEURL + "/news/timeline/" + props.idNews)
+    getDataRead(time, props.idNews)
       .then(function (response) {
-        const code = response.data.code;
-        const data = response.data.data.timeline;
-        if (code === 200) {
+        const data = response?.data?.timeline || "";
+        if (response?.code === 200) {
           const dataMap = data.map((item, key) => {
             if (item.Role === "superadmin") {
               item = (

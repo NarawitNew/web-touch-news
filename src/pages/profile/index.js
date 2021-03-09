@@ -66,8 +66,7 @@ const Profile = (props) => {
     content: "",
     okText: "",
   });
-  const setId =
-    params.state === "manage" ? params.id : localStorage.getItem("id");
+  const setId = params.state === "manage" ? params.id : dataUser.id;
 
   useEffect(() => {
     if (props.location.pathname === "/profile") {
@@ -138,7 +137,7 @@ const Profile = (props) => {
           .then(function (response) {
             const code = response?.code || "";
             const data = response?.data || "";
-            if (code === 201) {
+            if (code === 200) {
               setModalData({
                 type: "show",
                 icon: <UserOutlined className="manage-icon-insert" />,
@@ -177,7 +176,6 @@ const Profile = (props) => {
   };
 
   const submitUpdate = (value) => {
-    console.log("value", value);
     if (showInputPass === true) {
       const setData = JSON.stringify({
         password: value.password,
@@ -205,12 +203,13 @@ const Profile = (props) => {
           if (response?.code === 200) {
             message.success(response?.message);
             context.setData({
+              id: dataUser.id,
+              role: dataUser.role,
               image: image,
-              emali: dataUser.email,
+              email: dataUser.email,
               firstname: value.firstname,
               lastname: value.lastname,
             });
-            getData();
             let setData = new FormData();
             setData.append("url", image);
             postIamge(imageSave, setData)

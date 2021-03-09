@@ -1,5 +1,6 @@
 import { Route, Switch } from "react-router-dom";
 
+import { Context } from "context";
 import CreateNews from "pages/admin/news/index";
 import HomeAdmin from "pages/admin/home/index";
 import HomeSuper from "pages/super/home/index";
@@ -8,11 +9,14 @@ import NotFound from "pages/notFound/index";
 import Profile from "pages/profile/index";
 import React from "react";
 import ViewNews from "pages/viewNews/index";
+import { useContext } from "react";
 
-export default function Routers(props) {
+export default function Routers() {
+  const context = useContext(Context);
+  const role = context.user.role;
   return (
     <>
-      {props.type === "superadmin" ? (
+      {role === "superadmin" ? (
         <Switch>
           <Route exact component={HomeSuper} path="/"></Route>
           <Route component={ViewNews} path="/home/view/:id"></Route>

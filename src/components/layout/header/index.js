@@ -18,7 +18,7 @@ const Headerbar = () => {
 
   useEffect(() => {
     getData();
-  }, [(users.firstname, users.lastname, users.image)]);
+  }, [users.firstname, users.lastname, users.image]);
 
   const getData = () => {
     const setData = localStorage.getItem("id");
@@ -30,9 +30,10 @@ const Headerbar = () => {
           setDataUser({
             image: data.image,
             firstname: data.firstname,
-            badge: 2,
           });
           context.setData({
+            id: data.id,
+            role: data.role,
             email: data.email,
             image: data.image,
             firstname: data.firstname,
