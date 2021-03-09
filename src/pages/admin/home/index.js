@@ -145,7 +145,7 @@ const Home = () => {
           });
           setCategory(dataMap);
         } else {
-          setCategory(null);
+          setCategory([]);
         }
       })
       .catch((error) => {
@@ -314,19 +314,19 @@ const Home = () => {
           <Box
             color="var(--error-color)"
             icon={<UnorderedListOutlined />}
-            text="ข่าวทั้งหมด"
+            text="ทั้งหมด"
             number={paginations.total}
           />
           <Box
             color="var(--success-color)"
             icon={<SendOutlined />}
-            text="ข่าวอนุมัติ"
+            text="อนุมัติ"
             number={total.sdnt}
           />
           <Box
             color="var(--warning-color)"
             icon={<EditOutlined />}
-            text="ข่าวรอตรวจสอบ"
+            text="รอตรวจสอบ"
             number={total.draft}
           />
         </Row>

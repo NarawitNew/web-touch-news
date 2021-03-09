@@ -53,12 +53,8 @@ const Timelines = (props) => {
                   position="right"
                   key={key}
                   dot={iconTimeLine[item.Status]}
-                  label={
-                    <div style={{ color: color[item.Status] }}>
-                      {item.Status}
-                    </div>
-                  }
                 >
+                  <div style={{ color: color[item.Status] }}>{item.Status}</div>
                   By.{item.ByID}
                   <br />
                   {dateShow(item.Date)}
@@ -70,12 +66,8 @@ const Timelines = (props) => {
                   position="left"
                   key={key}
                   dot={iconTimeLine[item.Status]}
-                  label={
-                    <div style={{ color: color[item.Status] }}>
-                      {item.Status}
-                    </div>
-                  }
                 >
+                  <div style={{ color: color[item.Status] }}>{item.Status}</div>
                   By.{item.ByID}
                   <br />
                   {dateShow(item.Date)}

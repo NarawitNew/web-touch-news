@@ -4,6 +4,7 @@ import CreateNews from "pages/admin/news/index";
 import HomeAdmin from "pages/admin/home/index";
 import HomeSuper from "pages/super/home/index";
 import Manage from "pages/super/manage/index";
+import NotFound from "pages/notFound/index";
 import Profile from "pages/profile/index";
 import React from "react";
 import ViewNews from "pages/viewNews/index";
@@ -19,6 +20,7 @@ export default function Routers(props) {
           <Route component={Profile} path="/:state/profile/:id"></Route>
           <Route component={Manage} path="/manage"></Route>
           <Route component={Profile} path="/profile"></Route>
+          <Route component={NotFound} />
         </Switch>
       ) : (
         <Switch>
@@ -27,8 +29,8 @@ export default function Routers(props) {
           <Route component={CreateNews} path="/home/:type/:id"></Route>
           <Route component={CreateNews} path="/home/:type"></Route>
           <Route component={HomeAdmin} path="/home"></Route>
-          {/* <Route component={Manage} path="/manage"></Route> */}
           <Route component={Profile} path="/profile"></Route>
+          <Route component={NotFound} />
         </Switch>
       )}
     </>

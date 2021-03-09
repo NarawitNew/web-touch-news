@@ -157,7 +157,7 @@ const Manage = () => {
           });
       },
     });
-    onModal();
+    setIsModalVisible(true);
   };
 
   const onSuspend = (checked, record) => {
@@ -187,7 +187,7 @@ const Manage = () => {
           setIsModalVisible(false);
         },
       });
-      onModal();
+      setIsModalVisible(true);
     } else {
       const setData = JSON.stringify({
         status: "active",
@@ -209,14 +209,6 @@ const Manage = () => {
   const onSearch = (value) => {
     setDataSearch(value);
     setLoading(true);
-  };
-
-  const onModal = () => {
-    setIsModalVisible(true);
-  };
-
-  const offModal = () => {
-    setIsModalVisible(false);
   };
 
   const columns = [
@@ -354,25 +346,23 @@ const Manage = () => {
       <Modals
         isModalVisible={isModalVisible}
         onOk={modalData.onOk}
-        onCancel={offModal}
+        onCancel={() => setIsModalVisible(false)}
         modalData={modalData}
       >
         {modalData.type === "show" ? (
           <>
-            <div style={{ marginLeft: "80px" }}>
+            <div className="manage-left-80">
               อีเมล : {modalData.content.email}
             </div>
-            <div style={{ marginLeft: "80px" }}>
+            <div className="manage-left-80">
               รหัสผ่าน : {modalData.content.password}
             </div>
-            <div
-              style={{ marginLeft: "40px", marginTop: "20px", color: "red" }}
-            >
+            <div className="manage-comment-text">
               *ระบบจะแสดงข้อมูลเพียงครั้งเดียว*
             </div>
           </>
         ) : (
-          <p style={{ marginLeft: "80px" }}>{modalData.content}</p>
+          <p className="manage-left-80">{modalData.content}</p>
         )}
       </Modals>
     </>

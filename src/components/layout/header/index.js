@@ -1,4 +1,4 @@
-import { Avatar, Col, Layout, Row, Tooltip, message } from "antd";
+import { Avatar, Col, Layout, Row, Tooltip } from "antd";
 import React, { useContext, useEffect, useState } from "react";
 import { getDataRead, postData } from "core/actions/collection";
 import { logout, user } from "core/schemas/index";
@@ -18,7 +18,7 @@ const Headerbar = () => {
 
   useEffect(() => {
     getData();
-  }, [users.firstname, users.lastname, users.image]);
+  }, [(users.firstname, users.lastname, users.image)]);
 
   const getData = () => {
     const setData = localStorage.getItem("id");
