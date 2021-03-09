@@ -37,7 +37,6 @@ export const postData = (schemas, params) => {
   return httpClient
     .post(schemas, params)
     .then(function (response) {
-      // console.log("response", response.data);
       return response.data;
     })
     .catch(function (error) {

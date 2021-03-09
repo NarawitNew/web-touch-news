@@ -5,7 +5,7 @@ import { UnlockOutlined, UserOutlined } from "@ant-design/icons";
 import axios from "axios";
 import config from "config";
 
-const Login = (props) => {
+const Login = () => {
   const [username] = useState(
     localStorage.getItem("checkbox") ? localStorage.getItem("email") : ""
   );
@@ -33,26 +33,21 @@ const Login = (props) => {
     axios
       .post(config.REACT_APP_BASEURL + "/login", setData)
       .then(function (response) {
-        const data = response.data?.data || "";
-        if (response.data.code === 200) {
+        const data = response?.data?.data || "";
+        if (response?.data?.code === 200) {
           localStorage.setItem("refresh_token", data.refresh_token);
           localStorage.setItem("access_token", data.access_token);
           localStorage.setItem("role", data.role);
           localStorage.setItem("id", data.id);
-          message.success(response.data.message);
-          props.history.push("/home");
-          window.location.reload();
+          message.success(response?.data?.message);
+          window.location.href = "/home";
         } else {
-          message.error(response.data.message);
+          message.error(response?.data?.message);
         }
       })
       .catch(function (error) {
         console.log(error);
       });
-  };
-
-  const onCheckbox = (e) => {
-    setIsCheckbox(e.target.checked);
   };
 
   return (
@@ -94,8 +89,11 @@ const Login = (props) => {
               />
             </Form.Item>
             <Form.Item name="isCheckbox">
-              <Checkbox checked={isCheckbox} onChange={onCheckbox}>
-                บันทึกรหัสผ่าน
+              <Checkbox
+                checked={isCheckbox}
+                onChange={(e) => setIsCheckbox(e.target.checked)}
+              >
+                Remember me
               </Checkbox>
             </Form.Item>
             <Form.Item>

@@ -4,7 +4,7 @@ import { Table } from "antd";
 
 const Tables = (props) => {
   const [order, setOrder] = useState("desc");
-  const onChange = (pagination, filters, sorter, extra) => {
+  const onChange = (pagination, sorter) => {
     if (sorter.order !== undefined) {
       setOrder(sorter.order.substring(0, sorter.order.length - 3));
     } else {

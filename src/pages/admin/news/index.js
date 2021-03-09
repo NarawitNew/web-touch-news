@@ -45,14 +45,14 @@ const { Option } = Select;
 const CreateNews = (props) => {
   const params = props.match.params;
   const [form] = Form.useForm();
-  const [category, setCategory] = useState(null);
+  const [category, setCategory] = useState([]);
   const [credit, setCredit] = useState({ inputValue: "", tags: [] });
   const [hashtag, setHashtag] = useState({ inputValue: "", tags: [] });
   const [hashtagSource, setHashtagSource] = useState(null);
   const [image, setImage] = useState(imgError);
   const [spinningImage, setSpinningImage] = useState(false);
   const [newsContent, setNewsContent] = useState("");
-  const [imageContent, setImageContent] = useState();
+  const [imageContent, setImageContent] = useState([]);
   const [cause, setCause] = useState("");
 
   useEffect(() => {
@@ -93,8 +93,8 @@ const CreateNews = (props) => {
   const getCategory = () => {
     getDataList(categoryList)
       .then((response) => {
-        const data = response.data?.data_list || "";
-        const code = response.code || "";
+        const data = response?.data?.data_list || "";
+        const code = response?.code || "";
         if (code === 200) {
           const dataMap = data.map((item) => {
             item = (
@@ -106,7 +106,7 @@ const CreateNews = (props) => {
           });
           setCategory(dataMap);
         } else {
-          setCategory();
+          setCategory([]);
         }
       })
       .catch((error) => {
@@ -220,7 +220,7 @@ const CreateNews = (props) => {
     setCredit({ tags });
   };
 
-  const creditConfirm = (e) => {
+  const creditConfirm = () => {
     let tags = [...credit.tags];
     tags.push(credit.inputValue);
     setCredit({

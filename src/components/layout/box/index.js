@@ -2,8 +2,8 @@ import { Col, Row } from "antd";
 
 const Box = (props) => {
   return (
-    <Col xs={24} sm={12} md={12} lg={8} xl={8}>
-      <div className={"box " + props.color}>
+    <Col xs={24} sm={12} md={12} lg={8} xl={8} className="box">
+      <div style={{ backgroundColor: props.color }}>
         <Row align="middle">
           <Col span={8} offset={4}>
             <div className="box-icon">{props.icon}</div>

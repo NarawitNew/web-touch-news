@@ -19,11 +19,11 @@ const Timelines = (props) => {
   }, [props.idNews]);
 
   const color = {
-    Submit: "blue",
-    Approve: "#73d13d",
-    Public: "red",
-    Edit: "orange",
-    Draft: "grey",
+    Submit: "var(--link-color)",
+    Approve: "var(--success-color)",
+    Public: "var(--error-color)",
+    Edit: "var(--warning-color)",
+    Draft: "var(--primary-color)",
   };
 
   const iconTimeLine = {

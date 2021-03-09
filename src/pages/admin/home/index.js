@@ -36,7 +36,7 @@ const { Option } = Select;
 
 const color = {
   Submit: "var(--link-color)",
-  Approve: "var(--success-colo)r",
+  Approve: "var(--success-color)",
   Public: "var(--error-color)",
   Edit: "var(--warning-color)",
   Draft: "var(--primary-color)",
@@ -82,7 +82,7 @@ const Home = () => {
     params.append("sorts", `created_at:${paginations.sorter}`);
     params.append("filters", `topic:like:${dataSearch.filter}`);
     params.append("filters", `category:like:${dataSearch.category}`);
-    getDataList(admin, params)
+    getDataList(admin, { params })
       .then(function (response) {
         const code = response?.code || "";
         const { data_list, pagination } = response?.data || "";
@@ -132,7 +132,7 @@ const Home = () => {
   const getCategory = () => {
     getDataList(categoryList)
       .then((response) => {
-        const data = response.data?.data_list || "";
+        const data = response?.data?.data_list || "";
         const code = response?.code || "";
         if (code === 200) {
           const dataMap = data.map((item) => {
@@ -168,7 +168,7 @@ const Home = () => {
       type: "show",
       icon: <FieldTimeOutlined className="admin-icon-time" />,
       title: "ไทม์ไลน์",
-      okColor: "#216258",
+      okColor: "var(--primary-color)",
       okText: "ตกลง",
       onOk() {
         setIsModalVisible(false);
@@ -198,7 +198,7 @@ const Home = () => {
           })
           .catch(function (error) {
             console.log(error);
-            message.error("เชื่อมต่อ Server ล้มเหลว");
+            message.error(error.data.message);
           });
       },
       content: record.topic,
@@ -220,7 +220,10 @@ const Home = () => {
       width: "500px",
       ellipsis: true,
       render: (record) => (
-        <Link to={`/home/view/${record.key}`} style={{ color: "#000" }}>
+        <Link
+          to={`/home/view/${record.key}`}
+          style={{ color: "var(--text-color)" }}
+        >
           {record.topic}
         </Link>
       ),
@@ -309,19 +312,19 @@ const Home = () => {
       <Content className="admin-home-content">
         <Row gutter={[16, 16]}>
           <Box
-            color="error"
+            color="var(--error-color)"
             icon={<UnorderedListOutlined />}
             text="ข่าวทั้งหมด"
             number={paginations.total}
           />
           <Box
-            color="success"
+            color="var(--success-color)"
             icon={<SendOutlined />}
             text="ข่าวอนุมัติ"
             number={total.sdnt}
           />
           <Box
-            color="warning"
+            color="var(--warning-color)"
             icon={<EditOutlined />}
             text="ข่าวรอตรวจสอบ"
             number={total.draft}
@@ -372,11 +375,9 @@ const Home = () => {
           modalData={modalData}
         >
           {modalData.type === "show" ? (
-            <div style={{ marginTop: "5px" }}>{modalData.content}</div>
+            <div>{modalData.content}</div>
           ) : (
-            <p className="truncate-text" style={{ marginTop: "5px" }}>
-              {modalData.content}
-            </p>
+            <p className="truncate-text">{modalData.content}</p>
           )}
         </Modals>
       </Content>
