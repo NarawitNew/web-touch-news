@@ -27,7 +27,6 @@ const Modals = (props) => {
           </Button>
         ) : (
           <div key={"2"}>
-            {" "}
             <Button className="modal-button" onClick={props.onCancel}>
               ยกเลิก
             </Button>

@@ -20,6 +20,13 @@ import {
   UserOutlined,
 } from "@ant-design/icons";
 import React, { useEffect, useState } from "react";
+import {
+  deleteData,
+  getDataList,
+  postData,
+  putData,
+} from "core/actions/collection";
+import { manage, suspend } from "core/schemas/index";
 
 import { Link } from "react-router-dom";
 import Modals from "components/layout/modal";
@@ -32,11 +39,11 @@ const { Content } = Layout;
 
 const Manage = () => {
   const [formValue] = Form.useForm();
-  const [dataSource, setDataSource] = useState();
+  const [dataSource, setDataSource] = useState([]);
   const [loading, setLoading] = useState(true);
   const [dataFilter, setDataFilter] = useState("");
   const [dataSearch, setDataSearch] = useState("");
-  const [pagination, setPagination] = useState({
+  const [paginations, setPaginations] = useState({
     current: 1,
     sorter: "dsc",
     pageSize: 1,
@@ -55,27 +62,27 @@ const Manage = () => {
 
   useEffect(() => {
     getData();
-  }, [dataFilter, pagination.current, isModalVisible, dataSearch]);
+  }, [dataFilter, paginations.current, isModalVisible, dataSearch]);
 
   const getData = () => {
     var params = new URLSearchParams();
-    params.append("page", pagination.current);
+    params.append("page", paginations.current);
     params.append("filters", `firstname:like:${dataSearch}`);
     params.append("filters", `lastname:like:${dataSearch}`);
-    httpClient
-      .get(config.REACT_APP_BASEURL + "/admin", { params })
+    getDataList(manage, { params })
       .then(function (response) {
-        const code = response.data.code;
-        const data = response.data.data.data_list;
-        setPagination({
-          current: response.data.data.pagination.current_page,
-          pageSize: response.data.data.pagination.per_page,
-          total: response.data.data.pagination.total,
-          sorter: response.data.data.pagination.sorts[0].value,
+        const code = response?.code || "";
+        const { data_list, pagination } = response?.data || "";
+        setLoading(false);
+        setPaginations({
+          current: pagination.current_page,
+          pageSize: pagination.per_page,
+          total: pagination.total,
+          sorter: pagination.sorts[0].value,
         });
         if (code === 200) {
-          const dataMap = data.map((item, i) => {
-            item.order = i + 1 + (pagination.current - 1) * 10;
+          const dataMap = data_list.map((item, i) => {
+            item.order = i + 1 + (paginations.current - 1) * 10;
             item.key = item.id;
             item.name = item.firstname + " " + item.lastname;
             const status = item.status;
@@ -83,10 +90,8 @@ const Manage = () => {
             return item;
           });
           setDataSource(dataMap);
-          setLoading(false);
         } else {
-          setLoading(false);
-          setDataSource(data);
+          setDataSource([]);
         }
       })
       .catch(function (error) {
@@ -98,32 +103,30 @@ const Manage = () => {
     const setData = JSON.stringify({
       email: value.email,
     });
-    httpClient
-      .post(config.REACT_APP_BASEURL + "/admin", setData)
+    postData(manage, setData)
       .then(function (response) {
-        const code = response.data.code;
-        if (code === 201) {
+        if (response?.code === 201) {
           setModalData({
             type: "show",
             icon: <UserOutlined className="manage-icon-insert" />,
             title: "เพิ่มผู้ดูแลระบบใหม่",
-            okColor: "#216258",
+            okColor: "var(--primary-color)",
             okText: "ตกลง",
             onOk() {
               setIsModalVisible(false);
             },
             content: {
-              email: response.data.data.email,
-              password: response.data.data.password,
+              email: response?.data?.email,
+              password: response?.data?.password,
             },
           });
-          onModal();
-          setDataFilter(response.data.data.email);
+          setIsModalVisible(true);
+          setDataFilter(response.data?.email);
           formValue.setFieldsValue({
             email: "",
           });
-        } else if (code === 200) {
-          message.error(response.data.message);
+        } else if (response?.code === 200) {
+          message.error(response?.message);
         }
       })
       .catch(function (error) {
@@ -136,16 +139,14 @@ const Manage = () => {
       type: "confirm",
       icon: <DeleteOutlined className="manage-icon-delete" />,
       title: "คุณต้องการลบผู้ดูแลระบบนี้ หรือไม่ ! ",
-      okColor: "red",
+      okColor: "var(--error-color)",
       okText: "ลบ",
       content: record.email,
       onOk() {
         setIsModalVisible(false);
-        httpClient
-          .delete(config.REACT_APP_BASEURL + "/admin/" + record.key)
+        deleteData(manage, record.key)
           .then(function (response) {
-            const code = response.data.code;
-            if (code === 200) {
+            if (response?.code === 200) {
               message.success("ลบผู้ดูแลระบบสำเร็จ");
               setDataFilter(record.key);
             }
@@ -156,7 +157,7 @@ const Manage = () => {
           });
       },
     });
-    onModal();
+    setIsModalVisible(true);
   };
 
   const onSuspend = (checked, record) => {
@@ -165,21 +166,16 @@ const Manage = () => {
         type: "confirm",
         icon: <ExclamationCircleOutlined className="manage-icon-suspend" />,
         title: "คุณต้องการระงับผู้ดูแลระบบนี้ หรือไม่ ! ",
-        okColor: "orange",
+        okColor: "var(--warning-color)",
         content: record.email,
         okText: "ระงับ",
         onOk() {
           const setData = JSON.stringify({
             status: "inactive",
           });
-          httpClient
-            .put(
-              config.REACT_APP_BASEURL + "/admin/suspend/" + record.key,
-              setData
-            )
+          putData(suspend, record.key, setData)
             .then(function (response) {
-              const code = response.data.code;
-              if (code === 200) {
+              if (response?.code === 200) {
                 message.success("ระงับผู้ดูแลระบบสำเร็จ");
                 setDataFilter(record.key);
               }
@@ -188,10 +184,10 @@ const Manage = () => {
               console.log(error);
               message.error("ระงับผู้ดูแลระบบไม่สำเร็จ");
             });
-          offModal();
+          setIsModalVisible(false);
         },
       });
-      onModal();
+      setIsModalVisible(true);
     } else {
       const setData = JSON.stringify({
         status: "active",
@@ -213,14 +209,6 @@ const Manage = () => {
   const onSearch = (value) => {
     setDataSearch(value);
     setLoading(true);
-  };
-
-  const onModal = () => {
-    setIsModalVisible(true);
-  };
-
-  const offModal = () => {
-    setIsModalVisible(false);
   };
 
   const columns = [
@@ -351,32 +339,30 @@ const Manage = () => {
           loading={loading}
           columns={columns}
           dataSource={dataSource}
-          setPagination={setPagination}
-          pagination={pagination}
+          setPagination={setPaginations}
+          pagination={paginations}
         />
       </Content>
       <Modals
         isModalVisible={isModalVisible}
         onOk={modalData.onOk}
-        onCancel={offModal}
+        onCancel={() => setIsModalVisible(false)}
         modalData={modalData}
       >
         {modalData.type === "show" ? (
           <>
-            <div style={{ marginLeft: "80px" }}>
+            <div className="manage-left-80">
               อีเมล : {modalData.content.email}
             </div>
-            <div style={{ marginLeft: "80px" }}>
+            <div className="manage-left-80">
               รหัสผ่าน : {modalData.content.password}
             </div>
-            <div
-              style={{ marginLeft: "40px", marginTop: "20px", color: "red" }}
-            >
+            <div className="manage-comment-text">
               *ระบบจะแสดงข้อมูลเพียงครั้งเดียว*
             </div>
           </>
         ) : (
-          <p style={{ marginLeft: "80px" }}>{modalData.content}</p>
+          <p className="manage-left-80">{modalData.content}</p>
         )}
       </Modals>
     </>

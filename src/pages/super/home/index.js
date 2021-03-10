@@ -20,26 +20,41 @@ import {
   UnorderedListOutlined,
 } from "@ant-design/icons";
 import React, { useEffect, useState } from "react";
+import {
+  admincount,
+  categoryList,
+  countsuper,
+  news,
+  newsSuper,
+} from "core/schemas/index";
+import { deleteData, getDataList } from "core/actions/collection";
 
+import Box from "components/layout/box";
 import { Link } from "react-router-dom";
 import Modals from "components/layout/modal";
 import Tables from "components/layout/table";
 import Timeline from "components/layout/timeline";
-import config from "config";
-import { httpClient } from "HttpClient";
 import moment from "moment";
 
 const { Content } = Layout;
 const { Search } = Input;
 const { Option } = Select;
 
+const color = {
+  Submit: "var(--link-color)",
+  Approve: "var(--success-color)",
+  Public: "var(--error-color)",
+  Edit: "var(--warning-color)",
+  Draft: "var(--primary-color)",
+};
+
 const Home = (props) => {
-  const [dataSource, setDataSource] = useState();
-  const [category, setCategory] = useState(null);
+  const [dataSource, setDataSource] = useState([]);
+  const [category, setCategory] = useState([]);
   const [totalNews, setTotalNews] = useState({ all: 0, toDate: 0 });
   const [totalAdmin, setTotalAdmin] = useState(0);
   const [loading, setLoading] = useState(true);
-  const [pagination, setPagination] = useState({
+  const [paginations, setPaginations] = useState({
     current: 1,
     sorter: "desc",
     pageSize: 0,
@@ -55,7 +70,7 @@ const Home = (props) => {
     okText: "",
   });
   const [dataSearch, setDataSearch] = useState({ category: "", filter: "" });
-  const [filters, setFilters] = useState();
+  const [filters, setFilters] = useState("");
 
   useEffect(() => {
     setTimeout(() => {
@@ -64,7 +79,7 @@ const Home = (props) => {
       getTotalAdmin();
       getTotalNews();
     }, 1000);
-  }, [pagination.current, pagination.sorter, dataSearch, filters]);
+  }, [paginations.current, paginations.sorter, dataSearch, filters]);
 
   const dateShow = (time) => {
     const date = moment(time * 1000).format("DD/MM/YYYY HH:mm:ss ");
@@ -74,31 +89,30 @@ const Home = (props) => {
   const getData = () => {
     setLoading(true);
     var params = new URLSearchParams();
-    params.append("page", pagination.current);
-    params.append("sorts", `created_at:${pagination.sorter}`);
+    params.append("page", paginations.current);
+    params.append("sorts", `created_at:${paginations.sorter}`);
     params.append("filters", `topic:like:${dataSearch.filter}`);
     params.append("filters", `category:like:${dataSearch.category}`);
-    httpClient
-      .get(config.REACT_APP_BASEURL + "/news/super", { params })
+    getDataList(newsSuper, { params })
       .then(function (response) {
-        const code = response.data.code;
-        const data = response.data.data.data_list;
+        const code = response?.code || "";
+        const { data_list, pagination } = response?.data || "";
         setLoading(false);
         if (code === 200) {
-          setPagination({
-            current: response.data.data.pagination.current_page,
-            pageSize: response.data.data.pagination.per_page,
-            total: response.data.data.pagination.total,
-            sorter: response.data.data.pagination.sorts[0].value,
+          setPaginations({
+            current: pagination.current_page,
+            pageSize: pagination.per_page,
+            total: pagination.total,
+            sorter: pagination.sorts[0].value,
           });
-          const dataMap = data.map((item) => {
+          const dataMap = data_list.map((item) => {
             item.key = item.id;
             item.created_at = dateShow(item.created_at);
             return item;
           });
           setDataSource(dataMap);
         } else {
-          setDataSource();
+          setDataSource([]);
         }
       })
       .catch(function (error) {
@@ -107,20 +121,16 @@ const Home = (props) => {
   };
 
   const getTotalNews = () => {
-    httpClient
-      .get(config.REACT_APP_BASEURL + "/news/countsuper")
+    getDataList(countsuper)
       .then(function (response) {
-        const code = response.data.code;
+        const { code, data } = response || "";
         if (code === 200) {
           setTotalNews({
-            all: response.data.data[0],
-            toDate: response.data.data[1],
+            all: data[0],
+            toDate: data[1],
           });
         } else {
-          setTotalNews({
-            all: 0,
-            toDate: 0,
-          });
+          setTotalNews(0);
         }
       })
       .catch(function (error) {
@@ -129,13 +139,13 @@ const Home = (props) => {
   };
 
   const getTotalAdmin = () => {
-    httpClient
-      .get(config.REACT_APP_BASEURL + "/admin/count")
+    getDataList(admincount)
       .then(function (response) {
-        const code = response.data.code;
+        const { code, data } = response || "";
         if (code === 200) {
-          setTotalAdmin(response.data.data[0]);
+          setTotalAdmin(data[0]);
         } else {
+          setTotalAdmin(0);
         }
       })
       .catch(function (error) {
@@ -144,11 +154,10 @@ const Home = (props) => {
   };
 
   const getCategory = () => {
-    httpClient
-      .get(config.REACT_APP_BASEURL + "/category")
-      .then(function (response) {
-        const data = response.data.data.data_list;
-        const code = response.data.code;
+    getDataList(categoryList)
+      .then((response) => {
+        const data = response?.data?.data_list || "";
+        const code = response?.code || "";
         if (code === 200) {
           const dataMap = data.map((item) => {
             item = (
@@ -159,18 +168,13 @@ const Home = (props) => {
             return item;
           });
           setCategory(dataMap);
+        } else {
+          setCategory(null);
         }
       })
-      .catch(function (error) {
-        console.log(error);
+      .catch((error) => {
+        console.log("error", error);
       });
-  };
-
-  const onCategory = (value) => {
-    setDataSearch({ ...dataSearch, category: value });
-  };
-  const onSearch = (value) => {
-    setDataSearch({ ...dataSearch, filter: value });
   };
 
   const onDelete = (record) => {
@@ -181,24 +185,24 @@ const Home = (props) => {
       okColor: "red",
       okText: "ลบ",
       onOk() {
-        offModal();
-        httpClient
-          .delete(config.REACT_APP_BASEURL + "/news/" + record.key)
+        setIsModalVisible(false);
+        deleteData(news, record.key)
           .then(function (response) {
-            const code = response.data.code;
-            if (code === 200) {
-              message.success(response.data.message);
+            if (response?.code === 200) {
+              message.success(response?.message);
               setFilters(record.key);
+            } else {
+              message.error(response?.message);
             }
           })
           .catch(function (error) {
             console.log(error);
-            message.error(error.data.message);
+            message.error(error.message);
           });
       },
       content: record.topic,
     });
-    onModal();
+    setIsModalVisible(true);
   };
 
   const onTimeline = (record) => {
@@ -206,22 +210,14 @@ const Home = (props) => {
       type: "show",
       icon: <FieldTimeOutlined className="manage-icon-insert" />,
       title: "ไทม์ไลน์",
-      okColor: "#216258",
+      okColor: "var(--primary-color)",
       okText: "ตกลง",
       onOk() {
         setIsModalVisible(false);
       },
       content: <Timeline idNews={record.key} />,
     });
-    onModal();
-  };
-
-  const onModal = () => {
     setIsModalVisible(true);
-  };
-
-  const offModal = () => {
-    setIsModalVisible(false);
   };
 
   const menu = (record) => {
@@ -233,7 +229,7 @@ const Home = (props) => {
             props.history.push(`/home/view/${record.key}`);
           }}
         >
-          <EyeOutlined style={{ color: "#73d13d" }} />
+          <EyeOutlined style={{ color: "var(--success-color)" }} />
           ดูข่าว
         </Menu.Item>
         <Menu.Item
@@ -242,7 +238,7 @@ const Home = (props) => {
             onTimeline(record);
           }}
         >
-          <FieldTimeOutlined style={{ color: "#1890ff" }} />
+          <FieldTimeOutlined style={{ color: "var(--link-color)" }} />
           ไทม์ไลน์
         </Menu.Item>
         <Menu.Item
@@ -251,7 +247,7 @@ const Home = (props) => {
             onDelete(record);
           }}
         >
-          <DeleteOutlined style={{ color: "red" }} />
+          <DeleteOutlined style={{ color: "var(--error-color)" }} />
           ลบ
         </Menu.Item>
       </Menu>
@@ -272,7 +268,10 @@ const Home = (props) => {
       width: "400px",
       ellipsis: true,
       render: (record) => (
-        <Link to={`/home/view/${record.key}`} style={{ color: "#000" }}>
+        <Link
+          to={`/home/view/${record.key}`}
+          style={{ color: "var(--text-color)" }}
+        >
           {record.topic}
         </Link>
       ),
@@ -297,16 +296,7 @@ const Home = (props) => {
       render: (status) => (
         <div
           style={{
-            color:
-              status === "Submit"
-                ? "blue"
-                : status === "Approve"
-                ? "#73d13d"
-                : status === "Public"
-                ? "red"
-                : status === "Edit"
-                ? "orange"
-                : "black",
+            color: color[status],
           }}
         >
           {status}
@@ -337,45 +327,24 @@ const Home = (props) => {
       </Breadcrumb>
       <Content className="home-Content">
         <Row gutter={[16, 16]}>
-          <Col xs={24} sm={12} md={12} lg={8} xl={8}>
-            <div className="home-Box-Left">
-              <Row align="middle" style={{ height: "100%" }}>
-                <Col span={8} offset={4}>
-                  <UnorderedListOutlined className="home-Icon" />
-                </Col>
-                <Col span={8}>
-                  <p className="home-Number">{totalNews.all}</p>
-                  <p className="home-Text">ข่าวทั้งหมด</p>
-                </Col>
-              </Row>
-            </div>
-          </Col>
-          <Col xs={24} sm={12} md={12} lg={8} xl={8}>
-            <div className="home-Box-Center">
-              <Row align="middle" style={{ height: "100%" }}>
-                <Col span={8} offset={4}>
-                  <TeamOutlined className="home-Icon" />
-                </Col>
-                <Col span={8}>
-                  <p className="home-Number">{totalAdmin}</p>
-                  <p className="home-Text">ผู้ดูแลระบบ</p>
-                </Col>
-              </Row>
-            </div>
-          </Col>
-          <Col xs={24} sm={12} md={12} lg={8} xl={8}>
-            <div className="home-Box-Right">
-              <Row align="middle" style={{ height: "100%" }}>
-                <Col span={8} offset={4}>
-                  <SendOutlined className="home-Icon" />
-                </Col>
-                <Col span={8}>
-                  <p className="home-Number">{totalNews.toDate}</p>
-                  <p className="home-Text">ข่าววันนี้</p>
-                </Col>
-              </Row>
-            </div>
-          </Col>
+          <Box
+            color="var(--error-color)"
+            icon={<UnorderedListOutlined />}
+            text="ข่าวทั้งหมด"
+            number={totalNews.all}
+          />
+          <Box
+            color="var(--success-color)"
+            icon={<TeamOutlined />}
+            text="ผู้ดูแลระบบ"
+            number={totalAdmin}
+          />
+          <Box
+            color="var(--warning-color)"
+            icon={<SendOutlined />}
+            text="ข่าววันนี้"
+            number={totalNews.toDate}
+          />
         </Row>
         <Row style={{ marginTop: "20px" }}>
           <Col xs={24} sm={24} md={12} lg={12} xl={16}>
@@ -386,7 +355,9 @@ const Home = (props) => {
               <Select
                 defaultValue=""
                 className="home-Select"
-                onChange={onCategory}
+                onChange={(value) =>
+                  setDataSearch({ ...dataSearch, category: value })
+                }
               >
                 <Option value="">ประเภทข่าวทั้งหมด</Option>
                 {category}
@@ -394,20 +365,25 @@ const Home = (props) => {
             </Input.Group>
           </Col>
           <Col xs={12} sm={10} md={6} lg={6} xl={4}>
-            <Search placeholder="ค้นหา" onSearch={onSearch}></Search>
+            <Search
+              placeholder="ค้นหา"
+              onSearch={(value) =>
+                setDataSearch({ ...dataSearch, filter: value })
+              }
+            ></Search>
           </Col>
         </Row>
         <Tables
           loading={loading}
           columns={columns}
           dataSource={dataSource}
-          setPagination={setPagination}
-          pagination={pagination}
+          setPagination={setPaginations}
+          pagination={paginations}
         />
         <Modals
           isModalVisible={isModalVisible}
           onOk={modalData.onOk}
-          onCancel={offModal}
+          onCancel={() => setIsModalVisible(false)}
           modalData={modalData}
         >
           {modalData.type === "show" ? (

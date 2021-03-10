@@ -40,8 +40,8 @@ instance.interceptors.response.use(
             localStorage.setItem("refresh_token", newRefreshToken);
             instance.defaults.headers.common[
               "Authorization"
-            ] = `Bearer ${newToken}`; //Add new token
-            return instance(originalRequest); //call API
+            ] = `Bearer ${newToken}`;
+            return instance(originalRequest);
           } else {
             clearLocalStorage();
           }

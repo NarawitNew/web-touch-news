@@ -17,14 +17,26 @@ import {
   UserOutlined,
 } from "@ant-design/icons";
 import React, { useContext, useEffect, useState } from "react";
+import {
+  getDataRead,
+  postData,
+  postIamge,
+  putData,
+} from "core/actions/collection";
+import {
+  imageSave,
+  imageUpLoad,
+  logout,
+  resetPassword,
+  user,
+  userPassword,
+  userUpdate,
+} from "core/schemas/index";
 
 import { Context } from "../../context";
 import FormData from "form-data";
 import { Link } from "react-router-dom";
 import Modals from "components/layout/modal";
-import axios from "axios";
-import config from "config";
-import { httpClient } from "HttpClient";
 
 const { Content } = Layout;
 const layout = {
@@ -39,6 +51,7 @@ const layout = {
 
 const Profile = (props) => {
   const context = useContext(Context);
+  const dataUser = context.user;
   const [formValue] = Form.useForm();
   const params = props.match.params;
   const [image, setImage] = useState("");
@@ -53,8 +66,7 @@ const Profile = (props) => {
     content: "",
     okText: "",
   });
-  const setId =
-    params.state === "manage" ? params.id : localStorage.getItem("id");
+  const setId = params.state === "manage" ? params.id : dataUser.id;
 
   useEffect(() => {
     if (props.location.pathname === "/profile") {
@@ -65,28 +77,27 @@ const Profile = (props) => {
   }, [params, context]);
 
   const getData = () => {
-    const data = context.user;
-    setImage(data.image);
+    setImage(dataUser.image);
     formValue.setFieldsValue({
-      email: data.email,
-      firstname: data.firstname,
-      lastname: data.lastname,
+      email: dataUser.email,
+      firstname: dataUser.firstname,
+      lastname: dataUser.lastname,
       passwordNew: "",
       passwordConfirm: "",
     });
   };
 
   const getDataAdmin = () => {
-    httpClient
-      .get(config.REACT_APP_BASEURL + "/user/" + setId)
+    getDataRead(user, setId)
       .then(function (response) {
-        const code = response.data.code;
+        const code = response?.code || "";
+        const data = response?.data || "";
         if (code === 200) {
-          setImage(response.data.data.image);
+          setImage(data.image);
           formValue.setFieldsValue({
-            email: response.data.data.email,
-            firstname: response.data.data.firstname,
-            lastname: response.data.data.lastname,
+            email: data.email,
+            firstname: data.firstname,
+            lastname: data.lastname,
             passwordNew: "",
             passwordConfirm: "",
           });
@@ -100,16 +111,12 @@ const Profile = (props) => {
   };
 
   const onLogout = () => {
-    httpClient
-      .post(config.REACT_APP_BASEURL + "/logout")
+    postData(logout)
       .then(function (response) {
-        const code = response.data.code;
+        const code = response?.code || "";
         if (code === 200) {
-          localStorage.setItem("access_token", "");
-          localStorage.setItem("refresh_token", "");
-          localStorage.setItem("role", "");
-          localStorage.setItem("id", "");
-          window.location.reload();
+          localStorage.clear();
+          window.location.href = "/login";
         }
       })
       .catch(function (error) {
@@ -122,30 +129,30 @@ const Profile = (props) => {
       type: "confirm",
       icon: <ExclamationCircleOutlined className="manage-icon-edit" />,
       title: "ยืนยันการสร้างรหัสผ่านใหม่",
-      okColor: "orange",
+      okColor: "var(--warning-color)",
       okText: "ตกลง",
-      content: "คุณต้องการยืนยันการสร้างรหัสใหม่นี้หรือไม่ !!! ",
+      content: "คุณต้องการยืนยันการสร้างรหัสใหม่นี้หรือไม่ ! ",
       onOk() {
-        httpClient
-          .put(config.REACT_APP_BASEURL + "/admin/reset_password/" + setId)
+        putData(resetPassword, setId)
           .then(function (response) {
-            const code = response.data.code;
-            if (code === 201) {
+            const code = response?.code || "";
+            const data = response?.data || "";
+            if (code === 200) {
               setModalData({
                 type: "show",
                 icon: <UserOutlined className="manage-icon-insert" />,
                 title: "เปลี่ยนรหัสผ่านสำเร็จ",
-                okColor: "#216258",
+                okColor: "var(--primary-color)",
                 okText: "ตกลง",
                 onOk() {
-                  offModal();
+                  setIsModalVisible(false);
                 },
                 content: {
-                  email: response.data.data.email,
-                  password: response.data.data.password,
+                  email: data.email,
+                  password: data.password,
                 },
               });
-              onModal();
+              setIsModalVisible(true);
             } else {
               message.error("เปลี่ยนรหัสผ่านไม่สำเร็จ");
             }
@@ -156,13 +163,7 @@ const Profile = (props) => {
           });
       },
     });
-    onModal();
-  };
-
-  const showCancelUpdate = () => {
-    // formValue.getFieldsValue();
-    // console.log("object", formValue.getFieldsValue().firstname);
-    return false;
+    setIsModalVisible(true);
   };
 
   const cancelUpdate = () => {
@@ -179,14 +180,13 @@ const Profile = (props) => {
       const setData = JSON.stringify({
         password: value.password,
       });
-      httpClient
-        .put(config.REACT_APP_BASEURL + "/user/password/" + setId, setData)
+      putData(userPassword, setId, setData)
         .then(function (response) {
           message.success("เปลี่ยนรหัสผ่านสำเร็จ");
           onLogout();
         })
         .catch(function (error) {
-          message.error("เปลี่ยนรหัสผ่านไม่สำเร็จ");
+          console.log(error);
         });
       formValue.setFieldsValue({
         password: "",
@@ -198,20 +198,21 @@ const Profile = (props) => {
         lastname: value.lastname,
         image: image,
       });
-      httpClient
-        .put(config.REACT_APP_BASEURL + "/user/update/" + setId, setData)
+      putData(userUpdate, setId, setData)
         .then(function (response) {
-          if (response.data.code === 200) {
-            message.success(response.data.message);
+          if (response?.code === 200) {
+            message.success(response?.message);
             context.setData({
+              id: dataUser.id,
+              role: dataUser.role,
               image: image,
+              email: dataUser.email,
               firstname: value.firstname,
               lastname: value.lastname,
             });
             let setData = new FormData();
             setData.append("url", image);
-            axios
-              .post(config.REACT_APP_IMGAE + "/savefile", setData)
+            postIamge(imageSave, setData)
               .then(function (response) {})
               .catch(function (error) {
                 console.log(error);
@@ -236,29 +237,20 @@ const Profile = (props) => {
     }
   };
 
-  const onModal = () => {
-    setIsModalVisible(true);
-  };
-
-  const offModal = () => {
-    setIsModalVisible(false);
-  };
-
   const customRequest = (option) => {
     setSpinningImage(true);
     let setData = new FormData();
     setData.append("sampleFile", option.file);
     setData.append("save", false);
-    axios
-      .post(config.REACT_APP_IMGAE + "/upload", setData)
+    postIamge(imageUpLoad, setData)
       .then(function (response) {
-        const status = response.status;
-        const data = response.data;
+        const status = response?.status || "";
+        const data = response?.data || "";
         if (status === 200) {
           setImage(data.url);
           setSpinningImage(false);
         } else {
-          setSpinningImage(false);
+          setSpinningImage(true);
         }
       })
       .catch(function (error) {
@@ -269,22 +261,13 @@ const Profile = (props) => {
   return (
     <>
       <Breadcrumb style={{ padding: "1px 0" }}>
-        {params.state === "manage" ? (
-          <>
-            <Breadcrumb.Item>
-              <HomeOutlined />
-            </Breadcrumb.Item>
-            <Breadcrumb.Item>ผู้ดูแลระบบ</Breadcrumb.Item>
-            <Breadcrumb.Item>โปรไฟล์</Breadcrumb.Item>
-          </>
-        ) : (
-          <>
-            <Breadcrumb.Item>
-              <HomeOutlined />
-            </Breadcrumb.Item>
-            <Breadcrumb.Item>โปรไฟล์</Breadcrumb.Item>
-          </>
+        <Breadcrumb.Item>
+          <HomeOutlined />
+        </Breadcrumb.Item>
+        {params.state === "manage" && (
+          <Breadcrumb.Item>ผู้ดูแลระบบ</Breadcrumb.Item>
         )}
+        <Breadcrumb.Item>โปรไฟล์</Breadcrumb.Item>
       </Breadcrumb>
       <Content className="profile-layout-background">
         <Row justify="center" gutter={[16, 16]} style={{ marginTop: "20px" }}>
@@ -327,17 +310,18 @@ const Profile = (props) => {
                 <Input disabled={showInputPass} />
               </Form.Item>
               <Form.Item className="profile-right">
-                {params.state === "manage" ? (
-                  <Button type="link" onClick={conFirmPassword}>
-                    <u>เปลี่ยนรหัสผ่าน</u>
-                  </Button>
-                ) : (
-                  <Button type="link" onClick={ShowInputPassword}>
-                    <u>เปลี่ยนรหัสผ่าน</u>
-                  </Button>
-                )}
+                <Button
+                  type="link"
+                  onClick={() =>
+                    params.state === "manage"
+                      ? conFirmPassword()
+                      : ShowInputPassword()
+                  }
+                >
+                  <u>เปลี่ยนรหัสผ่าน</u>
+                </Button>
               </Form.Item>
-              {showInputPass === true ? (
+              {showInputPass === true && (
                 <>
                   <Form.Item
                     {...layout}
@@ -369,7 +353,6 @@ const Profile = (props) => {
                           if (!value || getFieldValue("password") === value) {
                             return Promise.resolve();
                           }
-
                           return Promise.reject(
                             new Error("รหัสผ่านไม่ถูกต้อง")
                           );
@@ -380,7 +363,7 @@ const Profile = (props) => {
                     <Input.Password />
                   </Form.Item>
                 </>
-              ) : null}
+              )}
               <Form.Item className="profile-right">
                 <Button
                   className="profile-button"
@@ -392,19 +375,10 @@ const Profile = (props) => {
                 </Button>
                 {params.state === "manage" ? (
                   <Link to="/manage">
-                    <Button
-                      className="profile-button"
-                      style={{ marginLeft: "10px" }}
-                    >
-                      ยกเลิก
-                    </Button>
+                    <Button className="profile-button">ยกเลิก</Button>
                   </Link>
                 ) : (
-                  <Button
-                    className="profile-button"
-                    onClick={cancelUpdate}
-                    style={{ marginLeft: "10px" }}
-                  >
+                  <Button className="profile-button" onClick={cancelUpdate}>
                     ยกเลิก
                   </Button>
                 )}
@@ -416,25 +390,23 @@ const Profile = (props) => {
       <Modals
         isModalVisible={isModalVisible}
         onOk={modalData.onOk}
-        onCancel={offModal}
+        onCancel={() => setIsModalVisible(false)}
         modalData={modalData}
       >
         {modalData.type === "show" ? (
           <>
-            <div style={{ marginLeft: "80px" }}>
+            <div className="profile-marginLeft-80">
               อีเมล : {modalData.content.email}
             </div>
-            <div style={{ marginLeft: "80px" }}>
-              รหัสผ่าน {modalData.content.password}
+            <div className="profile-marginLeft-80">
+              รหัสผ่าน : {modalData.content.password}
             </div>
-            <div
-              style={{ marginLeft: "40px", marginTop: "20px", color: "red" }}
-            >
+            <div className="comment-text">
               *ระบบจะแสดงข้อมูลเพียงครั้งเดียว*
             </div>
           </>
         ) : (
-          <p style={{ marginLeft: "80px" }}>{modalData.content}</p>
+          <p className="profile-marginLeft-80">{modalData.content}</p>
         )}
       </Modals>
     </>

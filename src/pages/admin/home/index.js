@@ -20,24 +20,33 @@ import {
   UnorderedListOutlined,
 } from "@ant-design/icons";
 import React, { useEffect, useState } from "react";
+import { admin, categoryList, countadmin, news } from "core/schemas/index";
+import { deleteData, getDataList } from "core/actions/collection";
 
+import Box from "components/layout/box";
 import { Link } from "react-router-dom";
 import Modals from "components/layout/modal";
 import Tables from "components/layout/table";
 import Timeline from "components/layout/timeline";
-import config from "config";
-import { httpClient } from "HttpClient";
 import moment from "moment";
 
 const { Content } = Layout;
 const { Search } = Input;
 const { Option } = Select;
 
+const color = {
+  Submit: "var(--link-color)",
+  Approve: "var(--success-color)",
+  Public: "var(--error-color)",
+  Edit: "var(--warning-color)",
+  Draft: "var(--primary-color)",
+};
+
 const Home = () => {
-  const [dataSource, setDataSource] = useState();
+  const [dataSource, setDataSource] = useState([]);
   const [total, setTotal] = useState({ all: 0, sdnt: 0, draft: 0 });
   const [loading, setLoading] = useState(true);
-  const [pagination, setPagination] = useState({
+  const [paginations, setPaginations] = useState({
     current: 1,
     sorter: "desc",
     pageSize: 1,
@@ -54,47 +63,45 @@ const Home = () => {
     okText: "",
   });
   const [dataSearch, setDataSearch] = useState({ category: "", filter: "" });
-  const [filters, setFilters] = useState();
+  const [filters, setFilters] = useState("");
 
   useEffect(() => {
-    getData();
+    getDatas();
     getTotalNews();
     getCategory();
-  }, [pagination.current, pagination.sorter, dataSearch, filters]);
+  }, [paginations.current, paginations.sorter, dataSearch, filters]);
 
   const dateShow = (time) => {
-    const date = moment(time * 1000).format("DD/MM/YYYY HH:mm:ss ");
-    return date;
+    return moment(time * 1000).format("DD/MM/YYYY HH:mm:ss ");
   };
 
-  const getData = () => {
+  const getDatas = () => {
     setLoading(true);
     var params = new URLSearchParams();
-    params.append("page", pagination.current);
-    params.append("sorts", `created_at:${pagination.sorter}`);
+    params.append("page", paginations.current);
+    params.append("sorts", `created_at:${paginations.sorter}`);
     params.append("filters", `topic:like:${dataSearch.filter}`);
     params.append("filters", `category:like:${dataSearch.category}`);
-    httpClient
-      .get(config.REACT_APP_BASEURL + "/news/admin", { params })
+    getDataList(admin, { params })
       .then(function (response) {
-        const code = response.data.code;
-        const data = response.data.data.data_list;
+        const code = response?.code || "";
+        const { data_list, pagination } = response?.data || "";
         setLoading(false);
         if (code === 200) {
-          setPagination({
-            current: response.data.data.pagination.current_page,
-            pageSize: response.data.data.pagination.per_page,
-            total: response.data.data.pagination.total,
-            sorter: response.data.data.pagination.sorts[0].value,
+          setPaginations({
+            current: pagination.current_page,
+            pageSize: pagination.per_page,
+            total: pagination.total,
+            sorter: pagination.sorts[0].value,
           });
-          const dataMap = data.map((item) => {
+          const dataMap = data_list.map((item) => {
             item.key = item.id;
             item.date = dateShow(item.created_at);
             return item;
           });
           setDataSource(dataMap);
         } else {
-          setDataSource();
+          setDataSource([]);
         }
       })
       .catch(function (error) {
@@ -103,17 +110,18 @@ const Home = () => {
   };
 
   const getTotalNews = () => {
-    httpClient
-      .get(config.REACT_APP_BASEURL + "/news/countadmin")
+    getDataList(countadmin)
       .then(function (response) {
-        const code = response.data.code;
+        const { code, data } = response || "";
         if (code === 200) {
           setTotal({
             ...total,
-            all: pagination.total,
-            sdnt: response.data.data[0],
-            draft: response.data.data[1],
+            all: paginations.total,
+            sdnt: data[0],
+            draft: data[1],
           });
+        } else {
+          setTotal(0);
         }
       })
       .catch(function (error) {
@@ -122,11 +130,10 @@ const Home = () => {
   };
 
   const getCategory = () => {
-    httpClient
-      .get(config.REACT_APP_BASEURL + "/category")
-      .then(function (response) {
-        const data = response.data.data.data_list;
-        const code = response.data.code;
+    getDataList(categoryList)
+      .then((response) => {
+        const data = response?.data?.data_list || "";
+        const code = response?.code || "";
         if (code === 200) {
           const dataMap = data.map((item) => {
             item = (
@@ -137,10 +144,12 @@ const Home = () => {
             return item;
           });
           setCategory(dataMap);
+        } else {
+          setCategory([]);
         }
       })
-      .catch(function (error) {
-        console.log(error);
+      .catch((error) => {
+        console.log("error", error);
       });
   };
 
@@ -159,14 +168,14 @@ const Home = () => {
       type: "show",
       icon: <FieldTimeOutlined className="admin-icon-time" />,
       title: "ไทม์ไลน์",
-      okColor: "#216258",
+      okColor: "var(--primary-color)",
       okText: "ตกลง",
       onOk() {
-        offModal();
+        setIsModalVisible(false);
       },
       content: <Timeline idNews={record.key} />,
     });
-    onModal();
+    setIsModalVisible(true);
   };
 
   const onDelete = (record) => {
@@ -177,34 +186,24 @@ const Home = () => {
       okColor: "red",
       okText: "ลบ",
       onOk() {
-        offModal();
-        httpClient
-          .delete(config.REACT_APP_BASEURL + "/news/" + record.key)
+        setIsModalVisible(false);
+        deleteData(news, record.key)
           .then(function (response) {
-            const code = response.data.code;
-            if (code === 200) {
-              message.success(response.data.message);
+            if (response?.code === 200) {
+              message.success(response?.message);
               setFilters(record.key);
             } else {
-              message.success(response.data.message);
+              message.error(response?.message);
             }
           })
           .catch(function (error) {
             console.log(error);
-            message.error("เชื่อมต่อ Server ล้มเหลว");
+            message.error(error.data.message);
           });
       },
       content: record.topic,
     });
-    onModal();
-  };
-
-  const onModal = () => {
     setIsModalVisible(true);
-  };
-
-  const offModal = () => {
-    setIsModalVisible(false);
   };
 
   const columns = [
@@ -221,7 +220,10 @@ const Home = () => {
       width: "500px",
       ellipsis: true,
       render: (record) => (
-        <Link to={`/home/view/${record.key}`} style={{ color: "#000" }}>
+        <Link
+          to={`/home/view/${record.key}`}
+          style={{ color: "var(--text-color)" }}
+        >
           {record.topic}
         </Link>
       ),
@@ -240,18 +242,7 @@ const Home = () => {
       render: (status) => (
         <div
           style={{
-            color:
-              status === "Submit"
-                ? "blue"
-                : status === "Draft"
-                ? "grey"
-                : status === "Approve"
-                ? "#73d13d"
-                : status === "Public"
-                ? "red"
-                : status === "Edit"
-                ? "orange"
-                : "black",
+            color: color[status],
           }}
         >
           {status}
@@ -274,44 +265,37 @@ const Home = () => {
               }}
             />
           </Tooltip>
-          {record.status === "Draft" ? (
-            <>
-              <Tooltip placement="bottom" title="แก้ไข">
-                <Link to={`/home/edit/${record.key}`}>
-                  <Button
-                    icon={<EditOutlined className="admin-icon-edit" />}
-                    size={"middle"}
+          <Tooltip placement="bottom" title="แก้ไข">
+            <Link to={`/home/edit/${record.key}`}>
+              <Button
+                icon={
+                  <EditOutlined
+                    className={
+                      record.status === "Draft" ? "admin-icon-edit" : ""
+                    }
                   />
-                </Link>
-              </Tooltip>
-              <Tooltip placement="bottom" title="ลบ">
-                <Button
-                  icon={<DeleteOutlined className="admin-icon-delete" />}
-                  size={"middle"}
-                  onClick={() => {
-                    onDelete(record);
-                  }}
+                }
+                size={"middle"}
+                disabled={record.status !== "Draft" ? true : false}
+              />
+            </Link>
+          </Tooltip>
+          <Tooltip placement="bottom" title="ลบ">
+            <Button
+              icon={
+                <DeleteOutlined
+                  className={
+                    record.status === "Draft" ? "admin-icon-delete" : ""
+                  }
                 />
-              </Tooltip>
-            </>
-          ) : (
-            <>
-              <Tooltip placement="bottom" title="แก้ไข">
-                <Button
-                  icon={<EditOutlined className="admin-icon-disabled" />}
-                  size={"middle"}
-                  disabled
-                />
-              </Tooltip>
-              <Tooltip placement="bottom" title="ลบ">
-                <Button
-                  icon={<DeleteOutlined className="admin-icon-disabled" />}
-                  size={"middle"}
-                  disabled
-                />
-              </Tooltip>
-            </>
-          )}
+              }
+              size={"middle"}
+              onClick={() => {
+                onDelete(record);
+              }}
+              disabled={record.status !== "Draft" ? true : false}
+            />
+          </Tooltip>
         </Space>
       ),
     },
@@ -327,45 +311,24 @@ const Home = () => {
       </Breadcrumb>
       <Content className="admin-home-content">
         <Row gutter={[16, 16]}>
-          <Col xs={24} sm={12} md={12} lg={8} xl={8}>
-            <div className="admin-home-box-left">
-              <Row align="middle" style={{ height: "100%" }}>
-                <Col span={8} offset={4}>
-                  <UnorderedListOutlined className="admin-home-icon" />
-                </Col>
-                <Col span={8}>
-                  <p className="admin-home-number"> {pagination.total} </p>
-                  <p className="admin-home-text">ข่าวทั้งหมด</p>
-                </Col>
-              </Row>
-            </div>
-          </Col>
-          <Col xs={24} sm={12} md={12} lg={8} xl={8}>
-            <div className="admin-home-box-center">
-              <Row align="middle" style={{ height: "100%" }}>
-                <Col span={8} offset={4}>
-                  <SendOutlined className="admin-home-icon" />
-                </Col>
-                <Col span={8}>
-                  <p className="admin-home-number"> {total.sdnt} </p>
-                  <p className="admin-home-text">ข่าวอนุมัติ</p>
-                </Col>
-              </Row>
-            </div>
-          </Col>
-          <Col xs={24} sm={12} md={12} lg={8} xl={8}>
-            <div className="admin-home-box-right">
-              <Row align="middle" style={{ height: "100%" }}>
-                <Col span={8} offset={4}>
-                  <EditOutlined className="admin-home-icon" />
-                </Col>
-                <Col span={8}>
-                  <p className="admin-home-number"> {total.draft} </p>
-                  <p className="admin-home-text">ข่าวรอตรวจสอบ</p>
-                </Col>
-              </Row>
-            </div>
-          </Col>
+          <Box
+            color="var(--error-color)"
+            icon={<UnorderedListOutlined />}
+            text="ทั้งหมด"
+            number={paginations.total}
+          />
+          <Box
+            color="var(--success-color)"
+            icon={<SendOutlined />}
+            text="อนุมัติ"
+            number={total.sdnt}
+          />
+          <Box
+            color="var(--warning-color)"
+            icon={<EditOutlined />}
+            text="รอตรวจสอบ"
+            number={total.draft}
+          />
         </Row>
         <Row gutter={8} style={{ marginTop: "20px" }}>
           <Col flex="auto" xs={24} sm={12} md={12} lg={16} xl={16}>
@@ -402,21 +365,19 @@ const Home = () => {
           loading={loading}
           columns={columns}
           dataSource={dataSource}
-          setPagination={setPagination}
-          pagination={pagination}
+          setPagination={setPaginations}
+          pagination={paginations}
         />
         <Modals
           isModalVisible={isModalVisible}
           onOk={modalData.onOk}
-          onCancel={offModal}
+          onCancel={() => setIsModalVisible(false)}
           modalData={modalData}
         >
           {modalData.type === "show" ? (
-            <div style={{ marginTop: "5px" }}>{modalData.content}</div>
+            <div>{modalData.content}</div>
           ) : (
-            <p className="truncate-text" style={{ marginTop: "5px" }}>
-              {modalData.content}
-            </p>
+            <p className="truncate-text">{modalData.content}</p>
           )}
         </Modals>
       </Content>

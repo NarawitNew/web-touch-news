@@ -41,7 +41,7 @@ const Siderbar = (props) => {
         >
           <Link to="/home">หน้าแรก</Link>
         </Menu.Item>
-        {type === "superadmin" ? (
+        {type === "superadmin" && (
           <Menu.Item
             key="/manage"
             onClick={() => setActiveMenu("/manage")}
@@ -49,7 +49,7 @@ const Siderbar = (props) => {
           >
             <Link to="/manage">ผู้ดูแลระบบ</Link>
           </Menu.Item>
-        ) : null}
+        )}
         <Menu.Item
           key="/profile"
           onClick={() => setActiveMenu("/profile")}

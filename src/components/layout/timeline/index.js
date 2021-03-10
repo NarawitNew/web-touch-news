@@ -8,9 +8,9 @@ import {
 import React, { useEffect, useState } from "react";
 
 import { Timeline } from "antd";
-import config from "config";
-import { httpClient } from "HttpClient";
+import { getDataRead } from "core/actions/collection";
 import moment from "moment";
+import { time } from "core/schemas/index";
 
 const Timelines = (props) => {
   const [timeLine, setTimeLine] = useState(null);
@@ -19,11 +19,11 @@ const Timelines = (props) => {
   }, [props.idNews]);
 
   const color = {
-    Submit: "blue",
-    Approve: "#73d13d",
-    Public: "red",
-    Edit: "orange",
-    Draft: "grey",
+    Submit: "var(--link-color)",
+    Approve: "var(--success-color)",
+    Public: "var(--error-color)",
+    Edit: "var(--warning-color)",
+    Draft: "var(--primary-color)",
   };
 
   const iconTimeLine = {
@@ -40,12 +40,10 @@ const Timelines = (props) => {
   };
 
   const getTimeLine = () => {
-    httpClient
-      .get(config.REACT_APP_BASEURL + "/news/timeline/" + props.idNews)
+    getDataRead(time, props.idNews)
       .then(function (response) {
-        const code = response.data.code;
-        const data = response.data.data.timeline;
-        if (code === 200) {
+        const data = response?.data?.timeline || "";
+        if (response?.code === 200) {
           const dataMap = data.map((item, key) => {
             if (item.Role === "superadmin") {
               item = (
@@ -53,12 +51,8 @@ const Timelines = (props) => {
                   position="right"
                   key={key}
                   dot={iconTimeLine[item.Status]}
-                  label={
-                    <div style={{ color: color[item.Status] }}>
-                      {item.Status}
-                    </div>
-                  }
                 >
+                  <div style={{ color: color[item.Status] }}>{item.Status}</div>
                   By.{item.ByID}
                   <br />
                   {dateShow(item.Date)}
@@ -70,12 +64,8 @@ const Timelines = (props) => {
                   position="left"
                   key={key}
                   dot={iconTimeLine[item.Status]}
-                  label={
-                    <div style={{ color: color[item.Status] }}>
-                      {item.Status}
-                    </div>
-                  }
                 >
+                  <div style={{ color: color[item.Status] }}>{item.Status}</div>
                   By.{item.ByID}
                   <br />
                   {dateShow(item.Date)}

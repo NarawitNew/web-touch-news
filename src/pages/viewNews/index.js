@@ -13,14 +13,15 @@ import {
   message,
 } from "antd";
 import { DeleteOutlined, EditOutlined, MoreOutlined } from "@ant-design/icons";
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
+import { deleteData, getDataRead, putData } from "core/actions/collection";
+import { news, newsRead, newsStatus } from "core/schemas/index";
 
+import { Context } from "context";
 import { FroalaView } from "components/layout/froala/index";
 import { Link } from "react-router-dom";
 import Modals from "components/layout/modal";
 import Timeline from "components/layout/timeline";
-import config from "config";
-import { httpClient } from "HttpClient";
 import imgError from "assets/image/img_error2.png";
 
 const { Content } = Layout;
@@ -28,11 +29,12 @@ const { Option } = Select;
 const { TextArea } = Input;
 
 const View = (props) => {
+  const context = useContext(Context);
   const params = props.match.params;
-  const role = localStorage.getItem("role");
+  const role = context.user.role;
   const [dataNews, setDataNews] = useState({});
-  const [statusNews, setStatusNews] = useState();
-  const [cause, setCause] = useState();
+  const [statusNews, setStatusNews] = useState("");
+  const [cause, setCause] = useState("");
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [modalData, setModalData] = useState({
     type: "",
@@ -48,17 +50,14 @@ const View = (props) => {
   }, [params]);
 
   const getData = () => {
-    httpClient
-      .get(config.REACT_APP_BASEURL + "/news/info/" + params.id)
+    getDataRead(newsRead, params.id)
       .then(function (response) {
-        const code = response.data.code;
-        const data = response.data.data;
-        const hashtag = response.data.data.hashtag;
-        const credit = response.data.data.credit;
-        if (code === 200) {
+        const data = response?.data || "";
+        const { hashtag, credit } = response?.data || "";
+        if (response?.code === 200) {
           const hashtagMap = hashtag.map((hashtag, key) => {
             hashtag = (
-              <Tag key={key} color="#87d068">
+              <Tag key={key} color="var(--success-color)">
                 {hashtag}
               </Tag>
             );
@@ -66,7 +65,7 @@ const View = (props) => {
           });
           const creditMap = credit.map((credit, key) => {
             credit = (
-              <Tag key={key} color="#108ee9">
+              <Tag key={key} color="var(--link-color)">
                 {credit}
               </Tag>
             );
@@ -84,32 +83,19 @@ const View = (props) => {
       });
   };
 
-  const handleSelectStatus = (value) => {
-    setStatusNews(value);
-  };
-
-  const changeCause = ({ target: { value } }) => {
-    setCause(value);
-  };
-
   const submitUpdate = (status) => {
     const setData = JSON.stringify({
       status: status,
       cause: cause,
     });
-    httpClient
-      .put(
-        config.REACT_APP_BASEURL + "/news/update_status/" + params.id,
-        setData
-      )
+    putData(newsStatus, params.id, setData)
       .then(function (response) {
-        const code = response.data.code;
-        if (code === 200) {
-          message.success(response.data.message);
+        if (response?.code === 200) {
+          message.success(response?.message);
           setDataNews({ ...dataNews, status: status });
           props.history.push(`/home`);
         } else {
-          message.success(response.data.message);
+          message.error(response?.message);
         }
       })
       .catch(function (error) {
@@ -122,34 +108,25 @@ const View = (props) => {
       type: "confirm",
       icon: <DeleteOutlined className="manage-icon-delete" />,
       title: "คุณต้องการลบข่าวนี้ หรือไม่ ! ",
-      okColor: "red",
+      okColor: "var(--error-color)",
       okText: "ลบ",
       onOk() {
-        offModal();
-        httpClient
-          .delete(config.REACT_APP_BASEURL + "/news/" + params.id)
+        setIsModalVisible(false);
+        deleteData(news, params.id)
           .then(function (response) {
-            const code = response.data.code;
-            if (code === 200) {
-              message.success(response.data.message);
+            if (response?.code === 200) {
+              message.success(response?.message);
               props.history.push("/home");
             }
           })
           .catch(function (error) {
             console.log(error);
-            message.error(error.data.message);
+            message.error(error?.message);
           });
       },
       content: dataNews.topic,
     });
-    onModal();
-  };
-  const onModal = () => {
     setIsModalVisible(true);
-  };
-
-  const offModal = () => {
-    setIsModalVisible(false);
   };
 
   const onErrorImg = (e) => {
@@ -157,39 +134,39 @@ const View = (props) => {
   };
 
   const menu = () => {
-    if (dataNews.status === "Draft" || dataNews.status === "Edit") {
-      return (
-        <Menu>
-          <Menu.Item>
-            <Link to={`/home/edit/${params.id}`}>
-              <EditOutlined style={{ color: "orange" }}></EditOutlined>
-              แก้ไข
-            </Link>
-          </Menu.Item>
-          <Menu.Item
-            onClick={() => {
-              onDelete();
-            }}
-          >
-            <DeleteOutlined style={{ color: "red" }}></DeleteOutlined>
-            ลบ
-          </Menu.Item>
-        </Menu>
-      );
-    } else {
-      return (
-        <Menu>
-          <Menu.Item disabled>
-            <EditOutlined style={{ color: "#DADADA" }}></EditOutlined>
+    return (
+      <Menu>
+        <Menu.Item disabled={dataNews.status === "Draft" ? false : true}>
+          <Link to={`/home/edit/${params.id}`}>
+            <EditOutlined
+              style={{
+                color:
+                  dataNews.status === "Draft"
+                    ? "var(--warning-color)"
+                    : "var(--gray-color)",
+              }}
+            ></EditOutlined>
             แก้ไข
-          </Menu.Item>
-          <Menu.Item disabled>
-            <DeleteOutlined style={{ color: "#DADADA" }}></DeleteOutlined>
-            ลบ
-          </Menu.Item>
-        </Menu>
-      );
-    }
+          </Link>
+        </Menu.Item>
+        <Menu.Item
+          disabled={dataNews.status === "Draft" ? false : true}
+          onClick={() => {
+            onDelete();
+          }}
+        >
+          <DeleteOutlined
+            style={{
+              color:
+                dataNews.status === "Draft"
+                  ? "var(--error-color)"
+                  : "var(--gray-color)",
+            }}
+          ></DeleteOutlined>
+          ลบ
+        </Menu.Item>
+      </Menu>
+    );
   };
 
   return (
@@ -261,7 +238,7 @@ const View = (props) => {
                   <Input.Group>
                     <Select
                       placeholder={statusNews}
-                      onChange={handleSelectStatus}
+                      onChange={(value) => setStatusNews(value)}
                       className="view-Input-Group"
                     >
                       <Option value="Draft">Draft</Option>
@@ -273,7 +250,7 @@ const View = (props) => {
               </Row>
               <Row>
                 <Col span={20} offset={4}>
-                  {statusNews === "Draft" ? (
+                  {statusNews === "Draft" && (
                     <div className="view-Input-TextArea">
                       <div style={{ color: "red" }}>
                         *กรุณากรอกสิ่งที่ต้องแก้ไข
@@ -281,10 +258,10 @@ const View = (props) => {
                       <TextArea
                         value={cause}
                         autoSize={{ minRows: 1, maxRows: 5 }}
-                        onChange={changeCause}
+                        onChange={({ target: { value } }) => setCause(value)}
                       />
                     </div>
-                  ) : null}
+                  )}
                 </Col>
               </Row>
             </Col>
@@ -337,7 +314,7 @@ const View = (props) => {
         <Modals
           isModalVisible={isModalVisible}
           onOk={modalData.onOk}
-          onCancel={offModal}
+          onCancel={() => setIsModalVisible(false)}
           modalData={modalData}
         >
           <p className="truncate-text">{modalData.content}</p>
