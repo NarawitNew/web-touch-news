@@ -5,15 +5,18 @@ import React from "react";
 import { BrowserRouter as Router } from "react-router-dom";
 import Sider from 'components/layout/sider/index';
 
-function App() {
+function App(props) {
+  // console.log('props', props)
+  const type = localStorage.getItem('role')
+
   return (
-    <Layout breakpoint='lg' style={{ minHeight: '100vh' }} >
+    <Layout breakpoint='xl' style={{ minHeight: '100vh' }} >
       <Header></Header>
       <Layout>
       <Router>
-        <Sider></Sider>
+        <Sider {...props}></Sider>
         <Layout style={{ padding: '0 24px 24px' }}>
-          <Content></Content>
+          <Content type={type}></Content>
         </Layout>
         </Router>
       </Layout>
