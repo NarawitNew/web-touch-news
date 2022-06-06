@@ -1,19 +1,41 @@
-import React from 'react'
-import { Switch, Route } from "react-router-dom"
-import Home from 'constants/home/index'
-import Manage from 'constants/manage/index'
-import Profile from 'constants/profile/index'
-import ViewNews from 'constants/viewNews/index'
+import { Route, Switch } from "react-router-dom"
 
-export default function Routers() {
+import CreateNews from 'pages/admin/createNews/index'
+import HomeAdmin from 'pages/admin/home/index'
+import HomeSuper from 'pages/super/home/index'
+import Manage from 'pages/super/manage/index'
+import Profile from 'pages/profile/index'
+import React from 'react'
+import ViewNews from 'pages/viewNews/index'
+
+export default function Routers(props) {
     return (
-        <Switch>
-            <Route exact component={Home} path="/"></Route>
-            <Route exact path="/home/view"><ViewNews /></Route>
-            <Route exact component={Home} path="/home"></Route>
-            <Route path="/manage/profile"><Profile type='manage' title='ผู้ดูแลระบบ'></Profile></Route>
-            <Route component={Manage} path="/manage"></Route>
-            <Route component={Profile} path="/profile"><Profile type='' title='โปรไฟล์'></Profile></Route>
-        </Switch>
+        <>
+            {props.type === 'super' ?
+                <Switch>
+                    <Route exact component={HomeSuper} path="/"></Route>
+                    <Route component={ViewNews} path="/home/view"></Route>
+                    <Route component={HomeSuper} path="/home"></Route>
+                    <Route component={Profile} path="/:state/profile/:id" ></Route>
+                    <Route component={Manage} path="/manage"></Route>
+                    <Route component={Profile} path="/profile/:id"></Route>
+                    {/* <Profile type='' title='โปรไฟล์'></Profile> */}
+                    {/* <Profile type='manage' title='ผู้ดูแลระบบ'></Profile> */}
+                </Switch>
+                :
+                <Switch>
+                    <Route exact component={HomeAdmin} path="/"></Route>
+                    <Route component={CreateNews} path="/home/:type/:id"></Route>
+                    <Route component={CreateNews} path="/home/:type"></Route>
+                    <Route component={ViewNews} path="/home/view"></Route>
+                    <Route component={HomeAdmin} path="/home"></Route>
+                    <Route component={Profile} path="/:state/profile/:id" ></Route>
+                    <Route component={Manage} path="/manage"></Route>
+                    <Route component={Profile} path="/profile/:id"></Route>
+                    <Profile type='' title='โปรไฟล์'></Profile>
+                    {/* <Profile type='manage' title='ผู้ดูแลระบบ'></Profile> */}
+                </Switch>
+            }
+        </>
     );
 }
