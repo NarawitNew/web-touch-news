@@ -1,8 +1,3 @@
-const baseUrlServer = 'http://auth.devhubbravo.com/v1';
+const setting = { ...process.env };
 
-const config = {
- authanURL: baseUrlServer,
-
-};
-
-export default config;
+export default setting;
