@@ -10,7 +10,7 @@ import { createBrowserHistory } from 'history'
 const customHistory = createBrowserHistory()
 
 const Root = () => {
-  console.log(localStorage.getItem('token'))
+  // console.log(localStorage.getItem('token'))
   const token = localStorage.getItem('token')
 
   if (!token) {
