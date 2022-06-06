@@ -10,8 +10,8 @@ import { createBrowserHistory } from 'history'
 const customHistory = createBrowserHistory()
 
 const Root = () => {
-  console.log(localStorage.getItem('token'))
-  const token = localStorage.getItem('token')
+  // console.log(localStorage.getItem('token'))
+  const token = localStorage.getItem('access_token')
 
   if (!token) {
     customHistory.replace('/login')
@@ -22,6 +22,7 @@ const Root = () => {
       <Router history={customHistory}>
         <Switch>
           {token ? <Route component={App} /> : <Route component={Login} />}
+          
         </Switch>
       </Router>
     </div>

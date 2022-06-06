@@ -1,51 +1,49 @@
-import config from 'config'
+import { Button, Checkbox, Form, Input, message } from 'antd';
+import React, { useContext, useState } from "react";
+import { UnlockOutlined, UserOutlined } from '@ant-design/icons';
+
+import { Context } from '../../context'
 import axios from 'axios'
-import sha256 from 'js-sha256'
-import FormData from 'form-data'
-import React, { useState } from "react";
-import { Form, Input, Button, Checkbox, message } from 'antd';
-import { UserOutlined, UnlockOutlined } from '@ant-design/icons';
+import config from 'config'
 
 const Login = (props) => {
-    const [username, setUsername] = useState((localStorage.getItem('checkbox') ? localStorage.getItem('email') : ''))
-    const [password, setPassword] = useState((localStorage.getItem('checkbox') ? localStorage.getItem('password') : ''))
-    const [isCheckbox, setIsCheckbox] = useState((localStorage.getItem('checkbox')=== 'true' ? true : false))
-    
-    console.log('isCheckbox', isCheckbox)
+    const context = useContext(Context)
+    const [username] = useState((localStorage.getItem('checkbox') ? localStorage.getItem('email') : ''))
+    const [password] = useState((localStorage.getItem('checkbox') ? localStorage.getItem('password') : ''))
+    const [isCheckbox, setIsCheckbox] = useState((localStorage.getItem('checkbox') === 'true' ? true : false))
     const onFinish = values => {
         if (isCheckbox && values.username !== "") {
             localStorage.setItem('email', values.username)
             localStorage.setItem('password', values.password)
             localStorage.setItem('checkbox', isCheckbox)
-        }else if(isCheckbox === false){
+        } else if (isCheckbox === false) {
             localStorage.setItem('email', '')
             localStorage.setItem('password', '')
             localStorage.setItem('checkbox', isCheckbox)
         }
-        // const params = {
-        //     email: values.username,
-        //     password: values.password,
-        //     role: 'admin',
-        //     service: 'timelapse-service'
-        // }
-        let setData = new FormData();
-        setData.append('email', values.username);
-        setData.append('password', sha256.hmac("sil-dkigx]ujpocx]'my=", values.password));
-        setData.append('role', 'admin');
-        setData.append('service', 'timelapse-service');
 
-        axios.post(`${config.authanURL}/login`, setData)
+        const setData = JSON.stringify({
+            "email": `${values.username}`,
+            "password": `${values.password}`
+        })
+        axios.post(config.REACT_APP_BASEURL + '/login', setData)
             .then(function (response) {
-                // console.log('response', response.data.code)
+                console.log('response', response)
                 if (response.data.code === 200) {
+                    console.log('login_context.user', context.user)
+                    console.log('response.data.data.first_name', response.data.data.first_name)
+                    localStorage.setItem('refresh_token', response.data.data.refresh_token)
+                    localStorage.setItem('access_token', response.data.data.access_token)
+                    localStorage.setItem('role', response.data.data.role)
+                    localStorage.setItem('id', response.data.data.id)
+
                     message.success(response.data.message)
-                    localStorage.setItem('token', response.data.data.access_token)
+                    console.log('response.data.message', response.data.message)
                     props.history.push("/home")
                     window.location.reload()
                 } else {
                     message.error(response.data.message)
                 }
-                // console.log(JSON.stringify(response.data));
             })
             .catch(function (error) {
                 console.log(error);
@@ -55,11 +53,12 @@ const Login = (props) => {
     const onCheckbox = (e) => {
         setIsCheckbox(e.target.checked)
     }
+    
     return (
         <div className="Login">
             <div className="Login-box">
                 <div className="Login-herde">
-                    T<p style={{ display: "inline-block", color: "#216258" }}>o</p>uch K<p style={{ display: "inline-block", color: "#216258" }}>o</p>rat News
+                    T<p className="login-text-o" >o</p>uch K<p className="login-text-o">o</p>rat News
                 </div>
 
                 <div className="Login-form">
@@ -69,17 +68,17 @@ const Login = (props) => {
                     >
                         <Form.Item
                             name="username"
-                            rules={[{  message: 'Please input your username!' }]}
+                            rules={[{ required: true, message: 'Please input your username!' }]}
                         >
                             <Input value="s" size="large" placeholder="ชื่อผู้ใช้งาน" prefix={<UserOutlined />}
-                                onChange={e => setUsername(e.target.value)} />
+                            />
                         </Form.Item>
                         <Form.Item
                             name="password"
                             rules={[{ required: true, message: 'Please input your password!' }]}
                         >
                             <Input.Password size="large" placeholder="รหัสผ่าน" prefix={<UnlockOutlined />}
-                                onChange={e => setPassword(e.target.value)} />
+                            />
                         </Form.Item>
                         <Form.Item name="isCheckbox" >
                             <Checkbox checked={isCheckbox} onChange={onCheckbox}>บันทึกรหัสผ่าน</Checkbox>
