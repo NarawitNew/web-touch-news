@@ -1,20 +1,20 @@
-import Content from 'components/router/index';
-import Header from 'components/layout/header/index';
-import { Layout } from 'antd';
+import Content from "components/router/index";
+import Header from "components/layout/header/index";
+import { Layout } from "antd";
 import React from "react";
 import { BrowserRouter as Router } from "react-router-dom";
-import Sider from 'components/layout/sider/index';
+import Sider from "components/layout/sider/index";
 
-function App() {
+function App(props) {
   return (
-    <Layout breakpoint='lg' style={{ minHeight: '100vh' }} >
-      <Header></Header>
+    <Layout breakpoint="xl" style={{ minHeight: "100vh" }}>
+      <Header />
       <Layout>
-      <Router>
-        <Sider></Sider>
-        <Layout style={{ padding: '0 24px 24px' }}>
-          <Content></Content>
-        </Layout>
+        <Router>
+          <Sider {...props} />
+          <Layout style={{ padding: "0 24px 24px" }}>
+            <Content />
+          </Layout>
         </Router>
       </Layout>
     </Layout>

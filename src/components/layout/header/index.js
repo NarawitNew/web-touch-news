@@ -1,58 +1,90 @@
-import config from 'config'
-import axios from 'axios'
-import { Layout, Row, Col, Tooltip, Avatar, Badge} from 'antd';
-import { ExportOutlined , BellOutlined } from '@ant-design/icons';
+import { Avatar, Col, Layout, Row, Tooltip } from "antd";
+import React, { useContext, useEffect, useState } from "react";
+import { getDataRead, postData } from "core/actions/collection";
+import { logout, user } from "core/schemas/index";
 
-const { Header} = Layout;
-const username = "narawit"
+import { Context } from "../../../context";
+import { ExportOutlined } from "@ant-design/icons";
+
+const { Header } = Layout;
 
 const Headerbar = () => {
-    const onLogout = () => {
-        axios.post(`${config.authanURL}/logout`,null)
-          .then(function (response) {
-            console.log('response:', response.data)
-            if (response.data) {
-                localStorage.setItem('token', '')
-                window.location.reload()
-            } else {
-            }
-          })
-          .catch(function (error) {
-            console.log(error);
-            
+  const context = useContext(Context);
+  const users = context.user;
+  const [dataUser, setDataUser] = useState({
+    image: "",
+    firstname: "",
+  });
+
+  useEffect(() => {
+    getData();
+  }, [users.firstname, users.lastname, users.image]);
+
+  const getData = () => {
+    const setData = localStorage.getItem("id");
+    getDataRead(user, setData)
+      .then(function (response) {
+        const code = response?.code;
+        const data = response?.data || "";
+        if (code === 200) {
+          setDataUser({
+            image: data.image,
+            firstname: data.firstname,
           });
-      }
-    return (
-        <Header className="header">
-                <Row>
-                    <Col span={8}>
-                        <div className="header-text">
-                            touch korat news
-                        </div>
-                    </Col>
-                    <Col span={8} offset={8}>
-                        <Row justify="end">
-                            <Col>
-                                <Avatar
-                                    size={40}
-                                    src="https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png"
-                                />
-                            </Col>
-                            <Col className="header-name">{username}</Col>
-                            <Col className="header-col-icon">
-                            <Badge count={1} size="small">
-                                <BellOutlined className="header-icon" /> 
-                                </Badge>
-                            </Col>
-                            <Col>
-                                <Tooltip placement="bottomRight" title="ออกจากระบบ" >
-                                    <ExportOutlined  className="header-icon" onClick={onLogout}/>
-                                </Tooltip>
-                            </Col>
-                        </Row>
-                    </Col>
-                </Row>
-            </Header>
-    );
-}
-export default Headerbar
+          context.setData({
+            id: data.id,
+            role: data.role,
+            email: data.email,
+            image: data.image,
+            firstname: data.firstname,
+            lastname: data.lastname,
+          });
+        }
+      })
+      .catch(function (error) {
+        console.log(error);
+      });
+  };
+
+  const onLogout = () => {
+    postData(logout)
+      .then(function (response) {
+        const code = response?.code || "";
+        if (code === 200) {
+          localStorage.clear();
+          window.location.href = "/login";
+        }
+      })
+      .catch(function (error) {
+        console.log(error);
+      });
+  };
+
+  return (
+    <Header className="header">
+      <Row>
+        <Col span={12}>
+          <div className="header-text">
+            T<p className="login-text-o">o</p>uch k
+            <p className="login-text-o">o</p>rat news
+          </div>
+        </Col>
+        <Col span={12}>
+          <Row justify="end">
+            <Col>
+              <Avatar size={40} src={dataUser.image} />
+            </Col>
+            <Col className="header-name">{dataUser.firstname}</Col>
+            <Col>
+              <Tooltip placement="bottomRight" title="ออกจากระบบ">
+                <ExportOutlined className="header-icon" onClick={onLogout} />
+              </Tooltip>
+            </Col>
+          </Row>
+        </Col>
+      </Row>
+    </Header>
+  );
+};
+
+export default Headerbar;
