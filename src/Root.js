@@ -1,20 +1,18 @@
-import 'App.less';
+import "App.less";
 
-import { Route, BrowserRouter as Router, Switch } from 'react-router-dom'
+import { Route, BrowserRouter as Router, Switch } from "react-router-dom";
 
-import App from './App'
-import Login from 'pages/login/index'
-import React from 'react'
-import { createBrowserHistory } from 'history'
+import App from "./App";
+import Login from "pages/login/index";
+import React from "react";
+import { createBrowserHistory } from "history";
 
-const customHistory = createBrowserHistory()
+const customHistory = createBrowserHistory();
 
 const Root = () => {
-  console.log(localStorage.getItem('token'))
-  const token = localStorage.getItem('token')
-
+  const token = localStorage.getItem("access_token");
   if (!token) {
-    customHistory.replace('/login')
+    customHistory.replace("/login");
   }
 
   return (
@@ -25,10 +23,7 @@ const Root = () => {
         </Switch>
       </Router>
     </div>
-  )
-}
+  );
+};
 
-export default Root
-
-
-
+export default Root;
